@@ -10,19 +10,33 @@
 
 module various
 
+#Add directories to Julia's default load path
+
+push!(LOAD_PATH,"$(pwd())/CBlock")
+push!(LOAD_PATH,"$(pwd())/LPsolver")
+push!(LOAD_PATH,"$(pwd())/LUdecomp")
+push!(LOAD_PATH,"$(pwd())/Minimizer")
+push!(LOAD_PATH,"$(pwd())/QFunc")
+push!(LOAD_PATH,"$(pwd())/Bootstrap")
+#
+
 import consts
 import Base: deepcopy,dot
-export derivative, pochhammer, padL, padR, value, tofloat,msum,mplus,msub,mdiv,mpow,mmult,MPFR_clear, deepcopy, mcopy, onebf,zerobf, dot
+export derivative, pochhammer, padL, padR, value, tofloat,msum,mplus,msub,mdiv,mpow,mmult,MPFR_clear, mcopy, onebf,zerobf
 
-# Methods
+
 
 const ROUNDING_MODE = [0]
 const DEFAULT_PRECISION = [consts.PRECISION]
 
+# Methods
 
-
-
+#---- Seem to remember there was a problem with using gamma function ratios in Julia for bigfloats..
 pochhammer(x::Number,n::Int64)= n>0 ? (x+n-1)*pochhammer(x,n-1) : 1
+#pochhammer(x::Number,y::Number)=gamma(x+y)/gamma(x)
+#------------------
+
+
 padL{T}(p::Array{T,1},n::Int64)=vcat(zeros(T,n), p)      # padleft and padright with zeros
 padR{T}(p::Array{T,1},n::Int64)=vcat(p,zeros(T,n))
 tofloat(x::Number)=convert(Float64,x)
@@ -70,7 +84,6 @@ for (fJ, fC) in ((:mplus,:add), (:msub,:sub), (:mmult,:mul), (:mdiv,:div), (:mpo
     end
 end
 
-# new added on June 5/14
 
 for f in (:mplus,:msub,:mmult,:mdiv,:mpow)
         @eval begin
@@ -80,22 +93,10 @@ for f in (:mplus,:msub,:mmult,:mdiv,:mpow)
         end
 end
 
-#mpow(o::BigFloat,x::BigFloat,y::Real)=mpow(o,x,convert(BigFloat,y))
-#mpow(x::BigFloat,y::Float64)=mpow(x,x,y)
-
 function mpow(x::BigFloat, y::Signed)
     ccall((:mpfr_pow_si, :libmpfr), Int32, (Ptr{BigFloat}, Ptr{BigFloat}, Clong, Int32), &x, &x, y, ROUNDING_MODE[end])
     return x
 end
-
-
-
-function mpow(x::BigFloat, y::Signed)
-    ccall((:mpfr_pow_si, :libmpfr), Int32, (Ptr{BigFloat}, Ptr{BigFloat}, Clong, Int32), &x, &x, y, ROUNDING_MODE[end])
-    return x
-end
-
-
 
 function mpow(z::BigFloat,x::BigFloat, y::Signed)
     ccall((:mpfr_pow_si, :libmpfr), Int32, (Ptr{BigFloat}, Ptr{BigFloat}, Clong, Int32), &z, &x, y, ROUNDING_MODE[end])
@@ -180,10 +181,9 @@ function dot(a::Array{BigFloat,1},b::Array{BigFloat,1})
              mmult(tmp,a[i],b[i])
              mplus(res,tmp)
          end
-
          return res
 end
 
-
+#------
 
 end
