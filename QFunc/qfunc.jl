@@ -11,7 +11,7 @@ using various                          #with this, can use functions in various 
 import various: derivative, padL, padR, value, tofloat, msum, msub,mmult, mdiv,mplus,mcopy   #we will extend the definitions of derivative, padL, padR;
                                         # to do this, Julia requires explicit import
 
-import Base: convert, promote_rule, promote, isequal, getindex, setindex!, length, +, -, *, /, show, dot, endof
+import Base: convert, promote_rule, promote, isequal, getindex, setindex!, length, +, -, *, /,==, show, dot, endof
 export Polynomial, QFunc, pochhammer, value, fastvalue, trim!,Pole,residue, Qpiece, invert, shift_arg, derivative
 
 
@@ -69,6 +69,8 @@ end
 
 
 # Methods  ------------------------------------------------------------
+
+==(a::Polynomial,b::Polynomial)= (a.coeffs==b.coeffs)
 
 #--------- ALGEBRA
 
