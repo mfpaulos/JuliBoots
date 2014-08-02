@@ -36,7 +36,7 @@ abstract Qpiece  #a piece of a rational function
 #########################################################################
 
 
-# Types   ----------------------------------------------------------------
+# Types and constructors  ----------------------------------------------------------------
 
 type Polynomial{T<:Real} <:Qpiece
 
@@ -57,7 +57,7 @@ function show(io::IO, r::Polynomial)
    pm(x,i)= x < 0 ? " - $(-x) X^$i" : " + $x X^$i"
 
    z=convert(Array{Float64,1},r.coeffs)
-   if length(z)<=4
+   if length(z)<=5
          print(io, z[1])
          for i=2:length(z) print(io,pm(z[i],i-1)) end
    else
@@ -81,7 +81,7 @@ function +(a::Polynomial,b::Polynomial)
         return Polynomial(l.coeffs+ss.coeffs)
 end
 
-# In place --
+# Operations in place for bigfloat polynomials
 
 for fJ in (:mplus,:msub)
     @eval begin
@@ -108,8 +108,6 @@ for fJ in (:mplus,:msub)
     end
 end
 #---
-
-
 
 
 # -----------
@@ -148,7 +146,6 @@ end
 
 
 # ----- Poly multiplication using divide and conquer algorithm ---
-# ----- Notice there is a typo in the note, one of the shifts should be by 2m, not n
 
 function *(pp::Polynomial, qq::Polynomial)
 
@@ -377,9 +374,6 @@ convert{T<:Real}(::Type{QFunc},x::T) = convert(QFunc{T},convert(Polynomial,x))
 #----- sum -----------------------------------
 
 
-fastplus(a::QFunc,b::QFunc)=QFunc(a.poly+b.poly,[Pole(a.poles[i].order,a.poles[i].pole,a.poles[i].coeff+b.poles[i].coeff) for i=1:length(a.poles)])
-
-
 function +(a::QFunc,b::QFunc)
 
     polelist1=a.poles
@@ -572,12 +566,6 @@ end
 
 
 
-
-
-
-#value1{T<:Real}(f::QFunc{T},x::T)=mplus(value(f.poly,x),msum([value(p,x) for p in f.poles]))
-#value1{T<:Real}(f::QFunc{T},x::T,output::T)=mplus(output,value(f.poly,x,output),msum([value(p,x) for p in f.poles]))
-
 value(f::QFunc{BigFloat},x::Real)=(output=zero(BigFloat); value(f,x,output))
 
 function value(f::QFunc{BigFloat},x::Real,output::BigFloat)
@@ -597,7 +585,6 @@ end
 value{T<:Real}(fvec::Array{QFunc{T},1},x::T)=[value(fi,x)::T for fi in fvec]
 
 #This is supposed to be faster; gives values quicker when we have an array of QFuncs which share the same poles.
-#Maybe I should create a new Type precisely for this?
 #NOTE: Actually it doesn't seem to lead to any particular improvement.
 
 function fastvalue(fvec::Array{QFunc{BigFloat},1},x::Real)
@@ -623,11 +610,6 @@ end
 
 
 shift_arg(qf::QFunc,x::Real)=QFunc(shift_arg(qf.poly,x),shift_arg(qf.poles,x))
-
-
-
-
-
 
 function trim{T<:Real}(qff::QFunc{T},cutoff::T)
 
