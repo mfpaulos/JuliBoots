@@ -21,10 +21,9 @@ if q==p println("check.") end
 
 
 
-q=Polynomial([4.,6.])
-
-
-
+poly=Polynomial([bf(4),bf(6)])
+pole=Pole(1,BigFloat(2),BigFloat(3))
+q=poly+pole
 
 
 end

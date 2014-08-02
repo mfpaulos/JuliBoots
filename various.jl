@@ -164,7 +164,8 @@ end
 
 
 mcopy(b::BigFloat)=(a=BigFloat(1); mcopy(a,b))
-mcopy(b::Array{BigFloat})=(a=Array(BigFloat,0); for i=1:length(b) push!(a,mcopy(b[i])) end; return reshape(a,size(b)))
+#mcopy(b::Array{BigFloat})=(a=Array(BigFloat,0); for i=1:length(b) push!(a,mcopy(b[i])) end; return reshape(a,size(b)))
+mcopy{T<:Any}(b::Array{T})=(a=Array(T,0); for i=1:length(b) push!(a,mcopy(b[i])) end; return reshape(a,size(b)))
 mcopy(o::(BigFloat,BigFloat),a::(BigFloat,BigFloat))=(mcopy(o[1],a[1]),mcopy(o[2],a[2]))::(BigFloat,BigFloat)
 mcopy(a::(BigFloat,BigFloat))=(mcopy(a[1]),mcopy(a[2]))::(BigFloat,BigFloat)
 

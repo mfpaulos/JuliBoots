@@ -374,7 +374,7 @@ convert{T<:Real}(::Type{QFunc},x::T) = convert(QFunc{T},convert(Polynomial,x))
 #----- sum -----------------------------------
 
 
-function +(a::QFunc,b::QFunc)
+function +{T<:Real}(a::QFunc{T},b::QFunc{T})
 
     polelist1=a.poles
     polelist2=b.poles
@@ -389,7 +389,9 @@ function +(a::QFunc,b::QFunc)
             return QFunc(a.poly+b.poly,[Pole(pld1[i],pls1[i],polelist1[i].coeff+polelist2[i].coeff) for i=1:length(polelist1)])
     end
 
-    polelist_res=deepcopy(polelist1)
+    polelist_res= T==BigFloat ? mcopy(polelist1) : deepcopy(polelist1)
+
+
 
     for i=1:length(polelist2)
             tmp=polelist2[i]
@@ -402,22 +404,9 @@ function +(a::QFunc,b::QFunc)
             end
     end
 
-
-
-    #trim pole: there should be a more clever way to do this...
-
-    #ples=Array(Pole,0)
-    #for i=1:length(polelist_res)
-    #       if polelist_res[i].coeff!=zero(polelist_res[i].coeff) push!(ples,polelist_res[i]) end
-    #end
     ples=polelist_res
-
-
     if length(ples)==0 return convert(QFunc,a.poly+b.poly) end
-
-
     return QFunc(a.poly+b.poly,ples)
-
 end
 
 
@@ -556,12 +545,6 @@ function dot{T<:Real}(o::QFunc{bf},a::Array{T,1},b::Array{QFunc{bf},1})
         return o
 end
 
-
-
-
-
-
-
 #------------ VARIOUS METHODS
 
 
@@ -585,7 +568,7 @@ end
 value{T<:Real}(fvec::Array{QFunc{T},1},x::T)=[value(fi,x)::T for fi in fvec]
 
 #This is supposed to be faster; gives values quicker when we have an array of QFuncs which share the same poles.
-#NOTE: Actually it doesn't seem to lead to any particular improvement.
+#NOTE: Actually it doesn't seem to lead to any particular improvement. Not currently used.
 
 function fastvalue(fvec::Array{QFunc{BigFloat},1},x::Real)
 
@@ -626,7 +609,7 @@ trim{T<:Real}(qf::Array{QFunc{T},1},cutoff::T)=[trim(i,cutoff)::QFunc{T} for i i
 
 derivative(qf::QFunc,i::Int64)=QFunc(derivative(qf.poly,i),[derivative(qf.poles[j],i)::Pole for j=1:length(qf.poles)])
 
-#----- To Float
+#----- To Float --- not currently used
 
 tofloat(q::QFunc)=QFunc(tofloat(q.poly),tofloat(q.poles))
 tofloat{T<:Real}(q::Array{QFunc{T},1})=[tofloat(i)::QFunc{T} for i in q]
@@ -634,26 +617,6 @@ tofloat{T<:Real}(q::Array{QFunc{T},1})=[tofloat(i)::QFunc{T} for i in q]
 
 
 
-
-#--------- TESTING
-
-
-p=Polynomial([bf(1),bf(2)])
-q=Pole(1,bf(1),bf(2))
-qq=[Pole(1,bf(2+i),bf(3+i))::Pole{BigFloat} for i=1:100]
-#residue(p,q)
-r=p+qq[1]
-r.poles=qq
-s=mcopy(r)
-s.poly=s.poly^2
-
-
-
-
-
 end
 
 
-
-
-#end
