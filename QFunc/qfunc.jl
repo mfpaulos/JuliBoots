@@ -357,24 +357,29 @@ show(io::IO,qf::Array{QFunc{BigFloat},1})=print(io,typeof(qf))
 
 #------ promotion and conversion
 
-promote_rule{T<:Real}(::Type{QFunc{T}},::Type{Polynomial{T}})= QFunc{T}
-promote_rule{T<:Real}(::Type{QFunc{T}},::Type{Pole{T}})= QFunc{T}
-promote_rule{T<:Real}(::Type{Polynomial{T}},::Type{Pole{T}})= QFunc{T}
+promote_rule{T<:Real,S<:Real}(::Type{QFunc{T}},::Type{Polynomial{S}})= QFunc{promote_type(T,S)}
+promote_rule{T<:Real,S<:Real}(::Type{QFunc{T}},::Type{Pole{S}})= QFunc{promote_type(T,S)}
+promote_rule{T<:Real,S<:Real}(::Type{Polynomial{T}},::Type{Pole{S}})= QFunc{promote_type(T,S)}
 promote_rule{T<:Real,S<:Real}(::Type{Polynomial{S}},::Type{T})=Polynomial{promote_type(T,S)}
-promote_rule{T<:Real}(::Type{Pole{T}},::Type{T})= QFunc{T}
-promote_rule{T<:Real}(::Type{QFunc{T}},::Type{T})= QFunc{T}
+promote_rule{T<:Real,S<:Real}(::Type{Pole{T}},::Type{S})= QFunc{promote_type(T,S)}
+promote_rule{T<:Real,S<:Real}(::Type{QFunc{T}},::Type{S})= QFunc{promote_type(T,S)}
+
 
 
 convert{T<:Real}(::Type{QFunc{T}},x::Polynomial{T})=QFunc(x,Array(Pole{T},0))
-convert{T<:Real}(::Type{QFunc{T}},x::Pole{T})=QFunc(Polynomial([zero(x.coeff)]),[deepcopy(x)::Pole])
+convert{T<:Real}(::Type{QFunc},x::Polynomial{T})=QFunc(x,Array(Pole{T},0))
+convert{T<:Real}(::Type{QFunc{T}},x::Pole{T})=QFunc(Polynomial([zero(x.coeff)]),[x::Pole])
+convert{T<:Real}(::Type{QFunc},x::Pole{T})=QFunc(Polynomial([zero(x.coeff)]),[x::Pole])
 convert{T<:Real,S<:Real}(::Type{Polynomial{S}},x::T) = Polynomial([x])
-convert{T<:Real}(::Type{QFunc},x::T) = convert(QFunc{T},convert(Polynomial,x))
+convert{T<:Real}(::Type{Polynomial},x::T) = Polynomial([x])
+convert{S<:Real,T<:Real}(::Type{QFunc{S}},x::T) = convert(QFunc{T},convert(Polynomial,x))
+convert{T<:Real}(::Type{QFunc},x::T) = convert(QFunc{T},convert(Polynomial{T},x))
 
 
 #----- sum -----------------------------------
 
 
-function +{T<:Real}(a::QFunc{T},b::QFunc{T})
+function +{T<:Real,S<:Real}(a::QFunc{T},b::QFunc{S})
 
     polelist1=a.poles
     polelist2=b.poles
@@ -394,6 +399,7 @@ function +{T<:Real}(a::QFunc{T},b::QFunc{T})
 
 
     for i=1:length(polelist2)
+
             tmp=polelist2[i]
             pos=find(x->isequal(x,tmp),polelist1)
 
