@@ -204,7 +204,6 @@ padL(p::Polynomial,n::Int64)=(q=deepcopy(p); q.coeffs=padL(q.coeffs,n); return q
 padR(p::Polynomial,n::Int64)=(q=deepcopy(p); q.coeffs=padR(q.coeffs,n); return q)
 
 
-
 getindex(v::Polynomial,i::Int64)=v.coeffs[i]
 getindex(v::Polynomial,i::Range1)=getindex(v.coeffs,i)
 setindex!(v::Polynomial,value::Real,i::Int64)=setindex!(v.coeffs,value,i)
@@ -212,13 +211,23 @@ endof(x::Polynomial)=x.coeffs[end]
 length(p::Polynomial)=length(p.coeffs)
 
 
-#----- evaluate using Horner's method
 
+#----- Valuations, using Horner's method
 
-#value{T<:Real}(f::Polynomial{T},x::T)=msum([(f.coeffs[i]*x^(i-1))::T for i=1:length(f.coeffs)])
+#-- non bigfloat
+function value(f::Polynomial,x::Real)
+        order=length(f.coeffs)
+        output=f.coeffs[order]
+        if order==1 return output; end
 
+        for i=0:order-2
+            output=x*output+f.coeffs[order-i-1]
+        end
+        output
+end
+
+#-- bigfloat
 value(f::Polynomial{BigFloat},x::Real)=(output=zero(BigFloat); return value(f,x,output))
-
 function value(f::Polynomial{BigFloat},x::Real,output::BigFloat)
 
         order=length(f.coeffs)
@@ -363,7 +372,6 @@ promote_rule{T<:Real,S<:Real}(::Type{Polynomial{T}},::Type{Pole{S}})= QFunc{prom
 promote_rule{T<:Real,S<:Real}(::Type{Polynomial{S}},::Type{T})=Polynomial{promote_type(T,S)}
 promote_rule{T<:Real,S<:Real}(::Type{Pole{T}},::Type{S})= QFunc{promote_type(T,S)}
 promote_rule{T<:Real,S<:Real}(::Type{QFunc{T}},::Type{S})= QFunc{promote_type(T,S)}
-
 
 
 convert{T<:Real}(::Type{QFunc{T}},x::Polynomial{T})=QFunc(x,Array(Pole{T},0))
@@ -517,11 +525,6 @@ mmult(o::QFunc{BigFloat},a::QFunc{BigFloat},x::Real)=(mmult(o.poly,a.poly,x); mm
 
 mmult{T<:Real}(a::Array{QFunc{BigFloat},1},x::Array{T,1})=mmult(a,a,x)
 mmult{T<:Real}(o::Array{QFunc{BigFloat},1},a::Array{QFunc{BigFloat},1},x::Array{T,1})=(for i=1:length(o) mmult(o[i],a[i],x[i]) end; return o)
-
-
-
-
-
 
 
 -(a::QFunc)=-1*a
