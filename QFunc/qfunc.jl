@@ -612,6 +612,18 @@ function trim{T<:Real}(qff::QFunc{T},cutoff::T)
         return qf
 end
 
+function trim{T<:Real}(qff::QFunc{BigFloat},cutoff::T)
+
+        qf=mcopy(qff)
+        ples=find(x->abs(x)>=cutoff, [p.coeff::T for p in qf.poles])
+        newples=[qf.poles[i]::Pole{T} for i in ples]
+        qf.poles=newples
+        return qf
+end
+
+
+
+
 trim{T<:Real}(qf::Array{QFunc{T},1},cutoff::T)=[trim(i,cutoff)::QFunc{T} for i in qf]
 
 #----- Derivative
