@@ -19,7 +19,7 @@ BB_ITERMAX=500       # When to stop Newton's method
 
 DELTAMAX=BigFloat(70)        # maximum \Delta WARNING: these things have different precision than stuff read from CBs
 FUDGE=BigFloat(1e-30)         # Used for: not evaluating things at unitarity bound for L=0;
-                              # Plays the role of zero components in things like global symmetry bounds
+                              # Plays the role of zero components in things like global symmetry bounds.
 VERBOSE=false                 # whether to print timings
 # File System
 LPFILE="./LPLog.txt"

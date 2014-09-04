@@ -114,7 +114,7 @@ function loadTableOLD(file::String; oddL=false, label="Vanilla N=0")
     table[lct]=singleSpin
     end
     #return table
-    tab=CBDerTable_Q(table,BigFloat(NaN),eps,binprec,nmax,mmax,Lmax,oddL,collect(keys(dict)))
+    tab=CBDerTable_Q(table,BigFloat(NaN),eps,binprec,nmax,mmax,Lmax,oddL,orderedkeys(dict))
     #PYTHON STUFF - TEMPORARY
     # for (i,cbb) in enumerate(tab.table)
     #        for k=1:length(cbb)
@@ -169,7 +169,7 @@ function loadTable(file::String; label="Vanilla N=0")
 
         polycoeffs=Array(BigFloat,plen,maxPlength)
 
-        singleSpin=CBVec_Q(rho, Array(QFunc{BigFloat},plen), spin,dict,label)  #create CBDerVec object. dictionary tells us what contents are
+        singleSpin=CBVec_Q(rho, Array(QFunc{BigFloat},plen), spin,dict,label)  #create CBVec object. dictionary tells us what contents are
 
         # read polynomials
         for pct=1:plen
@@ -223,7 +223,7 @@ function loadTable(file::String; label="Vanilla N=0")
     table[lct]=singleSpin
     end
     #return table
-    tab=CBDerTable_Q(table,BigFloat(NaN),eps,binprec,nmax,mmax,Lmax,oddL,collect(keys(dict)))
+    tab=CBDerTable_Q(table,BigFloat(NaN),eps,binprec,nmax,mmax,Lmax,oddL,cb.orderedkeys(dict))
     #PYTHON STUFF - TEMPORARY
      #for (i,cbb) in enumerate(tab.table)
      #       for k=1:length(cbb)

@@ -3,13 +3,11 @@
 #
 
 
-include("$(pwd())/specs.jl")  #pwd() gives current working directory
-
 #Initialize threads
 addprocs(threads)
 
 #Load code
-@everywhere using consts,LP,main
+@everywhere using various,consts,LP,main
 @everywhere include("$(pwd())/specs.jl")  #pwd() gives current working directory
 @everywhere outputFile="$(outputFile)_$(strftime("%F_%H-%M",time()))"
 

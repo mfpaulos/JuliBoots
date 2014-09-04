@@ -169,10 +169,20 @@ end
 
 # -------- Get Index ---------
 
+#utility
+function orderedkeys(dic::Dict{(Int64,Int64),Int64})
+        o=Array((Int64,Int64),0)
+        for i=1:length(dic)
+            derpos=findfirst([j for j in values(dic)],i)
+            push!(o,getindex([k for k in keys(dic)],derpos))
+        end
+        o
+end
+
+
 #In place
 function getindex(o::Conv_Q,v::ConvVec_Q,i::Int64)
-        derpos=findfirst([j for j in values(v.dict)],i)
-        der=getindex([i for i in keys(v.dict)],derpos)
+        der=orderedkeys(v.dict)[i]
         label=(der[1],der[2],v.label)
         mcopy(o.rho,v.rho); mcopy(o.sigma,v.sigma); mcopy(o.func,v.vec[i]);
         o.spin=v.spin; o.label=label
