@@ -5,7 +5,7 @@ module table
 using qfunc, cb
 import cb
 import Base: show, getindex
-export Table, loadTable
+export Table, loadTable, convTable
 
 abstract Table
 
@@ -231,6 +231,21 @@ function loadTable(file::String; label="Vanilla N=0")
      #       end
     #end
     return tab
+end
+
+
+
+#---- Convolution -----
+# This method allows one to convolve a table of type table.CBDerTable_Q.
+# The method with the same name in cb.jl does not return a nice object, but rather
+# it works directly with an array of conformal blocks.
+# The presently defined method allows one to have a nice table object
+
+function convTable(sig::Real,tab::table.CBDerTable_Q,sign::Int64)
+        sigma=BigFloat(sig)
+        convtab=cb.convTable(sigma,tab.table,sign)
+        ders=sort(collect(keys(convtab[1].dict)))
+        table.CBDerTable_Q(convtab,sigma,tab.eps,tab.binprec,tab.nmax,tab.mmax,tab.Lmax,tab.OddL,ders)
 end
 
 

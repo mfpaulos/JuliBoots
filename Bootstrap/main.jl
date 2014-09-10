@@ -6,10 +6,11 @@ using consts
 import bb
 import qfunc
 import cb
-#include("LP.jl")
 using LP
 import table
-export chooseTable, convTable, setupLP, bissect, value
+export chooseTable, setupLP, bissect, value, dropOdd!
+
+include("common.jl")
 
 
 bf=BigFloat
@@ -26,12 +27,7 @@ function chooseTable()
     return "./Tables/$(a[nr])"
 end
 
-function convTable(sig::Real,tab::table.CBDerTable_Q,sign::Int64)
-        sigma=BigFloat(sig)
-        convtab=cb.convTable(sigma,tab.table,sign)
-        ders=sort(collect(keys(convtab[1].dict)))
-        table.CBDerTable_Q(convtab,sigma,tab.eps,tab.binprec,tab.nmax,tab.mmax,tab.Lmax,tab.OddL,ders)
-end
+
 
 
 
@@ -56,8 +52,24 @@ function cullpoles{T<:Real}(lp0::LP.LinearProblem{T},cutoff::T)
     return lp
 end
 
+############################################################
+#                                                          #
+#  Setting up Linear Problems                              #
+#                                                          #
+############################################################
 
-# Setting up a basic LP (no global symmetry)
+
+#======= Setting up a basic LP (no global symmetry) ===========
+
+
+# Utility for dropping odd spins from a Linear Problem
+function dropOdd!(prob::LinearProblem)
+        ll=length(prob.lpFunctions)
+        prob.lpFunctions=[prob.lpFunctions[2i-1] for i=1:floor(ll/2)]
+        prob
+end
+
+# Setup LP functions
 
 setupLP{T<:Real}(sig::T,file::String; ders="all")=(tab=table.loadTable(file); setupLP(tab,convert(BigFloat,sig),ders=ders))
 setupLP{T<:Real}(sigs::Array{T,1},file::String,ders="all")=setupLP(convert(Array{BigFloat,1},sigs),file,ders=ders)
@@ -86,11 +98,11 @@ function setupLP(tab::table.Table,sigma::BigFloat; ders="all")
         eps=tab.eps
         vecfuncs=cb.convTable(sigma,tab.table,-1) # Convolve
 
-        #----- New ----- 19-07-14
-
+        #----- allows one to choose which derivatives to work with
+        #
         if ders!="all" vecfuncs=[vf[ders] for vf in vecfuncs] end
-
-        #--------
+        #
+        #---------------------------------------------------------
 
         dim0(L::Int)= L==0 ? maximum([eps+FUDGE,zerobf]) : L+2*eps    # unitarity bound
         zerop=qfunc.Polynomial([bf(0)])     # This is the cost associated with the vectors: zero
@@ -109,6 +121,7 @@ function setupLP(tab::table.Table,sigma::BigFloat; ders="all")
         tmp=cullpoles(prob,CULLPOLES)
 
         # The following normalizes the components by dividing by the scalar with \Delta=1
+        #----------
         val=1/main.value(tmp.lpFunctions[1].vecfunc,BigFloat(2))
 
         main.mmult(tmp.target,val)
@@ -132,7 +145,7 @@ end
 
 
 
-#--- GLOBAL SYMMETRY STUFF
+#----- GLOBAL SYMMETRY STUFF
 
 function buildVector(vtype,ZVec,FVec,HVec)
 
@@ -147,8 +160,6 @@ function buildVector(vtype,ZVec,FVec,HVec)
         end
         return funcarray
 end
-
-
 
 
 function setupLP(tab::table.Table,sigma::BigFloat, vectortypes)
@@ -204,52 +215,7 @@ end
 
 
 
-bissect(lp::LinearProblem{BigFloat},top::Real, bot::Real, acc::Real,criteria::LP.LabelF)=bissect(lp,BigFloat(top),BigFloat(bot),BigFloat(acc),x->x==criteria)
-function bissect(lp::LinearProblem{BigFloat},top::BigFloat, bot::BigFloat, acc::BigFloat,criteria::Function)
 
-        upper=maximum([bot,top])
-        bottom=minimum([bot,top])
-
-
-        lastfunctional=mcopy(lp)
-        lastsol=mcopy(lp)
-        lp1=mcopy(lp)
-        tmp=mcopy(lp)
-
-        while (upper-bottom)>acc
-                x=1/2*(upper+bottom)
-                println("x= $x")
-              #  println(upper)
-              #  println(bottom)
-                tmp=mcopy(lp)
-                filter!(tmp,(-BigFloat(1),x),criteria)
-                #Hotstart----
-                tmp.solVecs=lp1.solVecs
-                tmp.invA=lp1.invA
-                tmp.coeffs=lp1.coeffs
-                lp1=tmp
-
-                for v in lp1.solVecs
-                        if criteria(v.label[2])
-                                mcopy(v.cost, v.label[1]<x ? onebf : zerobf)
-                        end
-                end
-                updateFunctional!(lp1)
-
-                #------------
-                iterate!(lp1,LP_ITERMAX,method="mrc")
-
-
-                if cost(lp1)==zerobf
-                        bottom=x; lastsol=mcopy(lp1)
-                else
-                        upper=x;  lastfunctional=mcopy(lp1)
-                end
-
-        end
-
-        return (lastsol,lastfunctional)
-end
 
 
 #prob=setupLP(0.5182,"./Tables/eps0.5n3m1.txt")
