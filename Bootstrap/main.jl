@@ -122,7 +122,8 @@ function setupLP(tab::table.Table,sigma::BigFloat; ders="all")
 
         # The following normalizes the components by dividing by the scalar with \Delta=1
         #----------
-        val=1/main.value(tmp.lpFunctions[1].vecfunc,BigFloat(2))
+        val=main.value(tmp.lpFunctions[1].vecfunc,BigFloat(1))
+        val=[1/v for v in val]
 
         main.mmult(tmp.target,val)
         for lpf in tmp.lpFunctions
