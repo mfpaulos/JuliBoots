@@ -59,7 +59,7 @@ end
 ############################################################
 
 
-#======= Setting up a basic LP (no global symmetry) ===========
+# ======= Setting up a basic LP (no global symmetry) ===========
 
 
 # Utility for dropping odd spins from a Linear Problem
