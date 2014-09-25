@@ -8,7 +8,8 @@ import qfunc
 import cb
 using LP
 import table
-export chooseTable, setupLP, bissect, value, dropOdd!
+export chooseTable, setupLP, bissect, value, dropOdd!, changeTarget!
+export filter,iterate!,status,cost # LP routines, this makes them accessible when 'using main'
 
 include("common.jl")
 
@@ -65,7 +66,7 @@ end
 # Utility for dropping odd spins from a Linear Problem
 function dropOdd!(prob::LinearProblem)
         ll=length(prob.lpFunctions)
-        prob.lpFunctions=[prob.lpFunctions[2i-1] for i=1:floor(ll/2)]
+        prob.lpFunctions=[prob.lpFunctions[2i-1] for i=1:(floor(ll/2)+1)]
         prob
 end
 
@@ -122,27 +123,52 @@ function setupLP(tab::table.Table,sigma::BigFloat; ders="all")
 
         # The following normalizes the components by dividing by the scalar with \Delta=1
         #----------
-        val=main.value(tmp.lpFunctions[1].vecfunc,BigFloat(1))
-        val=[1/v for v in val]
+#        val=main.value(tmp.lpFunctions[1].vecfunc,BigFloat(1))
+#        val=[1/v for v in val]
 
-        main.mmult(tmp.target,val)
-        for lpf in tmp.lpFunctions
-                main.mmult(lpf.vecfunc,val)
-        end
-        for vec in tmp.lpVectors
-                main.mmult(vec.vector,val)
-        end
-        for vec in tmp.solVecs
-                main.mmult(vec.vector,val)
-        end
-        tmp.invA=LP.LPInverse(tmp.invA,LP.getA(tmp))
-
-        LP.updateCoeffs!(tmp)
+#        main.mmult(tmp.target,val)
+#        for lpf in tmp.lpFunctions
+#                main.mmult(lpf.vecfunc,val)
+#        end
+#        for vec in tmp.lpVectors
+#                main.mmult(vec.vector,val)
+#        end
+#        for vec in tmp.solVecs
+#                main.mmult(vec.vector,val)
+#        end
+#        tmp.invA=LP.LPInverse(tmp.invA,LP.getA(tmp))
+#
+#        LP.updateCoeffs!(tmp)
+#        LP.updateFunctional!(tmp)
         #----------
 
         println("Done")
         return tmp
 end
+
+#------ Routine for updating the target of a Linear Problem (has to be done when solution has only auxiliary vectors)
+
+changeTarget!{T<:Real}(lp::LinearProblem{T},targetvec::LP.LPVector{T})=changeTarget!(lp,targetvec.vector)
+function changeTarget!{T<:Real}(lp::LinearProblem{T},targetvec::Array{T,1})
+
+        labels=[v.label[2] for v in lp.solVecs]
+        for l in labels
+            if l!="AUX"
+                     println("Can only act on Linear Problems with purely AUX type vectors.")
+                     return
+            end
+        end
+
+        mcopy(lp.target,targetvec)
+
+        for (i,comp) in enumerate(targetvec)
+                lp.solVecs[i].vector[i]= comp<0 ? -BigFloat(1) : BigFloat(1)
+                mcopy(lp.lpVectors[i].vector,lp.solVecs[i].vector)
+        end
+        updateInverse!(lp)
+        updateCoeffs!(lp)
+end
+
 
 
 
@@ -161,6 +187,12 @@ function buildVector(vtype,ZVec,FVec,HVec)
         end
         return funcarray
 end
+
+
+
+setupLP{T<:Real}(sig::T,file::String,vectortypes)=(tab=table.loadTable(file); setupLP(tab,convert(BigFloat,sig),vectortypes))
+setupLP{T<:Real}(sigs::Array{T,1},file::String,vectortypes)=setupLP(convert(Array{BigFloat,1},sigs),file,vectortypes)
+setupLP(sigs::Array{BigFloat,1},file::String,vectortypes)=(tab=table.loadTable(file); [setupLP(tab,s,vectortypes)::LP.LinearProblem for s in sigs])
 
 
 function setupLP(tab::table.Table,sigma::BigFloat, vectortypes)

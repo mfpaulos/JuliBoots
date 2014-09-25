@@ -17,7 +17,8 @@ import LPlinks: LPFindMinimum, LPInverse, VecFunc, Func, CostFunction, Inverse
 import Base: getindex, length, show
 #import PyPlot
 
-export LinearProblem, iterate!,filter,filter!,cost,updateFunctional!,LabelF,solution,status
+export LinearProblem, iterate!,filter,filter!,cost,updateFunctional!,
+        updateInverse!,updateCoeffs!,LabelF,solution,status
 
 
 #export LPFunction, LPVector, LPVectorFunction
@@ -97,8 +98,8 @@ show(io::IO, z::LPVector)=println(io,"LPVector - ",z.label,", cost - ", z.cost)
 show(io::IO, z::LPVectorFunction)=println(io,"LPVectorFunc - ",z.label,", range - ",z.range)
 
 
-LPVector{T<:Real}(lpf::LPVectorFunction{T},x::T)=
-                    LPVector(value(lpf,x),value(lpf.cost,x),(x,lpf.label))  #constructing a vector by evaluating
+LPVector{T<:Real}(lpf::LPVectorFunction{T},xx::Real)=(x=convert(T,xx);
+                    LPVector(value(lpf,x),value(lpf.cost,x),(x,lpf.label)))  #constructing a vector by evaluating
                                                                    #a function at a particular point
 
 
@@ -164,7 +165,7 @@ getindex(lv::LPVector,i::Int64)=lv.vector[i]
 length(lv::LPVector)=length(lv.vector)
 length(lv::LPVectorFunction)=length(lv.vecfunc)
 
-value(lv::LPVectorFunction,x::Real)=value(lv.vecfunc,x)
+value{T<:Real}(lv::LPVectorFunction{T},x::Real)=value(lv.vecfunc,convert(T,x))
 
 tofloat(lf::LPVectorFunction)=LPVectorFunction((tofloat(lf.range[1])::Float64,tofloat(lf.range[2])::Float64),tofloat(lf.vecfunc),tofloat(lf.cost),lf.label)
 tofloat(lv::LPVector)=LPVector{Float64}(tofloat(lv.vector)::Array{Float64,1},tofloat(lv.cost)::Float64,(tofloat(lv.label[1]),lv.label[2]))
@@ -238,7 +239,7 @@ end
 updateCoeffs!{T<:Real}(lp::LinearProblem{T})=dot(lp.coeffs,lp.invA,lp.target)
 
 
-
+updateInverse!(lp::LinearProblem)=(lp.invA=LPInverse(lp.invA,getA(lp)); return)
 
 
 #####################################################################################
@@ -322,8 +323,9 @@ function findBVar{T<:Real}(lp::LinearProblem{T},nba::Array{LPVector{T},1})
         for nbv in nba
             icol=dot(lp.invA,nbv.vector)
             xvals=[icol[i]> zero(T) ? ivec[i]/icol[i] : inf(T) for i=1:length(ivec)]
+
             (minx,bvar)=findmin(xvals)
-            if minx==inf(T) println("Problem unbounded"); return "unbounded" end
+            #if minx==inf(T) println("Problem unbounded"); return "unbounded" end
             push!(minx_bvar,(minx,bvar))
         end
         return minx_bvar
@@ -350,7 +352,7 @@ function findBVar(lp::LinearProblem{BigFloat},nba::Array{LPVector{BigFloat},1})
             end
 
             (minx,bvar)=findmin(xvals)
-            if minx==infs[1] println("Problem unbounded"); return "unbounded" end
+           # if minx==infs[1] println("Problem unbounded"); return "unbounded" end
             push!(minx_bvar,(mcopy(minx),bvar))
         end
 
@@ -395,6 +397,7 @@ function iterate!{T<:Real}(lp::LinearProblem{T},n::Int64; minMethod="bbLocal", m
             t=@elapsed nb_rc=findAllRC(lp,minMethod=minMethod)     #this is a list of LPVectors and associated reduced costs
             write(log,"$i - $(strftime(time())) - mrc done in $t\n")
 
+
             allrc=[nb_rc[i][2] for i=1:length(nb_rc)]       #all reduced costs: one per vector, and a set of local minima for each lpFunction
 
             if method=="mrc"                #in this case simplex uses the vector with smallest minimum reduced cost
@@ -415,7 +418,7 @@ function iterate!{T<:Real}(lp::LinearProblem{T},n::Int64; minMethod="bbLocal", m
                   allnb=[nb_rc[i][1]::LPVector{T} for i=1:length(nb_rc)]     #all the LPVector candidates
                   write(log,"$i - $(strftime(time())) - Candidate minima: $(length(allnb))\n")
                   minx_bvar=findBVar(lp,allnb)
-                  if minx_bvar=="unbounded" println("here"); close(log); return end
+
 
                   # More efficient in principle, but less readable
                   #(costvar,pos)=(BigFloat(Inf),0)
@@ -426,7 +429,7 @@ function iterate!{T<:Real}(lp::LinearProblem{T},n::Int64; minMethod="bbLocal", m
 
                   costvars=[minx_bvar[i][1]*nb_rc[i][2] for i=1:length(minx_bvar)] # all cost variations
                   (costvar,pos)=findmin(costvars)
-
+                  if costvar==-inf(BigFloat) println("Problem unbounded"); close(log); return lp end
                   nb=nb_rc[pos][1]
                   mrc=nb_rc[pos][2]
                   if mrc>=zero(mrc) println("Min cost achieved"); break end
@@ -439,7 +442,7 @@ function iterate!{T<:Real}(lp::LinearProblem{T},n::Int64; minMethod="bbLocal", m
 
 
             #updateInverse
-            t=@elapsed lp.invA=LPInverse(lp.invA,getA(lp)) #this updates the inverse
+            t=@elapsed updateInverse!(lp) #this updates the inverse
 
 
 

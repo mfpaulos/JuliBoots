@@ -1,3 +1,6 @@
+
+
+
 bissect(lp::LinearProblem{BigFloat},top::Real, bot::Real, acc::Real,criteria::LP.LabelF; method="mcv")=bissect(lp,BigFloat(top),BigFloat(bot),BigFloat(acc),x->x==criteria, method=method)
 function bissect(lp::LinearProblem{BigFloat},top::BigFloat, bot::BigFloat, acc::BigFloat,criteria::Function; method="mcv")
 
