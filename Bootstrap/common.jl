@@ -1,4 +1,15 @@
+function saveresults(file::String,prob::LinearProblem)
 
+        f=open(file,"w")
+        sol=solution(prob)
+        write(f,"{\n")
+        for (i,s) in enumerate(sol)
+                # dimension, OPE, type
+                write(f,"{$(convert(Float64,s[1][1])),$(convert(Float64,s[2])),\"$(s[1][2])\"}")
+                if i<length(sol) write(f,",\n") else write(f,"\n}") end
+        end
+        close(f)
+end
 
 
 bissect(lp::LinearProblem{BigFloat},top::Real, bot::Real, acc::Real,criteria::LP.LabelF; method="mcv")=bissect(lp,BigFloat(top),BigFloat(bot),BigFloat(acc),x->x==criteria, method=method)
