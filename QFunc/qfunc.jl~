@@ -429,7 +429,7 @@ function fastplus{T<:Real,S<:Real}(a::QFunc{T},b::QFunc{S})
 
 	pls=mcopy(a.poles)
 	for p in b.poles
-		push!(pls,p)
+		push!(pls1,p)
 	end
        
 	return QFunc(a.poly+b.poly,pls)
