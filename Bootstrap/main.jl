@@ -32,11 +32,11 @@ end
 
 
 
-function cullpoles{T<:Real}(lp0::LP.LinearProblem{T},cutoff::T)
+function cullpoles_qf{T<:Real}(lp0::LP.LinearProblem{T},cutoff::T)
 
     lp=mcopy(lp0)
     for lpf in lp.lpFunctions
-        smallguys=Array(Array{Int64,1},0)
+        smallguys=Array(Array{Int64,1},0)            
             for qf in lpf.vecfunc
                 push!(smallguys,find(x->abs(x.coeff)<cutoff,qf.poles))
             end
@@ -52,6 +52,29 @@ function cullpoles{T<:Real}(lp0::LP.LinearProblem{T},cutoff::T)
 
     return lp
 end
+
+function cullpoles_cb{T<:Real}(lp0::LP.LinearProblem{T},cutoff::T)
+
+    lp=mcopy(lp0)
+    for lpf in lp.lpFunctions
+        smallguys=Array(Array{Int64,1},0)
+            for qf in lpf.vecfunc.vec
+                push!(smallguys,find(x->abs(x.coeff)<cutoff,qf.poles))
+            end
+
+        common=reduce(intersect,smallguys)
+
+        for qf in lpf.vecfunc.vec
+                bigguys=setdiff(1:length(qf.poles),common)
+                qf.poles=[qf.poles[i]::qfunc.Pole{BigFloat} for i in bigguys]
+
+        end
+    end
+
+    return lp
+end
+
+
 
 ############################################################
 #                                                          #
@@ -111,15 +134,15 @@ function setupLP(tab::table.Table,sigma::BigFloat; ders="all")
         spins= tab.OddL ? [0:1:Lmax] : [0:2:Lmax]
 
         #let's create a linear problem based on this data
-        trgt=-value(vecfuncs[1].vec,bf(0))    # the target: identity vector
+        trgt=-value(vecfuncs[1],bf(0))    # the target: identity vector
 
         lpVectorFuncs=[LP.LPVectorFunction(
-        (dim0(L),DELTAMAX),vecfuncs[i].vec,zerop,"L=$L")::LP.LPVectorFunction{BigFloat} for (i,L) in enumerate(spins)]
+        (dim0(L),DELTAMAX),vecfuncs[i],zerop,"L=$L")::LP.LPVectorFunction{BigFloat} for (i,L) in enumerate(spins)]
 
 
         dim=convert(Float64,2*eps+2)
-        prob=LP.initLP(lpVectorFuncs,trgt,"Basic Bound\nD = $dim\tsigma=$(convert(Float64,sigma))\t(m,n) = $((tab.mmax,tab.nmax))\tLmax = $(tab.Lmax)\tOdd spins: $(tab.OddL)")        
-        tmp=cullpoles(prob,CULLPOLES)
+        prob=LP.initLP(lpVectorFuncs,trgt,"Basic Bound\nD = $dim\tsigma=$(convert(Float64,sigma))\t(m,n) = $((tab.mmax,tab.nmax))\tLmax = $(tab.Lmax)\tOdd spins: $(tab.OddL)")
+        tmp=cullpoles_cb(prob,CULLPOLES)
 
         # The following normalizes the components by dividing by the scalar with \Delta=1
         #----------
