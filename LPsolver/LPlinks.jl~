@@ -35,14 +35,15 @@ end
 
 #--------- Find minimum. Right now, only Branch and Bound is implemented
 
-function LPFindMinimum(range::(Real,Real),func::Func, cost::CostFunction; minMethod="bbGlobal")
+function LPFindMinimum(range::(Real,Real),funcc::Func, cost::CostFunction; minMethod="bbGlobal")
 
 
 
     if minMethod=="bbGlobal" || minMethod=="bbLocal"
         t0=time()
 
-        
+        #func=qfunc.trim(funcc,value(funcc,0.5*(range[1]+range[2]))/BigFloat("1e30")) #HACK to make it faster. cut out poles which affect the result to less than one part in 10^-15
+        func=funcc
 
 
         #totalfunc=cost-func #there have to be methods defined for this

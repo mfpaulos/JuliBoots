@@ -290,9 +290,9 @@ function derivative(c::Conv_Q,i::Int64)
         res=mcopy(c)
         x=log(4*c.rho)
 
-        res.func=binomial(i,0)*derivative(c.func,i)
+        res.func=binomial(i,0)*derivative(res.func,i)
         for k=1:i
-            res.func+=binomial(i,k)*(x^k)*derivative(c.func,i-k)
+            res.func+=binomial(i,k)*(x^k)*derivative(res.func,i-k)
         end
 
 
