@@ -75,6 +75,11 @@ type CB_Q{T<:Real} <: CB    # stands for some component of a CB with a rational 
 
 end
 
+function show(io::IO, cb::CB_Q)
+        print(io,"CB_Q - Label = $(cb.label[3]) - \tSpin = $(cb.spin)\t (m,n) = ($(cb.label[1]),$(cb.label[2]))")
+end
+
+
 mcopy(cb::CB_Q{BigFloat})=CB_Q(mcopy(cb.rho),mcopy(cb.func),copy(cb.spin),deepcopy(cb.label))
 mcopy(cbo::CB_Q{BigFloat},cb::CB_Q{BigFloat})=(mcopy(cbo.rho,cb.rho); mcopy(cbo.func,cb.func); cbo.spin=copy(cb.spin); cbo=deepcopy(cb.label); cbo)
 
