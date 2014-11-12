@@ -9,7 +9,7 @@ import cb
 using LP
 import table
 export chooseTable, setupLP, bissect, value, dropOdd!, changeTarget!
-export filter,iterate!,status,cost # LP routines, this makes them accessible when 'using main'
+export filter,iterate!,status,cost,solution # LP routines, this makes them accessible when 'using main'
 
 include("common.jl")
 
