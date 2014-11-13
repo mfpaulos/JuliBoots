@@ -197,7 +197,7 @@ end
 
 #------ VARIOUS -------------
 
-shift_arg(p::Polynomial,x::Real)=Polynomial([value(derivative(p,i),x)/factorial(BigFloat(i)) for i=0:length(p)-1]) #shifts argument of the polynomial
+shift_arg(p::Polynomial,x::Real)=Polynomial([value(derivative(p,i),x)/factorial(i) for i=0:length(p)-1]) #shifts argument of the polynomial
 
 derivative(p::Polynomial,n::Int64) = n>=length(p) ?
                                             Polynomial([zero(p[1])]) :
@@ -575,6 +575,11 @@ function value(f::QFunc{BigFloat},x::Real,output::BigFloat)
     return output
 end
 
+function value(f::QFunc,x::Real)
+    o=value(f.poly,x)
+    o+=sum([value(p,x) for p in f.poles])
+    o
+end
 
 
 
