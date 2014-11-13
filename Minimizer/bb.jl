@@ -6,6 +6,7 @@ module bb
 
 using consts
 import various: mcopy
+export MinFunction, FindMinimum, FindLocalMinima
 using various
 
 #bf(x)=convert(Float64,x)
