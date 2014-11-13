@@ -35,6 +35,8 @@ end
 
 #--------- Find minimum. Right now, only Branch and Bound is implemented
 
+
+
 function LPFindMinimum(range::(Real,Real),funcc::Func, cost::CostFunction; minMethod="bbGlobal")
 
 

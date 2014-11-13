@@ -135,11 +135,11 @@ function trim!(p::Polynomial) #remove trailing zeros
         nz=findn(p.coeffs)
        # println("at trim, ",nz)
        # return
-        if length(nz)==0
+        if length(first(nz))==0
             p.coeffs=[zero(p[1])]    # so that it's a zero of the same type (bf, Real, etc)
             return p
         end
-        lastnonzero=last(last(nz)) #double last for compatibility with v0.3.0
+        lastnonzero=last(first(nz)) #for compatibility with v0.3.0
         p.coeffs=p[1:lastnonzero]
         return p
 end
@@ -173,7 +173,7 @@ end
 
 #----- Polynomial division --------
 
-function /(n::Polynomial, d::Polynomial) #returns the quotient and remained
+function /(n::Polynomial, d::Polynomial) #returns the quotient and remainder
 
         (q,r)=(Polynomial([zero(n[1])]),n)
 
