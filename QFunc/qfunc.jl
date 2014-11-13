@@ -54,14 +54,19 @@ function mcopy(p::Polynomial{BigFloat},q::Polynomial{BigFloat})
 end
 
 function show(io::IO, r::Polynomial)
-   pm(x,i)= x < 0 ? " - $(-x) X^$i" : " + $x X^$i"
+   pm(x,i)= i==0 ? "$x" : (x < 0 ? " - $(-x) X^$i" :  " + $x X^$i")
 
-   z=convert(Array{Float64,1},r.coeffs)
+   zz=convert(Array{Float64,1},r.coeffs)
+   nonzeropos=findn(zz)[1]
+   z=[zz[i] for i in nonzeropos]
+   ppm(i)=(if i!=1 return pm(z[i],nonzeropos[i]-1) end;
+           return (nonzeropos[1]-1)==0 ? "$(z[1])" : "$(z[1]) X^$(nonzeropos[i]-1)"
+          )
+
    if length(z)<=5
-         print(io, z[1])
-         for i=2:length(z) print(io,pm(z[i],i-1)) end
+         for i=1:length(z) print(io,ppm(i)) end
    else
-         print(io, z[1], pm(z[2],1),pm(z[3],2),pm(z[4],3), "...",pm(z[length(z)],length(z)-1))
+           print(io, ppm(1), ppm(2),ppm(3),ppm(4), "...",ppm(length(z)))
    end
 end
 
@@ -196,8 +201,8 @@ shift_arg(p::Polynomial,x::Real)=Polynomial([value(derivative(p,i),x)/factorial(
 
 derivative(p::Polynomial,n::Int64) = n>=length(p) ?
                                             Polynomial([zero(p[1])]) :
-                                            Polynomial([p[i+n]*(-1)^(n)*pochhammer(BigFloat(-i-n+1),n) for i=1:length(p)-n])
-
+                                            Polynomial([p[i+n]*(-1)^(n)*pochhammer((-i-n+1),n) for i=1:length(p)-n])
+# REMOVED A BIGFLOAT INSIDE POCHHAMMER 13/11/14
 #---- to treat polynomials as arrays...
 
 padL(p::Polynomial,n::Int64)=(q=deepcopy(p); q.coeffs=padL(q.coeffs,n); return q)
