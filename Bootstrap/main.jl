@@ -8,7 +8,7 @@ import qfunc
 import cb
 using LP
 import table
-export chooseTable, setupLP, bissect, value, dropOdd!, changeTarget!
+export chooseTable, setupLP, bissect, value, dropOdd!, changeTarget!,dropEven!
 export filter,iterate!,status,cost,solution # LP routines, this makes them accessible when 'using main'
 
 include("common.jl")
@@ -69,6 +69,13 @@ function dropOdd!(prob::LinearProblem)
         prob.lpFunctions=[prob.lpFunctions[2i-1] for i=1:(floor(ll/2)+1)]
         prob
 end
+
+function dropEven!(prob::LinearProblem)
+        ll=length(prob.lpFunctions)
+        prob.lpFunctions=[prob.lpFunctions[2i] for i=1:floor(ll/2)]
+        prob
+end
+
 
 # Setup LP functions
 
