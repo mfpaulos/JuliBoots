@@ -9,7 +9,7 @@ import cb
 using LP
 import table
 export chooseTable, setupLP, bissect, value, dropOdd!, changeTarget!,dropEven!
-export filter,iterate!,status,cost,solution # LP routines, this makes them accessible when 'using main'
+export filter,iterate!,status,cost,solution,vector # LP routines, this makes them accessible when 'using main'
 
 include("common.jl")
 
@@ -255,9 +255,5 @@ end
 
 
 
-
-
-
-#prob=setupLP(0.5182,"./Tables/eps0.5n3m1.txt")
 
 end
