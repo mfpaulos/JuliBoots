@@ -18,7 +18,7 @@ import Base: getindex, length, show
 #import PyPlot
 
 export LinearProblem, iterate!,filter,filter!,cost,updateFunctional!,
-        updateInverse!,updateCoeffs!,LabelF,solution,status,vector
+        updateInverse!,updateCoeffs!,LabelF,solution,status,makeVector
 
 
 #export LPFunction, LPVector, LPVectorFunction
@@ -103,7 +103,7 @@ LPVector{T<:Real}(lpf::LPVectorFunction{T},xx::Real)=(x=convert(T,xx);
                                                                    #a function at a particular point
 #shorthand:
 
-vector(lpf::LPVectorFunction{T},xx::Real)=LPVector(lpf,xx)
+makeVector{T<:Real}(lpf::LPVectorFunction{T},xx::Real)=LPVector(lpf,xx)
 
 
 type LinearProblem{T<:Real}

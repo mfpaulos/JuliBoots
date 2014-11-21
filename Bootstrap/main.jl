@@ -8,8 +8,8 @@ import qfunc
 import cb
 using LP
 import table
-export chooseTable, setupLP, bissect, value, dropOdd!, changeTarget!,dropEven!
-export filter,iterate!,status,cost,solution,vector # LP routines, this makes them accessible when 'using main'
+export chooseTable, setupLP, bissect, value, dropOdd!, changeTarget!,dropEven!,opemax
+export filter,iterate!,status,cost,solution,makeVector # LP routines, this makes them accessible when 'using main'
 
 include("common.jl")
 
