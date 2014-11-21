@@ -1,4 +1,4 @@
-function saveresults(file::String,prob::LinearProblem)
+function saveresults(file::String,prob::LinearProgram)
 
         f=open(file,"w")
         sol=solution(prob)
@@ -12,8 +12,8 @@ function saveresults(file::String,prob::LinearProblem)
 end
 
 
-bissect(lp::LinearProblem{BigFloat},top::Real, bot::Real, acc::Real,criteria::LP.LabelF; method="mcv")=bissect(lp,BigFloat(top),BigFloat(bot),BigFloat(acc),x->x==criteria, method=method)
-function bissect(lp::LinearProblem{BigFloat},top::BigFloat, bot::BigFloat, acc::BigFloat,criteria::Function; method="mcv")
+bissect(lp::LinearProgram{BigFloat},top::Real, bot::Real, acc::Real,criteria::LP.LabelF; method="mcv")=bissect(lp,BigFloat(top),BigFloat(bot),BigFloat(acc),x->x==criteria, method=method)
+function bissect(lp::LinearProgram{BigFloat},top::BigFloat, bot::BigFloat, acc::BigFloat,criteria::Function; method="mcv")
 
         upper=maximum([bot,top])
         bottom=minimum([bot,top])
@@ -59,7 +59,7 @@ function bissect(lp::LinearProblem{BigFloat},top::BigFloat, bot::BigFloat, acc::
         return (lastsol,lastfunctional)
 end
 
-function opemax{T<:Real}(lp::LinearProblem{T},confdim::Real,label::LP.LabelF;itermax=LP_ITERMAX)
+function opemax{T<:Real}(lp::LinearProgram{T},confdim::Real,label::LP.LabelF;itermax=LP_ITERMAX)
 
         lp2=mcopy(lp)
         x=convert(T,confdim)

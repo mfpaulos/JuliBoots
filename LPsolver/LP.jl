@@ -17,7 +17,7 @@ import LPlinks: LPFindMinimum, LPInverse, VecFunc, Func, CostFunction, Inverse
 import Base: getindex, length, show
 #import PyPlot
 
-export LinearProblem, iterate!,filter,filter!,cost,updateFunctional!,
+export LinearProgram, iterate!,filter,filter!,cost,updateFunctional!,
         updateInverse!,updateCoeffs!,LabelF,solution,status,makeVector
 
 
@@ -106,7 +106,7 @@ LPVector{T<:Real}(lpf::LPVectorFunction{T},xx::Real)=(x=convert(T,xx);
 makeVector{T<:Real}(lpf::LPVectorFunction{T},xx::Real)=LPVector(lpf,xx)
 
 
-type LinearProblem{T<:Real}
+type LinearProgram{T<:Real}
 
     lpFunctions::Array{LPVectorFunction{T},1}  # vector functions
     lpVectors::Array{LPVector{T},1}      # discrete vectors
@@ -123,16 +123,16 @@ type LinearProblem{T<:Real}
 end
 
 
-mcopy(lp::LinearProblem{BigFloat})=LinearProblem(mcopy(lp.lpFunctions),mcopy(lp.lpVectors),mcopy(lp.target),
+mcopy(lp::LinearProgram{BigFloat})=LinearProgram(mcopy(lp.lpFunctions),mcopy(lp.lpVectors),mcopy(lp.target),
                                         mcopy(lp.solVecs),mcopy(lp.functional),mcopy(lp.invA),deepcopy(lp.label),mcopy(lp.coeffs))
 
-mcopy(o::LinearProblem{BigFloat},lp::LinearProblem{BigFloat})=(mcopy(o.lpFunctions,lp.lpFunctions); mcopy(o.lpVectors,lp.lpVectors);
+mcopy(o::LinearProgram{BigFloat},lp::LinearProgram{BigFloat})=(mcopy(o.lpFunctions,lp.lpFunctions); mcopy(o.lpVectors,lp.lpVectors);
                                                             mcopy(o.target,lp.target); mcopy(o.solVecs,lp.solVecs); mcopy(o.functional,lp.functional);
                                                             mcopy(o.invA,lp.invA); o.label=deepcopy(lp.label); mcopy(o.coeffs,lp.coeffs); o)
 
 
 
-function show(io::IO,lp::LinearProblem)
+function show(io::IO,lp::LinearProgram)
         print(io,"Linear Problem:")
         print(io,lp.label)
         #for f in lp.lpFunctions show(io,f) end
@@ -173,7 +173,7 @@ tofloat(lf::LPVectorFunction)=LPVectorFunction((tofloat(lf.range[1])::Float64,to
 tofloat(lv::LPVector)=LPVector{Float64}(tofloat(lv.vector)::Array{Float64,1},tofloat(lv.cost)::Float64,(tofloat(lv.label[1]),lv.label[2]))
 
 
-tofloat(lp::LinearProblem)=LinearProblem([tofloat(i)::LPVectorFunction for i in lp.lpFunctions],
+tofloat(lp::LinearProgram)=LinearProgram([tofloat(i)::LPVectorFunction for i in lp.lpFunctions],
                                          [tofloat(i)::LPVector{Float64} for i in lp.lpVectors],
                                           tofloat(lp.target),
                                          [tofloat(i)::LPVector{Float64} for i in lp.solVecs],
@@ -185,7 +185,7 @@ tofloat(lp::LinearProblem)=LinearProblem([tofloat(i)::LPVectorFunction for i in 
 #-------- Converts a problem back to big float precision. Takes a Float64 and a BigFloat linear problems, where the first has been
 #-------- already improved via simplex --- WARNING: BUGGY AT THIS POINT 4/15/2014
 
-function tobigfloat(lp1::LinearProblem,lp0::LinearProblem)
+function tobigfloat(lp1::LinearProgram,lp0::LinearProgram)
 
         res=deepcopy(lp0)
         global newvec
@@ -224,24 +224,24 @@ end
 #------------------------Simplex helpers
 
 
-cost(lp::LinearProblem)=(dot(lp.coeffs,[vec.cost for vec in lp.solVecs]))
+cost(lp::LinearProgram)=(dot(lp.coeffs,[vec.cost for vec in lp.solVecs]))
 
-getA(lp::LinearProblem)=(n=length(lp.solVecs[1]); [lp.solVecs[j][i] for i=1:n, j=1:n])
-
-
-solution(lp::LinearProblem)=[(lp.solVecs[i].label,lp.coeffs[i]) for i=1:length(lp.coeffs)]
+getA(lp::LinearProgram)=(n=length(lp.solVecs[1]); [lp.solVecs[j][i] for i=1:n, j=1:n])
 
 
-function updateFunctional!{T<:Real}(lp::LinearProblem{T})
+solution(lp::LinearProgram)=[(lp.solVecs[i].label,lp.coeffs[i]) for i=1:length(lp.coeffs)]
+
+
+function updateFunctional!{T<:Real}(lp::LinearProgram{T})
 
         costvec=[v.cost::T for v in lp.solVecs]
         dot(lp.functional,costvec,lp.invA)
 end
 
-updateCoeffs!{T<:Real}(lp::LinearProblem{T})=dot(lp.coeffs,lp.invA,lp.target)
+updateCoeffs!{T<:Real}(lp::LinearProgram{T})=dot(lp.coeffs,lp.invA,lp.target)
 
 
-updateInverse!(lp::LinearProblem)=(lp.invA=LPInverse(lp.invA,getA(lp)); return)
+updateInverse!(lp::LinearProgram)=(lp.invA=LPInverse(lp.invA,getA(lp)); return)
 
 
 #####################################################################################
@@ -255,7 +255,7 @@ updateInverse!(lp::LinearProblem)=(lp.invA=LPInverse(lp.invA,getA(lp)); return)
 
 #--------- Find MRC --------------------------------------------
 
-function findAllRC{T<:Real}(lp::LinearProblem{T}; minMethod="bbGlobal")   #assumes functional has been computed. returns a tuple LPVector,mrc
+function findAllRC{T<:Real}(lp::LinearProgram{T}; minMethod="bbGlobal")   #assumes functional has been computed. returns a tuple LPVector,mrc
 
 
         htime=0.
@@ -279,10 +279,10 @@ function findAllRC{T<:Real}(lp::LinearProblem{T}; minMethod="bbGlobal")   #assum
         return mrcs
 end
 
-function findMRC(lp::LinearProblem)
+function findMRC(lp::LinearProgram)
 
         min=(0.,Inf)
-        cands=findAllRC(lp::LinearProblem)
+        cands=findAllRC(lp::LinearProgram)
 
         for cand in cands
             if cand[2]<min[2] min=cand end
@@ -314,9 +314,9 @@ end
 
 #--------- Find basic variable  --------------------------------------------
 
-findBVar{T<:Real}(lp::LinearProblem{T},nb::LPVector{T})=(l=findBVar(lp,[nb]); l[1])
+findBVar{T<:Real}(lp::LinearProgram{T},nb::LPVector{T})=(l=findBVar(lp,[nb]); l[1])
 
-function findBVar{T<:Real}(lp::LinearProblem{T},nba::Array{LPVector{T},1})
+function findBVar{T<:Real}(lp::LinearProgram{T},nba::Array{LPVector{T},1})
 
         ivec=dot(lp.invA,lp.target)
         minx_bvar=Array((T,Int64),0)
@@ -335,9 +335,9 @@ end
 
 
 
-findBVar(lp::LinearProblem{BigFloat},nb::LPVector{BigFloat})=(l=findBVar(lp,[nb]); l[1])
+findBVar(lp::LinearProgram{BigFloat},nb::LPVector{BigFloat})=(l=findBVar(lp,[nb]); l[1])
 
-function findBVar(lp::LinearProblem{BigFloat},nba::Array{LPVector{BigFloat},1})
+function findBVar(lp::LinearProgram{BigFloat},nba::Array{LPVector{BigFloat},1})
 
         ivec=lp.coeffs
         minx_bvar=Array((BigFloat,Int64),0)
@@ -366,7 +366,7 @@ end
 
 #-------- Swap basic with non-basic ------------------------------------------------------------
 
-function swapBNB!(lp::LinearProblem, nb::LPVector, bvar::Int64)
+function swapBNB!(lp::LinearProgram, nb::LPVector, bvar::Int64)
         #lp.solVecs[bvar]=nb
         mcopy(lp.solVecs[bvar],nb)
         return
@@ -376,7 +376,7 @@ end
 
 #-------- Basic iteration of simplex method
 
-function iterate!{T<:Real}(lp::LinearProblem{T},n::Int64; minMethod="bbLocal", method="mcv")
+function iterate!{T<:Real}(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", method="mcv")
 
 
         #Initializations
@@ -504,7 +504,7 @@ function initLP{T<:Real}(lpf::Array{LPVectorFunction{T},1},t::Array{T,1},descrip
         A=[solVecs[j][i] for i=1:n, j=1:n]
         coeffs=[BigFloat(0) for i=1:n]
 
-        res=LinearProblem(lpf,
+        res=LinearProgram(lpf,
                         solVecs,                     
                         t,
                         mcopy(solVecs),
@@ -523,11 +523,11 @@ end
 # excise the range
 
 
-filter(lp::LinearProblem{BigFloat},x::Real,criteria::LabelF)=(y=BigFloat(x); filter(lp,(BigFloat(-100),y),z->z==criteria))
-filter(lp::LinearProblem{BigFloat},x::Real,criteria::Function)=(y=BigFloat(x); filter(lp,(BigFloat(-100),y),criteria) )
-filter(lp::LinearProblem{BigFloat},range::(BigFloat,BigFloat),criteria::Function)=(lp0=mcopy(lp); filter!(lp0,range,criteria))
+filter(lp::LinearProgram{BigFloat},x::Real,criteria::LabelF)=(y=BigFloat(x); filter(lp,(BigFloat(-100),y),z->z==criteria))
+filter(lp::LinearProgram{BigFloat},x::Real,criteria::Function)=(y=BigFloat(x); filter(lp,(BigFloat(-100),y),criteria) )
+filter(lp::LinearProgram{BigFloat},range::(BigFloat,BigFloat),criteria::Function)=(lp0=mcopy(lp); filter!(lp0,range,criteria))
 
-function filter!(lp::LinearProblem{BigFloat},range::(BigFloat,BigFloat),criteria::Function)
+function filter!(lp::LinearProgram{BigFloat},range::(BigFloat,BigFloat),criteria::Function)
 
         lpfuncs=Array(LPVectorFunction{BigFloat},0)
         l=range[1]; u=range[2];
@@ -572,7 +572,7 @@ end
 #
 #######################################################
 
-function status(lp::LinearProblem)
+function status(lp::LinearProgram)
 
         sol=sort(solution(lp))
 
@@ -585,9 +585,9 @@ function status(lp::LinearProblem)
         return
 end
 
-functionalCurves(lp::LinearProblem)=[dot(lp.functional,lpf.vecfunc)::Func for lpf in lp.lpFunctions]
+functionalCurves(lp::LinearProgram)=[dot(lp.functional,lpf.vecfunc)::Func for lpf in lp.lpFunctions]
 
-function plotFunctional(lp::LinearProblem,i::Int64;nrpoints=100,range=(NaN,NaN),logplot=true)
+function plotFunctional(lp::LinearProgram,i::Int64;nrpoints=100,range=(NaN,NaN),logplot=true)
 
         PyPlot.figure()
 

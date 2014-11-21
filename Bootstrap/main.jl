@@ -32,7 +32,7 @@ end
 
 
 
-function cullpoles{T<:Real}(lp0::LP.LinearProblem{T},cutoff::T)
+function cullpoles{T<:Real}(lp0::LP.LinearProgram{T},cutoff::T)
 
     lp=mcopy(lp0)
     for lpf in lp.lpFunctions
@@ -64,13 +64,13 @@ end
 
 
 # Utility for dropping odd spins from a Linear Problem
-function dropOdd!(prob::LinearProblem)
+function dropOdd!(prob::LinearProgram)
         ll=length(prob.lpFunctions)
         prob.lpFunctions=[prob.lpFunctions[2i-1] for i=1:(floor(ll/2)+1)]
         prob
 end
 
-function dropEven!(prob::LinearProblem)
+function dropEven!(prob::LinearProgram)
         ll=length(prob.lpFunctions)
         prob.lpFunctions=[prob.lpFunctions[2i] for i=1:floor(ll/2)]
         prob
@@ -81,7 +81,7 @@ end
 
 setupLP{T<:Real}(sig::T,file::String; ders="all")=(tab=table.loadTable(file); setupLP(tab,convert(BigFloat,sig),ders=ders))
 setupLP{T<:Real}(sigs::Array{T,1},file::String,ders="all")=setupLP(convert(Array{BigFloat,1},sigs),file,ders=ders)
-setupLP(sigs::Array{BigFloat,1},file::String,ders="all")=(tab=table.loadTable(file); [setupLP(tab,s,ders=ders)::LP.LinearProblem for s in sigs])
+setupLP(sigs::Array{BigFloat,1},file::String,ders="all")=(tab=table.loadTable(file); [setupLP(tab,s,ders=ders)::LP.LinearProgram for s in sigs])
 
 function setupLP()
 
@@ -155,8 +155,8 @@ end
 
 #------ Routine for updating the target of a Linear Problem (has to be done when solution has only auxiliary vectors)
 
-changeTarget!{T<:Real}(lp::LinearProblem{T},targetvec::LP.LPVector{T})=changeTarget!(lp,targetvec.vector)
-function changeTarget!{T<:Real}(lp::LinearProblem{T},targetvec::Array{T,1})
+changeTarget!{T<:Real}(lp::LinearProgram{T},targetvec::LP.LPVector{T})=changeTarget!(lp,targetvec.vector)
+function changeTarget!{T<:Real}(lp::LinearProgram{T},targetvec::Array{T,1})
 
         labels=[v.label[2] for v in lp.solVecs]
         for l in labels
@@ -199,7 +199,7 @@ end
 
 setupLP{T<:Real}(sig::T,file::String,vectortypes)=(tab=table.loadTable(file); setupLP(tab,convert(BigFloat,sig),vectortypes))
 setupLP{T<:Real}(sigs::Array{T,1},file::String,vectortypes)=setupLP(convert(Array{BigFloat,1},sigs),file,vectortypes)
-setupLP(sigs::Array{BigFloat,1},file::String,vectortypes)=(tab=table.loadTable(file); [setupLP(tab,s,vectortypes)::LP.LinearProblem for s in sigs])
+setupLP(sigs::Array{BigFloat,1},file::String,vectortypes)=(tab=table.loadTable(file); [setupLP(tab,s,vectortypes)::LP.LinearProgram for s in sigs])
 
 
 function setupLP(tab::table.Table,sigma::BigFloat, vectortypes)
