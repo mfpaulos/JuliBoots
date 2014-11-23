@@ -79,6 +79,75 @@ BBproblem{T<:Real}(mf::MinFunction{T})=BBproblem(mf,mf.range,[Interval(mf,"Bad")
 #
 #########################################################################################################
 
+# For reals
+function divide!{T<:Real}(bb::BBproblem{T})
+
+       ct=0
+       htime=0.
+       t0=time()
+       
+       while length(bb.badList)!=0 && ct<=5000
+                i=splice!(bb.badList,endof(bb.badList)) #last interval on the list
+
+                xl=i.xL; xr=i.xR;
+                dx=xr-xl
+				
+                (dfL,d2fL,d3fL)=(i.dfL,i.d2fL,i.d3fL)
+                (dfR,d2fR,d3fR)=(i.dfR,i.d2fR,i.d3fR)
+
+
+				taylor_dfL=dfL+dx*d2fL/2+1/8*dx*dx*d3fL
+                taylor_dfR=dfR-dx*d2fR/2+1/8*dx*dx*d3fR
+
+                               
+                xc=1/2*(xl+xr)
+
+                htime+= @elapsed (dfC,d2fC,d3fC)=(bb.mf.df(xc),bb.mf.d2f(xc),bb.mf.d3f(xc))
+                # alloc1+= @allocated (bb.mf.df(xc),bb.mf.d2f(xc),bb.mf.d3f(xc))
+                ct+=3
+
+
+
+
+                q=  dfC==0 ? 1. : dfC    # this is to take into account the case where derivative itself is zero
+                val=false
+
+                #could be optimized
+                if abs((dfC-taylor_dfL)/q) < BB_ISGOOD && abs((dfC-taylor_dfR)/q) < BB_ISGOOD
+                            val=true
+
+                       #     if dfR>0 && dfL>0 && d3fC <0
+                       #         dxmin=-d2fC/d3fC
+                       #         if abs(dxmin)<dx/2
+                       #                 val= dfC+dxmin*d2fC/2 > 1/2*minimum([dfL,dfR]) ? true : false
+                       #         end
+                       #     end
+                       #     if dfR<0 && dfL<0 && d3fC> 0
+                       #         dxmin=-d2fC/d3fC
+                       #         if abs(dxmin)<dx/2
+                       #                 val= dfC+dxmin*d2fC/2 > 1/2*minimum([dfL,dfR]) ? true : false
+                       #         end
+                       #     end
+                end
+
+                if val                        
+                       push!(bb.goodList,GoodInterval(xl,xr,labelInt(dfL,dfR)))
+                else
+
+                        # update lists                                               
+                        newint1=Interval(xl,xc,"Bad",dfL,dfC,d2fL,d2fC,d3fL,d3fC); # recall that i is the last interval on the bad list
+                        newint2=Interval(xc,xr,"Bad",dfC,dfR,d2fC,d2fR,d3fC,d3fR);
+                        push!(bb.badList,newint1);
+                        push!(bb.badList,newint2);
+                end
+
+       end
+
+       if VERBOSE println("Inside Divide\nFunction valuations: $ct\nTime: $htime / $(time()-t0)") end
+
+end
+
+
 function divide!(bb::BBproblem{BigFloat})
 
        ct=0
@@ -189,16 +258,57 @@ function labelInt{T<:Real}(dfL::T,dfR::T)
 
 end
 
-#RIGHT NOW IT"S ONLY WORKING FOR BIGFLOATS
+# In practice, T is Float64
+function Newton{T<:Real}(mf::MinFunction{T},xl::T,xr::T)
 
-function Newton{T<:Real}(mf::MinFunction,xl::T,xr::T)
+        
+        x0=1/2*(xl+xr)  #initial guess
+        diff=zero(T)
+        df0=mf.df(x0)
+
+        x=x0
+        iter=0
+
+        tmp=mf.d2f(x0)^2-2*mf.df(x0)*mf.d3f(x0)
+        
+        if tmp <0
+            #println("domain error Newton") #DEBUG
+            #diff=BigFloat(0)
+        else
+            diff=-(sqrt(tmp)-mf.d2f(x0))/mf.d3f(x0)            
+        end
+
+        while abs(diff)>BB_NEWTON_GOAL && iter<=BB_ITERMAX
+                iter+=1
+                xnew=x-diff
+                
+
+                if xl<xnew && xnew<xr
+                    x=xnew;
+                else
+                    if mf.df(x0)<0
+                            xl=x
+                    else
+                            xr=x
+                    end
+                    x=1/2*(xl+xr)
+                end
+                diff=mf.df(x)/mf.d2f(x)				
+        end
+        if iter>=BB_ITERMAX println("Newton saturated") end
+
+        return (x,mf.f(x))
+end
+
+
+function Newton(mf::MinFunction{BigFloat},xl::BigFloat,xr::BigFloat)
 
         tmp1=BigFloat(0)
         tmp2=BigFloat(0)
         diff=BigFloat(0)
 
         x0=1/2*(xl+xr)  #initial guess
-        diff=one(T)
+        diff=zero(BigFloat)
         df0=mf.df(x0)
 
         x=x0

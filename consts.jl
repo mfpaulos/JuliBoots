@@ -12,25 +12,23 @@ set_bigfloat_precision(PRECISION) #Must set it immediately, since we use bigfloa
 ### BRANCH AND BOUND
 
 BB_NEWTON_GOAL=1e-12      # Accuracy in determination of minimum during branch and bound
-BB_ISGOOD=0.1     # when to determine if an interval is good; decreasing this parameter reduces the number of "domain error Newton"
+BB_ISGOOD=0.08     # when to determine if an interval is good; decreasing this parameter reduces the number of "domain error Newton"
 BB_ITERMAX=500       # When to stop Newton's method
 
 ### LP
 
-DELTAMAX=BigFloat(70)        # maximum \Delta WARNING: these things have different precision than stuff read from CBs
-FUDGE=BigFloat(1e-30)         # Used for: not evaluating things at unitarity bound for L=0;
-                              # Plays the role of zero components in things like global symmetry bounds.
+DELTAMAX=BigFloat(70)        # maximum \Delta
+FUDGE=BigFloat(1e-30)         # Used for: not evaluating things exactly at unitarity bound for L=0;
+                              # Also plays the role of zero components in things like global symmetry bounds.
 VERBOSE=false                 # whether to print timings
 # File System
 LPFILE="./LPLog.txt"
 
 
-LP_STOPGOAL=BigFloat(1e-5)       # Linear problem will optimization if relative cost variation will be
-LP_STOPITERS=25                    # smaller or equal to first value for LP_STOPITER iterations in a row
+LP_STOPGOAL=BigFloat(1e-5)       # Linear problem will stop optimization if relative cost variation will be
+LP_STOPITERS=25                  # smaller or equal to LP_STOPGOAL for LP_STOPITER iterations in a row
 
 
-
-#push!(LOAD_PATH,"C:\\Users\\Miguel_Paulos\\Dropbox\\Julia\ Code")
 
 ### BOOTSTRAP
 
