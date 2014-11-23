@@ -1,0 +1,157 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 9.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       157,          7]
+NotebookDataLength[      4485,        148]
+NotebookOptionsPosition[      3868,        122]
+NotebookOutlinePosition[      4214,        137]
+CellTagsIndexPosition[      4171,        134]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["\<\
+JuliBootS conformal block table generator.\
+\>", "Subtitle",
+ CellChangeTimes->{{3.6257682794459815`*^9, 3.6257682928389893`*^9}}],
+
+Cell["This loads the Tables package.", "Text",
+ CellChangeTimes->{{3.625768297933442*^9, 3.6257683054004307`*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"<<", 
+   RowBox[{"(", 
+    RowBox[{
+     RowBox[{"NotebookDirectory", "[", "]"}], "<>", "\"\<Tables.m\>\""}], 
+    ")"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.6257681554379144`*^9, 3.6257681646270914`*^9}}],
+
+Cell[TextData[{
+ "To compute a conformal block table we call the ComputeTable function. It \
+has arguments and options:\n\n\
+ComputeTable[D,nmax,mmax,Lmax,filename,kMax->Int,Prec->Int,AllSpins->Boole]\n\
+\nThese are:\n\n",
+ StyleBox["D - ",
+  FontSlant->"Italic"],
+ "Spacetime dimension\n",
+ StyleBox["nmax ",
+  FontSlant->"Italic"],
+ "- maximum number of transverse derivatives\n",
+ StyleBox["mmax - ",
+  FontSlant->"Italic"],
+ "related to maximum number of direct derivatives (see JuliBootS manual for \
+more details)\n",
+ StyleBox["Lmax ",
+  FontSlant->"Italic"],
+ "- maximum spin to compute\n",
+ StyleBox["filename - ",
+  FontSlant->"Italic"],
+ "name of file where table will be saved\n\nOptions:\n\n",
+ StyleBox["kmax",
+  FontSlant->"Italic"],
+ " - parameter controlling expansion of blocks along z=\\bar z. We recommend \
+leaving this to its default value which is 60.\n\n",
+ StyleBox["Prec -",
+  FontSlant->"Italic"],
+ " precision with which blocks will be computed. Default is 64 digits. For \
+nmax>11 we recommend increasing this, as precision is lost during recursion.\n\
+\n",
+ StyleBox["AllSpins -",
+  FontSlant->"Italic"],
+ " whether to compute odd spins. Default is ",
+ StyleBox["false",
+  FontSlant->"Italic"],
+ "."
+}], "Text",
+ CellChangeTimes->{{3.6257683110192204`*^9, 3.6257685567490826`*^9}}],
+
+Cell[CellGroupData[{
+
+Cell["Example", "Subsection",
+ CellChangeTimes->{{3.625768575143486*^9, 3.6257686046122904`*^9}}],
+
+Cell["\<\
+This computes a conformal block table in dimension 3, nmax=3, mmax=1, with \
+spin up to 20 and precision 80. This might take some time...\
+\>", "Text",
+ CellChangeTimes->{{3.6257685815387516`*^9, 3.625768603394471*^9}, {
+  3.625768655241292*^9, 3.625768656957447*^9}, {3.6257686983072405`*^9, 
+  3.625768702034747*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"dim", "=", "3"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"nmax", "=", "3"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"mmax", "=", "1"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"Lmax", "=", "20"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"filename", "=", 
+   RowBox[{
+    RowBox[{"NotebookDirectory", "[", "]"}], "<>", 
+    "\"\<D3_n3m1_L20.txt\>\""}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"ComputeTable", "[", 
+  RowBox[{"dim", ",", "nmax", ",", "mmax", ",", "Lmax", ",", "filename", ",", 
+   RowBox[{"Prec", "\[Rule]", "80"}]}], "]"}]}], "Input",
+ CellChangeTimes->{{3.6257673834626875`*^9, 3.6257674039594665`*^9}, {
+  3.6257685936739063`*^9, 3.6257686914396267`*^9}}],
+
+Cell[BoxData[
+ DynamicBox[ToBoxes[$CellContext`Lct$3085, StandardForm],
+  Evaluator->"Local",
+  ImageSizeCache->{7., {0., 8.}}]], "PrintTemporary",
+ CellChangeTimes->{3.6257686940613875`*^9}]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{701, 800},
+WindowMargins->{{394, Automatic}, {32, Automatic}},
+FrontEndVersion->"9.0 for Microsoft Windows (64-bit) (November 20, 2012)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[579, 22, 140, 3, 49, "Subtitle"],
+Cell[722, 27, 114, 1, 30, "Text"],
+Cell[839, 30, 245, 7, 31, "Input"],
+Cell[1087, 39, 1311, 37, 448, "Text"],
+Cell[CellGroupData[{
+Cell[2423, 80, 97, 1, 43, "Subsection"],
+Cell[2523, 83, 329, 6, 49, "Text"],
+Cell[CellGroupData[{
+Cell[2877, 93, 757, 18, 132, "Input"],
+Cell[3637, 113, 191, 4, 23, "PrintTemporary"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)
