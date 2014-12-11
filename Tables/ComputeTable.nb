@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       157,          7]
-NotebookDataLength[      4485,        148]
-NotebookOptionsPosition[      3868,        122]
-NotebookOutlinePosition[      4214,        137]
-CellTagsIndexPosition[      4171,        134]
+NotebookDataLength[      4179,        136]
+NotebookOptionsPosition[      3640,        113]
+NotebookOutlinePosition[      3988,        128]
+CellTagsIndexPosition[      3945,        125]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -89,8 +89,6 @@ spin up to 20 and precision 80. This might take some time...\
   3.625768655241292*^9, 3.625768656957447*^9}, {3.6257686983072405`*^9, 
   3.625768702034747*^9}}],
 
-Cell[CellGroupData[{
-
 Cell[BoxData[{
  RowBox[{
   RowBox[{"dim", "=", "3"}], ";"}], "\[IndentingNewLine]", 
@@ -109,19 +107,12 @@ Cell[BoxData[{
   RowBox[{"dim", ",", "nmax", ",", "mmax", ",", "Lmax", ",", "filename", ",", 
    RowBox[{"Prec", "\[Rule]", "80"}]}], "]"}]}], "Input",
  CellChangeTimes->{{3.6257673834626875`*^9, 3.6257674039594665`*^9}, {
-  3.6257685936739063`*^9, 3.6257686914396267`*^9}}],
-
-Cell[BoxData[
- DynamicBox[ToBoxes[$CellContext`Lct$3085, StandardForm],
-  Evaluator->"Local",
-  ImageSizeCache->{7., {0., 8.}}]], "PrintTemporary",
- CellChangeTimes->{3.6257686940613875`*^9}]
-}, Open  ]]
+  3.6257685936739063`*^9, 3.6257686914396267`*^9}}]
 }, Open  ]]
 }, Open  ]]
 },
 WindowSize->{701, 800},
-WindowMargins->{{394, Automatic}, {32, Automatic}},
+WindowMargins->{{394, Automatic}, {-781, Automatic}},
 FrontEndVersion->"9.0 for Microsoft Windows (64-bit) (November 20, 2012)",
 StyleDefinitions->"Default.nb"
 ]
@@ -144,10 +135,7 @@ Cell[1087, 39, 1311, 37, 448, "Text"],
 Cell[CellGroupData[{
 Cell[2423, 80, 97, 1, 43, "Subsection"],
 Cell[2523, 83, 329, 6, 49, "Text"],
-Cell[CellGroupData[{
-Cell[2877, 93, 757, 18, 132, "Input"],
-Cell[3637, 113, 191, 4, 23, "PrintTemporary"]
-}, Open  ]]
+Cell[2855, 91, 757, 18, 132, "Input"]
 }, Open  ]]
 }, Open  ]]
 }

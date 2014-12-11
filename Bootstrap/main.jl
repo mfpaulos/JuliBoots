@@ -54,7 +54,7 @@ end
 
 ############################################################
 #                                                          #
-#  Setting up Linear Problems                              #
+#  Setting up Linear Programs                              #
 #                                                          #
 ############################################################
 
@@ -62,7 +62,7 @@ end
 # ======= Setting up a basic LP (no global symmetry) ===========
 
 
-# Utility for dropping odd spins from a Linear Problem
+# Utility for dropping odd spins from a Linear Program
 function dropOdd!(prob::LinearProgram)
         ll=length(prob.lpFunctions)
         prob.lpFunctions=[prob.lpFunctions[2i-1] for i=1:(floor(ll/2)+1)]
@@ -79,8 +79,8 @@ end
 # Setup LP functions
 
 setupLP{T<:Real}(sig::T,file::String; ders="all")=(tab=table.loadTable(file); setupLP(tab,convert(BigFloat,sig),ders=ders))
-setupLP{T<:Real}(sigs::Array{T,1},file::String,ders="all")=setupLP(convert(Array{BigFloat,1},sigs),file,ders=ders)
-setupLP(sigs::Array{BigFloat,1},file::String,ders="all")=(tab=table.loadTable(file); [setupLP(tab,s,ders=ders)::LP.LinearProgram for s in sigs])
+setupLP{T<:Real}(sigs::Array{T,1},file::String;ders="all")=setupLP(convert(Array{BigFloat,1},sigs),file,ders=ders)
+setupLP(sigs::Array{BigFloat,1},file::String;ders="all")=(tab=table.loadTable(file); [setupLP(tab,s,ders=ders)::LP.LinearProgram{BigFloat} for s in sigs])
 
 function setupLP()
 
@@ -116,7 +116,7 @@ function setupLP(tab::table.Table,sigma::BigFloat; ders="all")
 
         spins= tab.OddL ? [0:1:Lmax] : [0:2:Lmax]
 
-        #let's create a linear problem based on this data
+        #let's create a linear program based on this data
         trgt=-value(vecfuncs[1].vec,bf(0))    # the target: identity vector
 
         lpVectorFuncs=[LP.LPVectorFunction(
@@ -152,7 +152,7 @@ function setupLP(tab::table.Table,sigma::BigFloat; ders="all")
         return tmp
 end
 
-#------ Routine for updating the target of a Linear Problem (has to be done when solution has only auxiliary vectors)
+#------ Routine for updating the target of a Linear Program (has to be done when solution has only auxiliary vectors)
 
 changeTarget!{T<:Real}(lp::LinearProgram{T},targetvec::LP.LPVector{T})=changeTarget!(lp,targetvec.vector)
 function changeTarget!{T<:Real}(lp::LinearProgram{T},targetvec::Array{T,1})
@@ -160,7 +160,7 @@ function changeTarget!{T<:Real}(lp::LinearProgram{T},targetvec::Array{T,1})
         labels=[v.label[2] for v in lp.solVecs]
         for l in labels
             if l!="AUX"
-                     println("Can only act on Linear Problems with purely AUX type vectors.")
+                     println("Can only act on Linear Programs with purely AUX type vectors.")
                      return
             end
         end
