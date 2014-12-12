@@ -1,13 +1,11 @@
 module sample
-using various
-using main
+using juliboots
 
-sigma=BigFloat(0.518)
-prob=setupLP(sigma,"./Tables/eps0.5n3m1_allspins_prec80.txt")
-prob2=main.mcopy(prob)
-prob2=dropOdd!(prob2)
 
-result=bissect(prob2,3,1,1e-15,"L=0",method="mcv")
+sigma=BigFloat(0.50001)
+prob=setupLP(sigma,"./Tables/D3_n3m1_L20.txt")
+
+result=bissect(prob2,3,1,1e-3,"L=0",method="mcv")
 
 
 end
