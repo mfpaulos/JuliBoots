@@ -7,10 +7,10 @@ import bb
 import qfunc
 import cb
 using LP
-import table
+using table
 export chooseTable, setupLP, bissect, value, dropOdd!, changeTarget!,dropEven!,opemax
 export filter,iterate!,status,cost,solution,makeVector # LP routines, this makes them accessible when 'using main'
-
+export saveresults
 
 
 bf=BigFloat

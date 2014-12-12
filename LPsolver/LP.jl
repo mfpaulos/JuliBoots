@@ -19,6 +19,8 @@ import Base: getindex, length, show
 
 export LinearProgram, iterate!,filter,filter!,cost,updateFunctional!,
         updateInverse!,updateCoeffs!,LabelF,solution,status,makeVector
+export findMRC
+export findBVar
 
 
 #export LPFunction, LPVector, LPVectorFunction

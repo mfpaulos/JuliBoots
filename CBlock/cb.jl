@@ -21,6 +21,7 @@ import Base: convert, promote_rule, promote,isequal, getindex,      #
         setindex!, length, dot, +, *, -, /, show, merge
 
 export CB_Q, CBVec_Q, Conv_Q, ConvVec_Q, DerivativeVec
+export convBlock
 
 #####################################################################################
 #
