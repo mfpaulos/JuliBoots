@@ -7,7 +7,7 @@
 module LP
 
 using various
-import various: value, tofloat, mcopy, mmult, mplus,mdiv
+import various: value, tofloat, mcopy, mmult, mplus,mdiv, derivative
 
 using consts
 import consts: LPFILE
@@ -162,9 +162,10 @@ end
 
 
 #---- Various
+ 	
+derivative(lv::LPVectorFunction,i::Int64)=LPVectorFunction(lv.range,derivative(lv.vecfunc,i),lv.cost,lv.label)
 
-
-
+getindex{T<:Real}(lpa::Array{LPVectorFunction{T},1},label::ASCIIString)=(lpa[find(x->x.label==label,lpa)[1]])
 getindex(lv::LPVector,i::Int64)=lv.vector[i]
 length(lv::LPVector)=length(lv.vector)
 length(lv::LPVectorFunction)=length(lv.vecfunc)
@@ -378,7 +379,7 @@ end
 
 #-------- Basic iteration of simplex method
 
-function iterate!{T<:Real}(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", method="mcv")
+function iterate!{T<:Real}(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", method="mcv", quiet=false)
 
 
         #Initializations
@@ -386,14 +387,14 @@ function iterate!{T<:Real}(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", m
         tmp=BigFloat(0)         #temporary variable
         stopiters=0
         starttime=time()
-        println("Started at: $(strftime(time()))\t\t Initial Cost: $(convert(Float64,cost(lp)))")
+        if !quiet println("Started at: $(strftime(time()))\t\t Initial Cost: $(convert(Float64,cost(lp)))") end
 
         for i=1:n            
             t0=time()
             currentcost=cost(lp)            
             write(log,"$i - $(strftime(time())) - Iteration: $i\n")
             write(log,"$i - $(strftime(time())) - Current cost: $(currentcost)\n")
-            if i%100==0 println("Iteration $i\nCurrent cost: $(convert(Float64,currentcost))\t\t Elapsed: $(time()-starttime)") end
+            if i%100==0 && !quiet println("Iteration $i\nCurrent cost: $(convert(Float64,currentcost))\t\t Elapsed: $(time()-starttime)") end
 
 
             #---- Find a vector to bring in -------
@@ -405,8 +406,11 @@ function iterate!{T<:Real}(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", m
             allrc=[nb_rc[i][2] for i=1:length(nb_rc)]       #all reduced costs: one per vector, and a set of local minima for each lpFunction
 
             if method=="mrc"                #in this case simplex uses the vector with smallest minimum reduced cost
-                  (mrc,posmin)=findmin(allrc)
-                  if mrc>=zero(mrc) println("Min cost achieved"); break end
+					(mrc,posmin)=findmin(allrc)
+					if mrc>=zero(mrc)
+						if !quiet println("Min cost achieved") end
+						break
+					end
                   nb=nb_rc[posmin][1]
 
                   #---- Swapping ---------------
@@ -436,7 +440,10 @@ function iterate!{T<:Real}(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", m
                   if costvar==-inf(BigFloat) println("Problem unbounded"); close(log); return lp end
                   nb=nb_rc[pos][1]
                   mrc=nb_rc[pos][2]
-                  if mrc>=zero(mrc) println("Min cost achieved"); break end
+				  if mrc>=zero(mrc) 
+				  	if !quiet println("Min cost achieved") end
+					break
+				  end
                   minx=minx_bvar[pos][1]
                   bvar=minx_bvar[pos][2]
                   swapped=(mcopy(lp.solVecs[bvar].label[1]),deepcopy(lp.solVecs[bvar].label[2]));
@@ -471,7 +478,10 @@ function iterate!{T<:Real}(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", m
 
 
             if abs(cc-currentcost)/maximum([abs(currentcost),FUDGE])<= LP_STOPGOAL stopiters+=1 else stopiters=0 end
-            if stopiters== LP_STOPITERS println("Not improving any more."); break end
+            if stopiters== LP_STOPITERS 
+				if !quiet println("Not improving any more.") end
+				break
+			end
             if cc>currentcost println("Cost increased at iteration $i") end
         end
 

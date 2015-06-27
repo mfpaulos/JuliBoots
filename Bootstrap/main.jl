@@ -8,7 +8,7 @@ import qfunc
 import cb
 using LP
 using table
-export chooseTable, setupLP, bissect, value, dropOdd!, changeTarget!,dropEven!,opemax
+export chooseTable, setupLP, bissect, value, dropOdd!, changeTarget!,dropEven!,opemax, avgSpec
 export filter,iterate!,status,cost,solution,makeVector # LP routines, this makes them accessible when 'using main'
 export saveresults
 
@@ -269,8 +269,8 @@ function saveresults(file::String,prob::LinearProgram)
 end
 
 
-bissect(lp::LinearProgram{BigFloat},top::Real, bot::Real, acc::Real,criteria::LP.LabelF; method="mcv")=bissect(lp,BigFloat(top),BigFloat(bot),BigFloat(acc),x->x==criteria, method=method)
-function bissect(lp::LinearProgram{BigFloat},top::BigFloat, bot::BigFloat, acc::BigFloat,criteria::Function; method="mcv")
+bissect(lp::LinearProgram{BigFloat},top::Real, bot::Real, acc::Real,criteria::LP.LabelF; method="mcv",quiet=false)=bissect(lp,BigFloat(top),BigFloat(bot),BigFloat(acc),x->x==criteria, method=method,quiet=quiet)
+function bissect(lp::LinearProgram{BigFloat},top::BigFloat, bot::BigFloat, acc::BigFloat,criteria::Function; method="mcv", quiet=false)
 
         upper=maximum([bot,top])
         bottom=minimum([bot,top])
@@ -283,7 +283,7 @@ function bissect(lp::LinearProgram{BigFloat},top::BigFloat, bot::BigFloat, acc::
 
         while (upper-bottom)>acc
                 x=1/2*(upper+bottom)
-                println("x= $x")
+                if !quiet println("x= $x") end
                 tmp=mcopy(lp)
                 filter!(tmp,(-BigFloat(1),x),criteria)
 
@@ -302,7 +302,7 @@ function bissect(lp::LinearProgram{BigFloat},top::BigFloat, bot::BigFloat, acc::
 
                 #------------
 
-                iterate!(lp1,LP_ITERMAX,method=method)
+                iterate!(lp1,LP_ITERMAX,method=method,quiet=quiet)
 
 
                 if cost(lp1)==zerobf
@@ -331,7 +331,9 @@ function opemax{T<:Real}(lp::LinearProgram{T},confdim::Real,label::LP.LabelF;ite
                         vector=makeVector(lpf,x); vector.cost=-convert(T,1);
                 end
         end
-
+		for v in lp2.lpVectors
+			if v.label[2]=="AUX" mcopy(v.cost,BigFloat(1e10)) end
+		end
         push!(lp2.lpVectors,vector)
         iterate!(lp2,itermax)
 
@@ -339,6 +341,68 @@ function opemax{T<:Real}(lp::LinearProgram{T},confdim::Real,label::LP.LabelF;ite
 end
 
 
+
+
+#############################
+#
+# Average spectrum
+#
+#############################
+
+function avgSpec(lp::LP.LinearProgram;cutoff=1e-6)
+
+	sol=sort(solution(lp));
+	Ds=[s[1][1] for s in sol];
+	Ls=[s[1][2]::LP.LabelF for s in sol];
+	Cs=[s[2] for s in sol];
+	Ranges=Dict([lpf.label => lpf.range for lpf in lp.lpFunctions])
+
+
+	# Need to average
+
+	i=1;
+	avDs=Array(BigFloat,0)
+	avCs=Array(BigFloat,0)
+	doubled=Array(Int64,0)
+	labels=Array(LP.LabelF,0)
+
+	ct=1;
+	while i<=length(Ds)
+		if Ls[i]=="AUX" i+=1; continue end
+		dim=Ds[i]
+		ope=Cs[i]
+		push!(labels,Ls[i])
+		if i==length(Ds)
+			push!(avDs,dim);
+			push!(avCs,ope);
+			break
+		end
+		eps=Ds[i+1]-Ds[i]
+		k=1
+		while abs(eps)<cutoff    
+			push!(doubled,ct)
+			dim=(ope*dim+Cs[i+k]*Ds[i+k])/(ope+Cs[i+k])
+			ope=ope+Cs[i+k];
+			k+=1
+			eps=Ds[i+k]-dim;        
+		end
+		i=i+k;
+		push!(avDs,dim);
+		push!(avCs,ope);    
+		ct+=1;
+	end
+#get fixed guys
+
+	Ranges=Dict([lpf.label => lpf.range for lpf in lp.lpFunctions])
+	fixed=Array(Int,0);
+	for (i,d) in enumerate(avDs)
+		if d==Ranges[labels[i]][1] || d==Ranges[labels[i]][2] push!(fixed,i) end
+	end
+
+	#get singles
+	singles=setdiff([1:length(avDs)],[fixed,doubled])
+	return (avDs,avCs,fixed,singles,doubled,labels)
+end
 
 
 

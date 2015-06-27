@@ -335,7 +335,7 @@ shift_arg(q::Pole, x::Real)=Pole(q.order,q.pole-x,q.coeff)
 shift_arg(q::Array{Pole,1}, x::Real)=[shift_arg(q[i],x)::Pole for i=1:length(q)]
 
 tofloat(p::Pole)=Pole(p.order,tofloat(p.pole),tofloat(p.coeff))
-tofloat(p::Array{Pole,1})=[tofloat(i)::Pole for i in p]
+tofloat{T<:Real}(p::Array{Pole{T},1})=[tofloat(i)::Pole for i in p]
 
 
 
@@ -640,10 +640,11 @@ trim{T<:Real}(qf::Array{QFunc{T},1},cutoff::T)=[trim(i,cutoff)::QFunc{T} for i i
 
 derivative(qf::QFunc,i::Int64)=QFunc(derivative(qf.poly,i),[derivative(qf.poles[j],i)::Pole for j=1:length(qf.poles)])
 
+
 #----- To Float --- not currently used
 
 tofloat(q::QFunc)=QFunc(tofloat(q.poly),tofloat(q.poles))
-tofloat{T<:Real}(q::Array{QFunc{T},1})=[tofloat(i)::QFunc{T} for i in q]
+tofloat{T<:Real}(q::Array{QFunc{T},1})=[tofloat(i)::QFunc{Float64} for i in q]
 
 
 

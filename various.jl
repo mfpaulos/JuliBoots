@@ -43,16 +43,12 @@ tofloat(x::Number)=convert(Float64,x)
 tofloat{T<:Number}(a::Array{T,1})=[tofloat(i)::Float64 for i in a]
 
 
-derivative(x::Number)=zero(x)
+derivative(x::Number,i::Int64)=zero(x)
 
 #-----
 
-function derivative(f::Function)
 
-        return function(x)
-                    (f(x+eps(Float64))-f(x))/eps(Float64)
-               end
-end
+derivative{T}(a::Array{T,1},i::Int64)=[derivative(aa,i)::T for aa in a]
 
 #-----
 
