@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       157,          7]
-NotebookDataLength[      4274,        137]
-NotebookOptionsPosition[      3739,        114]
-NotebookOutlinePosition[      4083,        129]
-CellTagsIndexPosition[      4040,        126]
+NotebookDataLength[      4957,        156]
+NotebookOptionsPosition[      4312,        129]
+NotebookOutlinePosition[      4656,        144]
+CellTagsIndexPosition[      4613,        141]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -89,31 +89,46 @@ spin up to 20 and precision 80. This might take some time...\
   3.625768655241292*^9, 3.625768656957447*^9}, {3.6257686983072405`*^9, 
   3.625768702034747*^9}}],
 
+Cell[CellGroupData[{
+
 Cell[BoxData[{
  RowBox[{
-  RowBox[{"dim", "=", "2"}], ";"}], "\[IndentingNewLine]", 
+  RowBox[{"dim", "=", "1"}], ";"}], "\[IndentingNewLine]", 
  RowBox[{
-  RowBox[{"nmax", "=", "6"}], ";"}], "\[IndentingNewLine]", 
+  RowBox[{"nmax", "=", "0"}], ";"}], "\[IndentingNewLine]", 
  RowBox[{
-  RowBox[{"mmax", "=", "1"}], ";"}], "\[IndentingNewLine]", 
+  RowBox[{"mmax", "=", "80"}], ";"}], "\[IndentingNewLine]", 
  RowBox[{
-  RowBox[{"Lmax", "=", "50"}], ";"}], "\[IndentingNewLine]", 
+  RowBox[{"Lmax", "=", "0"}], ";"}], "\[IndentingNewLine]", 
  RowBox[{
   RowBox[{"filename", "=", 
    RowBox[{
-    RowBox[{"NotebookDirectory", "[", "]"}], "<>", 
-    "\"\<D2_n6m1_L50.txt\>\""}]}], ";"}], "\[IndentingNewLine]", 
+    RowBox[{"NotebookDirectory", "[", "]"}], "<>", "\"\<D1_m80.txt\>\""}]}], 
+  ";"}], "\[IndentingNewLine]", 
  RowBox[{"ComputeTable", "[", 
   RowBox[{"dim", ",", "nmax", ",", "mmax", ",", "Lmax", ",", "filename", ",", 
-   RowBox[{"Prec", "\[Rule]", "80"}]}], "]"}]}], "Input",
+   RowBox[{"Prec", "\[Rule]", "110"}], ",", 
+   RowBox[{"kMax", "\[Rule]", "80"}]}], "]"}]}], "Input",
  CellChangeTimes->{{3.6257673834626875`*^9, 3.6257674039594665`*^9}, {
   3.6257685936739063`*^9, 3.6257686914396267`*^9}, {3.6442196854736767`*^9, 
-  3.644219702914246*^9}, {3.644220379958175*^9, 3.6442203970765285`*^9}}]
+  3.644219702914246*^9}, {3.644220379958175*^9, 3.6442203970765285`*^9}, {
+  3.644317592844001*^9, 3.6443176145198555`*^9}, {3.644396238144423*^9, 
+  3.6443962505766687`*^9}, {3.6445759417432337`*^9, 3.644575962884256*^9}}],
+
+Cell[BoxData["$Aborted"], "Output",
+ CellChangeTimes->{3.6445766085491214`*^9, 3.6445800041340666`*^9}]
+}, Open  ]],
+
+Cell["\<\
+To compute blocks with non-identical external dimensions, add the options \
+\[CapitalDelta]12->... , \[CapitalDelta]34->... (Added by F. Rejon-Barrera)\
+\>", "Text",
+ CellChangeTimes->{{3.64604846192973*^9, 3.6460485091748204`*^9}}]
 }, Open  ]]
 }, Open  ]]
 },
 WindowSize->{1902, 914},
-WindowMargins->{{0, Automatic}, {Automatic, 0}},
+WindowMargins->{{0, Automatic}, {0, Automatic}},
 FrontEndVersion->"9.0 for Microsoft Windows (64-bit) (November 20, 2012)",
 StyleDefinitions->"Default.nb"
 ]
@@ -136,7 +151,11 @@ Cell[1087, 39, 1311, 37, 372, "Text"],
 Cell[CellGroupData[{
 Cell[2423, 80, 97, 1, 43, "Subsection"],
 Cell[2523, 83, 329, 6, 30, "Text"],
-Cell[2855, 91, 856, 19, 132, "Input"]
+Cell[CellGroupData[{
+Cell[2877, 93, 1044, 22, 132, "Input"],
+Cell[3924, 117, 103, 1, 31, "Output"]
+}, Open  ]],
+Cell[4042, 121, 242, 4, 30, "Text"]
 }, Open  ]]
 }, Open  ]]
 }

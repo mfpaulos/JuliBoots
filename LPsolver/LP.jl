@@ -479,7 +479,7 @@ function iterate!{T<:Real}(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", m
 
             if abs(cc-currentcost)/maximum([abs(currentcost),FUDGE])<= LP_STOPGOAL stopiters+=1 else stopiters=0 end
             if stopiters== LP_STOPITERS 
-				if !quiet println("Not improving any more.") end
+				if !quiet println("Relative cost variation too slow -- Not improving any more.") end
 				break
 			end
             if cc>currentcost println("Cost increased at iteration $i") end

@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       157,          7]
-NotebookDataLength[     86320,       2045]
-NotebookOptionsPosition[     84708,       1988]
-NotebookOutlinePosition[     85447,       2014]
-CellTagsIndexPosition[     85404,       2011]
+NotebookDataLength[    200637,       4630]
+NotebookOptionsPosition[    198976,       4573]
+NotebookOutlinePosition[    199683,       4597]
+CellTagsIndexPosition[    199640,       4594]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -89,6 +89,7 @@ Cell[BoxData[
        RowBox[{"1", "/", "2"}]}], " ", "*)"}], "\[IndentingNewLine]", 
      RowBox[{
       RowBox[{"$MaxExtraPrecision", "=", "100"}], ";", "\[IndentingNewLine]", 
+      
       RowBox[{"Clear", "[", 
        RowBox[{"\[Rho]0", ",", "\[Rho]der"}], "]"}], ";", 
       "\[IndentingNewLine]", 
@@ -227,38 +228,43 @@ Cell[BoxData[
           RowBox[{"coeffs", "[", "n_", "]"}], ":=", 
           RowBox[{"{", 
            RowBox[{
-            FractionBox[
-             RowBox[{
-              RowBox[{"(", 
-               RowBox[{
-                RowBox[{"-", "3"}], "+", "n", "+", "\[CapitalDelta]"}], ")"}],
+            RowBox[{
+             RowBox[{"(", 
+              RowBox[{
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"-", "3"}], "+", "n", "+", "\[CapitalDelta]"}], 
+                ")"}], " ", 
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"-", "5"}], "-", "l", "+", 
+                 RowBox[{"2", " ", "n"}], "+", "\[CapitalDelta]"}], ")"}], 
                " ", 
-              RowBox[{"(", 
-               RowBox[{
-                RowBox[{"-", "5"}], "-", "l", "+", 
-                RowBox[{"2", " ", "n"}], "+", "\[CapitalDelta]"}], ")"}], " ", 
-              RowBox[{"(", 
-               RowBox[{
-                RowBox[{"-", "2"}], "+", "n", "+", "\[Epsilon]"}], ")"}], " ", 
-              RowBox[{"(", 
-               RowBox[{
-                RowBox[{"-", "5"}], "+", "l", "+", 
-                RowBox[{"2", " ", "n"}], "+", "\[CapitalDelta]", "+", 
-                RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}]}], 
-             RowBox[{"n", " ", 
-              RowBox[{"(", 
-               RowBox[{
-                RowBox[{"-", "1"}], "+", "l", "+", 
-                RowBox[{"2", " ", "n"}], "+", "\[CapitalDelta]"}], ")"}], " ", 
-              RowBox[{"(", 
-               RowBox[{
-                RowBox[{"-", "1"}], "-", "l", "+", 
-                RowBox[{"2", " ", "n"}], "+", "\[CapitalDelta]", "-", 
-                RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}], " ", 
-              RowBox[{"(", 
-               RowBox[{
-                RowBox[{"-", "1"}], "+", "n", "+", "\[CapitalDelta]", "-", 
-                "\[Epsilon]"}], ")"}]}]], ",", 
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"-", "2"}], "+", "n", "+", "\[Epsilon]"}], ")"}], 
+               " ", 
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"-", "5"}], "+", "l", "+", 
+                 RowBox[{"2", " ", "n"}], "+", "\[CapitalDelta]", "+", 
+                 RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}]}], ")"}], "/", 
+             RowBox[{"(", 
+              RowBox[{"n", " ", 
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"-", "1"}], "+", "l", "+", 
+                 RowBox[{"2", " ", "n"}], "+", "\[CapitalDelta]"}], ")"}], 
+               " ", 
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"-", "1"}], "-", "l", "+", 
+                 RowBox[{"2", " ", "n"}], "+", "\[CapitalDelta]", "-", 
+                 RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}], " ", 
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"-", "1"}], "+", "n", "+", "\[CapitalDelta]", "-", 
+                 "\[Epsilon]"}], ")"}]}], ")"}]}], ",", 
             RowBox[{
              FractionBox["1", 
               RowBox[{"4", " ", "n", " ", 
@@ -438,6 +444,7 @@ Cell[BoxData[
                    RowBox[{"(", 
                     RowBox[{
                     RowBox[{"-", "1"}], "+", "\[CapitalDelta]"}], ")"}], " ", 
+                   
                    RowBox[{"(", 
                     RowBox[{
                     RowBox[{"-", "1"}], "+", "\[CapitalDelta]", "-", 
@@ -1407,7 +1414,2542 @@ Cell[BoxData[
    3.6257659264666853`*^9}, {3.625765994375337*^9, 3.6257659957862844`*^9}, {
    3.6257661483272095`*^9, 3.625766169905717*^9}, {3.6257665708039865`*^9, 
    3.6257666141140995`*^9}, {3.6257666580306187`*^9, 3.625766680543755*^9}, {
-   3.6257673243829727`*^9, 3.6257673489805098`*^9}}]
+   3.6257673243829727`*^9, 3.6257673489805098`*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"Recurse2", "[", 
+     RowBox[{
+     "eps_", ",", "ll_", ",", "Delta12_", ",", "Delta34_", ",", "prec_", ",", 
+      "mmax_", ",", "nmax_", ",", "kmax_"}], "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+       "\[Epsilon]", ",", "l", ",", "fudge", ",", "expr", ",", "zdermax", ",",
+         "t1", ",", "t2", ",", "t3", ",", "t4", ",", "coeffs", ",", "cn", ",",
+         "cnRhoDer", ",", "CRec", ",", "cs", ",", "\[Rho]num", ",", 
+        "coeffTab", ",", "z", ",", "casCoeffs"}], "}"}], ",", 
+      RowBox[{
+       RowBox[{"(", "\[IndentingNewLine]", "\[IndentingNewLine]", 
+        RowBox[{
+         RowBox[{"ClearAll", "[", 
+          RowBox[{"cn", ",", "cnRhoDer", ",", "CRec"}], "]"}], ";", 
+         "\[IndentingNewLine]", "\[IndentingNewLine]", 
+         RowBox[{"\[Epsilon]", "=", "eps"}], ";", 
+         RowBox[{"l", "=", "ll"}], ";", "\[IndentingNewLine]", 
+         RowBox[{"fudge", "=", 
+          SuperscriptBox["10", 
+           RowBox[{"-", "50"}]]}], ";", "\[IndentingNewLine]", 
+         "\[IndentingNewLine]", 
+         RowBox[{
+          RowBox[{"coeffs", "[", "n_", "]"}], ":=", 
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"(", 
+              RowBox[{
+               RowBox[{"n", "^", "4"}], "+", 
+               RowBox[{"4", " ", 
+                RowBox[{"n", "^", "3"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"-", "6"}], "+", "\[CapitalDelta]", "+", 
+                  "\[Epsilon]"}], ")"}]}], "-", 
+               RowBox[{
+                RowBox[{"(", 
+                 RowBox[{"6", "+", "l", "-", "\[CapitalDelta]"}], ")"}], " ", 
+                
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"-", "7"}], "+", 
+                  RowBox[{"2", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"-", "5"}], "+", 
+                  RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"-", "6"}], "+", "l", "+", "\[CapitalDelta]", "+", 
+                  RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}]}], "-", 
+               RowBox[{"2", " ", "n", " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"-", "6"}], "+", "\[CapitalDelta]", "+", 
+                  "\[Epsilon]"}], ")"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"-", "71"}], "+", 
+                  RowBox[{"l", "^", "2"}], "-", 
+                  RowBox[{
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "22"}], "+", "\[CapitalDelta]"}], ")"}], " ",
+                    "\[CapitalDelta]"}], "+", 
+                  RowBox[{"2", " ", 
+                   RowBox[{"(", 
+                    RowBox[{"13", "+", "l", "-", 
+                    RowBox[{"3", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                   "\[Epsilon]"}]}], ")"}]}], "+", 
+               RowBox[{
+                RowBox[{"n", "^", "2"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"-", 
+                   RowBox[{"l", "^", "2"}]}], "+", 
+                  RowBox[{"5", " ", 
+                   RowBox[{"(", 
+                    RowBox[{"43", "+", 
+                    RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "14"}], "+", "\[CapitalDelta]"}], ")"}], " ",
+                     "\[CapitalDelta]"}]}], ")"}]}], "-", 
+                  RowBox[{"2", " ", 
+                   RowBox[{"(", 
+                    RowBox[{"37", "+", "l", "-", 
+                    RowBox[{"7", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                   "\[Epsilon]"}], "+", 
+                  RowBox[{"4", " ", 
+                   RowBox[{"\[Epsilon]", "^", "2"}]}]}], ")"}]}]}], ")"}], 
+             "/", 
+             RowBox[{"(", 
+              RowBox[{"n", " ", 
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"-", "1"}], "+", "l", "+", "n", "+", 
+                 "\[CapitalDelta]"}], ")"}], " ", 
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"-", "1"}], "-", "l", "+", "n", "+", 
+                 "\[CapitalDelta]", "-", 
+                 RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}], " ", 
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"-", "2"}], "+", "n", "+", 
+                 RowBox[{"2", " ", "\[CapitalDelta]"}], "-", 
+                 RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}]}], ")"}]}], ",", 
+            RowBox[{
+             RowBox[{"(", 
+              RowBox[{
+               RowBox[{"n", "^", "4"}], "+", 
+               RowBox[{"4", " ", 
+                RowBox[{"n", "^", "3"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"-", "5"}], "-", 
+                  RowBox[{"2", " ", "Delta12"}], "+", 
+                  RowBox[{"2", " ", "Delta34"}], "+", "\[CapitalDelta]", "+", 
+                  "\[Epsilon]"}], ")"}]}], "+", 
+               RowBox[{
+                RowBox[{"n", "^", "2"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{"149", "-", 
+                  RowBox[{"132", " ", "Delta34"}], "-", 
+                  RowBox[{"l", "^", "2"}], "-", 
+                  RowBox[{"58", " ", "\[CapitalDelta]"}], "+", 
+                  RowBox[{"5", " ", 
+                   RowBox[{"\[CapitalDelta]", "^", "2"}]}], "+", 
+                  RowBox[{"4", " ", "Delta12", " ", 
+                   RowBox[{"(", 
+                    RowBox[{"33", "+", "Delta34", "-", 
+                    RowBox[{"6", " ", "\[CapitalDelta]"}], "-", 
+                    RowBox[{"6", " ", "\[Epsilon]"}]}], ")"}]}], "-", 
+                  RowBox[{"62", " ", "\[Epsilon]"}], "-", 
+                  RowBox[{"2", " ", "l", " ", "\[Epsilon]"}], "+", 
+                  RowBox[{"14", " ", "\[CapitalDelta]", " ", "\[Epsilon]"}], 
+                  "+", 
+                  RowBox[{"4", " ", 
+                   RowBox[{"\[Epsilon]", "^", "2"}]}], "+", 
+                  RowBox[{"24", " ", "Delta34", " ", 
+                   RowBox[{"(", 
+                    RowBox[{"\[CapitalDelta]", "+", "\[Epsilon]"}], ")"}]}]}],
+                  ")"}]}], "-", 
+               RowBox[{"4", " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{
+                   RowBox[{"(", 
+                    RowBox[{"5", "+", "l", "-", "\[CapitalDelta]"}], ")"}], 
+                   " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "3"}], "+", "\[CapitalDelta]"}], ")"}], " ", 
+                   
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "2"}], "+", "\[Epsilon]"}], ")"}], " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "5"}], "+", "l", "+", "\[CapitalDelta]", "+", 
+                    RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}]}], "+", 
+                  RowBox[{
+                   RowBox[{"1", "/", "2"}], " ", "Delta34", " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "11"}], "+", 
+                    RowBox[{"2", " ", "\[CapitalDelta]"}], "+", 
+                    RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}], " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "60"}], "+", 
+                    RowBox[{"l", "^", "2"}], "-", 
+                    RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "20"}], "+", "\[CapitalDelta]"}], ")"}], " ",
+                     "\[CapitalDelta]"}], "+", 
+                    RowBox[{"2", " ", 
+                    RowBox[{"(", 
+                    RowBox[{"12", "+", "l", "-", 
+                    RowBox[{"3", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                    "\[Epsilon]"}]}], ")"}]}], "-", 
+                  RowBox[{
+                   RowBox[{"1", "/", "2"}], " ", "Delta12", " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "11"}], "+", 
+                    RowBox[{"2", " ", "\[CapitalDelta]"}], "+", 
+                    RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}], " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "60"}], "+", 
+                    RowBox[{"l", "^", "2"}], "-", 
+                    RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "20"}], "+", "\[CapitalDelta]"}], ")"}], " ",
+                     "\[CapitalDelta]"}], "+", 
+                    RowBox[{"2", " ", 
+                    RowBox[{"(", 
+                    RowBox[{"12", "+", "l", "-", 
+                    RowBox[{"3", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                    "\[Epsilon]"}], "+", 
+                    RowBox[{"Delta34", " ", 
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "6"}], "+", "\[CapitalDelta]", "+", 
+                    RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}]}]}], ")"}]}]}], 
+                 ")"}]}], "-", 
+               RowBox[{"2", " ", "n", " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "5"}], "+", "\[CapitalDelta]", "+", 
+                    "\[Epsilon]"}], ")"}], " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "49"}], "+", 
+                    RowBox[{"l", "^", "2"}], "-", 
+                    RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "18"}], "+", "\[CapitalDelta]"}], ")"}], " ",
+                     "\[CapitalDelta]"}], "+", 
+                    RowBox[{"2", " ", 
+                    RowBox[{"(", 
+                    RowBox[{"11", "+", "l", "-", 
+                    RowBox[{"3", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                    "\[Epsilon]"}]}], ")"}]}], "-", 
+                  RowBox[{"2", " ", "Delta34", " ", 
+                   RowBox[{"(", 
+                    RowBox[{"181", "-", 
+                    RowBox[{"l", "^", "2"}], "+", 
+                    RowBox[{"\[CapitalDelta]", " ", 
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "64"}], "+", 
+                    RowBox[{"5", " ", "\[CapitalDelta]"}]}], ")"}]}], "-", 
+                    RowBox[{"2", " ", 
+                    RowBox[{"(", 
+                    RowBox[{"34", "+", "l", "-", 
+                    RowBox[{"7", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                    "\[Epsilon]"}], "+", 
+                    RowBox[{"4", " ", 
+                    RowBox[{"\[Epsilon]", "^", "2"}]}]}], ")"}]}], "-", 
+                  RowBox[{"2", " ", "Delta12", " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "181"}], "+", 
+                    RowBox[{"l", "^", "2"}], "+", 
+                    RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{"64", "-", 
+                    RowBox[{"5", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                    "\[CapitalDelta]"}], "+", 
+                    RowBox[{"2", " ", 
+                    RowBox[{"(", 
+                    RowBox[{"34", "+", "l", "-", 
+                    RowBox[{"7", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                    "\[Epsilon]"}], "-", 
+                    RowBox[{"4", " ", 
+                    RowBox[{"\[Epsilon]", "^", "2"}]}], "+", 
+                    RowBox[{
+                    RowBox[{"1", "/", "2"}], " ", "Delta34", " ", 
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "23"}], "+", 
+                    RowBox[{"4", " ", "\[CapitalDelta]"}], "+", 
+                    RowBox[{"6", " ", "\[Epsilon]"}]}], ")"}]}]}], ")"}]}]}], 
+                 ")"}]}]}], ")"}], "/", 
+             RowBox[{"(", 
+              RowBox[{"n", " ", 
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"-", "1"}], "+", "l", "+", "n", "+", 
+                 "\[CapitalDelta]"}], ")"}], " ", 
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"-", "1"}], "-", "l", "+", "n", "+", 
+                 "\[CapitalDelta]", "-", 
+                 RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}], " ", 
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"-", "2"}], "+", "n", "+", 
+                 RowBox[{"2", " ", "\[CapitalDelta]"}], "-", 
+                 RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}]}], ")"}]}], ",", 
+            RowBox[{
+             RowBox[{"(", 
+              RowBox[{
+               RowBox[{"-", "1620"}], "+", 
+               RowBox[{"65", " ", 
+                RowBox[{"l", "^", "2"}]}], "-", 
+               RowBox[{"3", " ", 
+                RowBox[{"n", "^", "4"}]}], "+", 
+               RowBox[{"2", " ", 
+                RowBox[{"\[CapitalDelta]", "^", "3"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{"11", "-", 
+                  RowBox[{"4", " ", "\[Epsilon]"}]}], ")"}]}], "+", 
+               RowBox[{"4", " ", 
+                RowBox[{"n", "^", "3"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{"14", "-", 
+                  RowBox[{"2", " ", "Delta12"}], "+", 
+                  RowBox[{"2", " ", "Delta34"}], "-", 
+                  RowBox[{"3", " ", "\[CapitalDelta]"}], "-", "\[Epsilon]"}], 
+                 ")"}]}], "+", 
+               RowBox[{"580", " ", "\[Epsilon]"}], "+", 
+               RowBox[{"130", " ", "l", " ", "\[Epsilon]"}], "-", 
+               RowBox[{"18", " ", 
+                RowBox[{"l", "^", "2"}], " ", "\[Epsilon]"}], "+", 
+               RowBox[{"40", " ", 
+                RowBox[{"\[Epsilon]", "^", "2"}]}], "-", 
+               RowBox[{"36", " ", "l", " ", 
+                RowBox[{"\[Epsilon]", "^", "2"}]}], "+", 
+               RowBox[{
+                RowBox[{"\[CapitalDelta]", "^", "2"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"-", "277"}], "+", 
+                  RowBox[{"102", " ", "\[Epsilon]"}]}], ")"}]}], "-", 
+               RowBox[{"4", " ", 
+                RowBox[{"Delta34", "^", "2"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"l", "^", "2"}], "-", 
+                  RowBox[{
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "8"}], "+", "\[CapitalDelta]"}], ")"}], " ", 
+                   
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "15"}], "+", 
+                    RowBox[{"4", " ", "\[CapitalDelta]"}]}], ")"}]}], "+", 
+                  RowBox[{"2", " ", 
+                   RowBox[{"(", 
+                    RowBox[{"20", "+", "l", "-", 
+                    RowBox[{"5", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                   "\[Epsilon]"}]}], ")"}]}], "+", 
+               RowBox[{"2", " ", "Delta34", " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"-", "9"}], "+", 
+                  RowBox[{"2", " ", "\[CapitalDelta]"}], "+", 
+                  RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{"40", "-", 
+                  RowBox[{"l", "^", "2"}], "+", 
+                  RowBox[{
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "16"}], "+", "\[CapitalDelta]"}], ")"}], " ",
+                    "\[CapitalDelta]"}], "-", 
+                  RowBox[{"2", " ", 
+                   RowBox[{"(", 
+                    RowBox[{"10", "+", "l", "-", 
+                    RowBox[{"3", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                   "\[Epsilon]"}]}], ")"}]}], "+", 
+               RowBox[{"2", " ", "\[CapitalDelta]", " ", 
+                RowBox[{"(", 
+                 RowBox[{"584", "-", 
+                  RowBox[{"\[Epsilon]", " ", 
+                   RowBox[{"(", 
+                    RowBox[{"219", "+", 
+                    RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}]}], "+", 
+                  RowBox[{
+                   RowBox[{"l", "^", "2"}], " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "11"}], "+", 
+                    RowBox[{"4", " ", "\[Epsilon]"}]}], ")"}]}], "+", 
+                  RowBox[{"2", " ", "l", " ", "\[Epsilon]", " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "11"}], "+", 
+                    RowBox[{"4", " ", "\[Epsilon]"}]}], ")"}]}]}], ")"}]}], 
+               "-", 
+               RowBox[{"4", " ", 
+                RowBox[{"Delta12", "^", "2"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"-", "120"}], "+", 
+                  RowBox[{"l", "^", "2"}], "+", 
+                  RowBox[{"47", " ", "\[CapitalDelta]"}], "-", 
+                  RowBox[{"4", " ", 
+                   RowBox[{"\[CapitalDelta]", "^", "2"}]}], "+", 
+                  RowBox[{"2", " ", 
+                   RowBox[{"(", 
+                    RowBox[{"20", "+", "l", "-", 
+                    RowBox[{"5", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                   "\[Epsilon]"}], "+", 
+                  RowBox[{"Delta34", " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "21"}], "+", 
+                    RowBox[{"4", " ", "\[CapitalDelta]"}], "+", 
+                    RowBox[{"6", " ", "\[Epsilon]"}]}], ")"}]}]}], ")"}]}], 
+               "+", 
+               RowBox[{
+                RowBox[{"n", "^", "2"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"-", "401"}], "+", 
+                  RowBox[{"20", " ", 
+                   RowBox[{"Delta12", "^", "2"}]}], "+", 
+                  RowBox[{"20", " ", 
+                   RowBox[{"Delta34", "^", "2"}]}], "+", 
+                  RowBox[{"3", " ", 
+                   RowBox[{"l", "^", "2"}]}], "-", 
+                  RowBox[{"15", " ", 
+                   RowBox[{"\[CapitalDelta]", "^", "2"}]}], "-", 
+                  RowBox[{"18", " ", "\[CapitalDelta]", " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "9"}], "+", "\[Epsilon]"}], ")"}]}], "+", 
+                  RowBox[{"62", " ", "\[Epsilon]"}], "+", 
+                  RowBox[{"6", " ", "l", " ", "\[Epsilon]"}], "+", 
+                  RowBox[{"4", " ", 
+                   RowBox[{"\[Epsilon]", "^", "2"}]}], "+", 
+                  RowBox[{"12", " ", "Delta34", " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "9"}], "+", 
+                    RowBox[{"2", " ", "\[CapitalDelta]"}], "+", 
+                    RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}]}], "-", 
+                  RowBox[{"4", " ", "Delta12", " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "27"}], "+", 
+                    RowBox[{"11", " ", "Delta34"}], "+", 
+                    RowBox[{"6", " ", "\[CapitalDelta]"}], "+", 
+                    RowBox[{"6", " ", "\[Epsilon]"}]}], ")"}]}]}], ")"}]}], 
+               "-", 
+               RowBox[{"2", " ", "Delta12", " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{
+                   RowBox[{"-", "2"}], " ", 
+                   RowBox[{"Delta34", "^", "2"}], " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "21"}], "+", 
+                    RowBox[{"4", " ", "\[CapitalDelta]"}], "+", 
+                    RowBox[{"6", " ", "\[Epsilon]"}]}], ")"}]}], "+", 
+                  RowBox[{
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "9"}], "+", 
+                    RowBox[{"2", " ", "\[CapitalDelta]"}], "+", 
+                    RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}], " ", 
+                   RowBox[{"(", 
+                    RowBox[{"40", "-", 
+                    RowBox[{"l", "^", "2"}], "+", 
+                    RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "16"}], "+", "\[CapitalDelta]"}], ")"}], " ",
+                     "\[CapitalDelta]"}], "-", 
+                    RowBox[{"2", " ", 
+                    RowBox[{"(", 
+                    RowBox[{"10", "+", "l", "-", 
+                    RowBox[{"3", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                    "\[Epsilon]"}]}], ")"}]}], "+", 
+                  RowBox[{"Delta34", " ", 
+                   RowBox[{"(", 
+                    RowBox[{"555", "-", 
+                    RowBox[{"4", " ", 
+                    RowBox[{"l", "^", "2"}]}], "-", 
+                    RowBox[{"213", " ", "\[CapitalDelta]"}], "+", 
+                    RowBox[{"18", " ", 
+                    RowBox[{"\[CapitalDelta]", "^", "2"}]}], "+", 
+                    RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "220"}], "-", 
+                    RowBox[{"8", " ", "l"}], "+", 
+                    RowBox[{"50", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                    "\[Epsilon]"}], "+", 
+                    RowBox[{"12", " ", 
+                    RowBox[{"\[Epsilon]", "^", "2"}]}]}], ")"}]}]}], ")"}]}], 
+               "-", 
+               RowBox[{"2", " ", "n", " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{
+                   RowBox[{"-", "242"}], " ", "Delta34"}], "+", 
+                  RowBox[{"14", " ", 
+                   RowBox[{"l", "^", "2"}]}], "+", 
+                  RowBox[{"373", " ", "\[CapitalDelta]"}], "+", 
+                  RowBox[{"3", " ", 
+                   RowBox[{"\[CapitalDelta]", "^", "3"}]}], "+", 
+                  RowBox[{"2", " ", 
+                   RowBox[{"Delta12", "^", "2"}], " ", 
+                   RowBox[{"(", 
+                    RowBox[{"49", "+", 
+                    RowBox[{"4", " ", "Delta34"}], "-", 
+                    RowBox[{"10", " ", "\[CapitalDelta]"}], "-", 
+                    RowBox[{"8", " ", "\[Epsilon]"}]}], ")"}]}], "+", 
+                  RowBox[{"163", " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "4"}], "+", "\[Epsilon]"}], ")"}]}], "+", 
+                  RowBox[{"28", " ", "l", " ", "\[Epsilon]"}], "-", 
+                  RowBox[{
+                   RowBox[{"l", "^", "2"}], " ", "\[Epsilon]"}], "+", 
+                  RowBox[{"14", " ", 
+                   RowBox[{"\[Epsilon]", "^", "2"}]}], "-", 
+                  RowBox[{"2", " ", "l", " ", 
+                   RowBox[{"\[Epsilon]", "^", "2"}]}], "-", 
+                  RowBox[{"2", " ", 
+                   RowBox[{"Delta34", "^", "2"}], " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "49"}], "+", 
+                    RowBox[{"10", " ", "\[CapitalDelta]"}], "+", 
+                    RowBox[{"8", " ", "\[Epsilon]"}]}], ")"}]}], "+", 
+                  RowBox[{
+                   RowBox[{"\[CapitalDelta]", "^", "2"}], " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "64"}], "+", 
+                    RowBox[{"11", " ", "\[Epsilon]"}]}], ")"}]}], "+", 
+                  RowBox[{"2", " ", "Delta34", " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"l", "^", "2"}], "+", 
+                    RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{"52", "-", 
+                    RowBox[{"5", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                    "\[CapitalDelta]"}], "+", 
+                    RowBox[{"2", " ", 
+                    RowBox[{"(", 
+                    RowBox[{"28", "+", "l", "-", 
+                    RowBox[{"7", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                    "\[Epsilon]"}], "-", 
+                    RowBox[{"4", " ", 
+                    RowBox[{"\[Epsilon]", "^", "2"}]}]}], ")"}]}], "-", 
+                  RowBox[{"2", " ", "Delta12", " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "121"}], "+", 
+                    RowBox[{"4", " ", 
+                    RowBox[{"Delta34", "^", "2"}]}], "+", 
+                    RowBox[{"l", "^", "2"}], "+", 
+                    RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{"52", "-", 
+                    RowBox[{"5", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                    "\[CapitalDelta]"}], "+", 
+                    RowBox[{
+                    RowBox[{"1", "/", "2"}], " ", "Delta34", " ", 
+                    RowBox[{"(", 
+                    RowBox[{"221", "-", 
+                    RowBox[{"44", " ", "\[CapitalDelta]"}], "-", 
+                    RowBox[{"42", " ", "\[Epsilon]"}]}], ")"}]}], "+", 
+                    RowBox[{"2", " ", 
+                    RowBox[{"(", 
+                    RowBox[{"28", "+", "l", "-", 
+                    RowBox[{"7", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                    "\[Epsilon]"}], "-", 
+                    RowBox[{"4", " ", 
+                    RowBox[{"\[Epsilon]", "^", "2"}]}]}], ")"}]}], "-", 
+                  RowBox[{"\[CapitalDelta]", " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"3", " ", 
+                    RowBox[{"l", "^", "2"}]}], "+", 
+                    RowBox[{"6", " ", "l", " ", "\[Epsilon]"}], "+", 
+                    RowBox[{"2", " ", "\[Epsilon]", " ", 
+                    RowBox[{"(", 
+                    RowBox[{"44", "+", "\[Epsilon]"}], ")"}]}]}], ")"}]}]}], 
+                 ")"}]}]}], ")"}], "/", 
+             RowBox[{"(", 
+              RowBox[{"n", " ", 
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"-", "1"}], "+", "l", "+", "n", "+", 
+                 "\[CapitalDelta]"}], ")"}], " ", 
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"-", "1"}], "-", "l", "+", "n", "+", 
+                 "\[CapitalDelta]", "-", 
+                 RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}], " ", 
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"-", "2"}], "+", "n", "+", 
+                 RowBox[{"2", " ", "\[CapitalDelta]"}], "-", 
+                 RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}]}], ")"}]}], ",", 
+            RowBox[{
+             RowBox[{"(", 
+              RowBox[{
+               RowBox[{
+                RowBox[{"-", "3"}], " ", 
+                RowBox[{"n", "^", "4"}]}], "-", 
+               RowBox[{"4", " ", 
+                RowBox[{"n", "^", "3"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"-", "11"}], "-", 
+                  RowBox[{"4", " ", "Delta12"}], "+", 
+                  RowBox[{"4", " ", "Delta34"}], "+", 
+                  RowBox[{"3", " ", "\[CapitalDelta]"}], "+", "\[Epsilon]"}], 
+                 ")"}]}], "+", 
+               RowBox[{
+                RowBox[{"n", "^", "2"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"-", "251"}], "+", 
+                  RowBox[{"20", " ", 
+                   RowBox[{"Delta12", "^", "2"}]}], "+", 
+                  RowBox[{"20", " ", 
+                   RowBox[{"Delta34", "^", "2"}]}], "+", 
+                  RowBox[{"3", " ", 
+                   RowBox[{"l", "^", "2"}]}], "-", 
+                  RowBox[{"48", " ", "Delta12", " ", 
+                   RowBox[{"(", 
+                    RowBox[{"4", "+", "Delta34", "-", "\[CapitalDelta]"}], 
+                    ")"}]}], "-", 
+                  RowBox[{"48", " ", "Delta34", " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "4"}], "+", "\[CapitalDelta]"}], ")"}]}], 
+                  "-", 
+                  RowBox[{"15", " ", 
+                   RowBox[{"\[CapitalDelta]", "^", "2"}]}], "-", 
+                  RowBox[{"18", " ", "\[CapitalDelta]", " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "7"}], "+", "\[Epsilon]"}], ")"}]}], "+", 
+                  RowBox[{"50", " ", "\[Epsilon]"}], "+", 
+                  RowBox[{"6", " ", "l", " ", "\[Epsilon]"}], "+", 
+                  RowBox[{"4", " ", 
+                   RowBox[{"\[Epsilon]", "^", "2"}]}]}], ")"}]}], "+", 
+               RowBox[{"2", " ", "n", " ", 
+                RowBox[{"(", 
+                 RowBox[{"329", "-", 
+                  RowBox[{"8", " ", 
+                   RowBox[{"Delta12", "^", "3"}]}], "+", 
+                  RowBox[{"8", " ", 
+                   RowBox[{"Delta34", "^", "3"}]}], "-", 
+                  RowBox[{"11", " ", 
+                   RowBox[{"l", "^", "2"}]}], "-", 
+                  RowBox[{"3", " ", 
+                   RowBox[{"\[CapitalDelta]", "^", "3"}]}], "+", 
+                  RowBox[{
+                   RowBox[{"\[CapitalDelta]", "^", "2"}], " ", 
+                   RowBox[{"(", 
+                    RowBox[{"49", "-", 
+                    RowBox[{"11", " ", "\[Epsilon]"}]}], ")"}]}], "-", 
+                  RowBox[{"107", " ", "\[Epsilon]"}], "-", 
+                  RowBox[{"22", " ", "l", " ", "\[Epsilon]"}], "+", 
+                  RowBox[{
+                   RowBox[{"l", "^", "2"}], " ", "\[Epsilon]"}], "-", 
+                  RowBox[{"10", " ", 
+                   RowBox[{"\[Epsilon]", "^", "2"}]}], "+", 
+                  RowBox[{"2", " ", "l", " ", 
+                   RowBox[{"\[Epsilon]", "^", "2"}]}], "+", 
+                  RowBox[{"2", " ", 
+                   RowBox[{"Delta34", "^", "2"}], " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "39"}], "+", 
+                    RowBox[{"10", " ", "\[CapitalDelta]"}], "+", 
+                    RowBox[{"8", " ", "\[Epsilon]"}]}], ")"}]}], "+", 
+                  RowBox[{"2", " ", 
+                   RowBox[{"Delta12", "^", "2"}], " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "39"}], "+", 
+                    RowBox[{"16", " ", "Delta34"}], "+", 
+                    RowBox[{"10", " ", "\[CapitalDelta]"}], "+", 
+                    RowBox[{"8", " ", "\[Epsilon]"}]}], ")"}]}], "+", 
+                  RowBox[{"4", " ", "Delta34", " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "99"}], "+", 
+                    RowBox[{"l", "^", "2"}], "+", 
+                    RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{"46", "-", 
+                    RowBox[{"5", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                    "\[CapitalDelta]"}], "+", 
+                    RowBox[{"2", " ", 
+                    RowBox[{"(", 
+                    RowBox[{"l", "-", "\[CapitalDelta]"}], ")"}], " ", 
+                    "\[Epsilon]"}], "+", 
+                    RowBox[{"4", " ", 
+                    RowBox[{"\[Epsilon]", "^", "2"}]}]}], ")"}]}], "+", 
+                  RowBox[{"\[CapitalDelta]", " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "229"}], "+", 
+                    RowBox[{"3", " ", 
+                    RowBox[{"l", "^", "2"}]}], "+", 
+                    RowBox[{"6", " ", "l", " ", "\[Epsilon]"}], "+", 
+                    RowBox[{"2", " ", "\[Epsilon]", " ", 
+                    RowBox[{"(", 
+                    RowBox[{"35", "+", "\[Epsilon]"}], ")"}]}]}], ")"}]}], 
+                  "-", 
+                  RowBox[{"4", " ", "Delta12", " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "99"}], "+", 
+                    RowBox[{"8", " ", 
+                    RowBox[{"Delta34", "^", "2"}]}], "+", 
+                    RowBox[{"l", "^", "2"}], "+", 
+                    RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{"46", "-", 
+                    RowBox[{"5", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                    "\[CapitalDelta]"}], "+", 
+                    RowBox[{"2", " ", 
+                    RowBox[{"(", 
+                    RowBox[{"l", "-", "\[CapitalDelta]"}], ")"}], " ", 
+                    "\[Epsilon]"}], "+", 
+                    RowBox[{"4", " ", 
+                    RowBox[{"\[Epsilon]", "^", "2"}]}], "+", 
+                    RowBox[{
+                    RowBox[{"1", "/", "2"}], " ", "Delta34", " ", 
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "91"}], "+", 
+                    RowBox[{"24", " ", "\[CapitalDelta]"}], "+", 
+                    RowBox[{"14", " ", "\[Epsilon]"}]}], ")"}]}]}], ")"}]}]}],
+                  ")"}]}], "-", 
+               RowBox[{"4", " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{
+                   RowBox[{"-", "4"}], " ", 
+                   RowBox[{"Delta12", "^", "3"}], " ", 
+                   RowBox[{"(", 
+                    RowBox[{"4", "+", "Delta34", "-", "\[CapitalDelta]"}], 
+                    ")"}]}], "-", 
+                  RowBox[{"4", " ", 
+                   RowBox[{"Delta34", "^", "3"}], " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "4"}], "+", "\[CapitalDelta]"}], ")"}]}], 
+                  "+", 
+                  RowBox[{
+                   RowBox[{"\[CapitalDelta]", "^", "2"}], " ", 
+                   RowBox[{"(", 
+                    RowBox[{"41", "-", 
+                    RowBox[{"20", " ", "\[Epsilon]"}]}], ")"}]}], "+", 
+                  RowBox[{"2", " ", 
+                   RowBox[{"\[CapitalDelta]", "^", "3"}], " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "2"}], "+", "\[Epsilon]"}], ")"}]}], "+", 
+                  RowBox[{
+                   RowBox[{"Delta34", "^", "2"}], " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "76"}], "+", 
+                    RowBox[{"l", "^", "2"}], "+", 
+                    RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{"37", "-", 
+                    RowBox[{"4", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                    "\[CapitalDelta]"}], "+", 
+                    RowBox[{"2", " ", 
+                    RowBox[{"(", 
+                    RowBox[{"16", "+", "l", "-", 
+                    RowBox[{"5", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                    "\[Epsilon]"}]}], ")"}]}], "+", 
+                  RowBox[{"\[CapitalDelta]", " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "143"}], "-", 
+                    RowBox[{"2", " ", 
+                    RowBox[{"l", "^", "2"}], " ", 
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "2"}], "+", "\[Epsilon]"}], ")"}]}], "+", 
+                    RowBox[{"70", " ", "\[Epsilon]"}], "-", 
+                    RowBox[{"4", " ", "l", " ", 
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "2"}], "+", "\[Epsilon]"}], ")"}], " ", 
+                    "\[Epsilon]"}]}], ")"}]}], "+", 
+                  RowBox[{"2", " ", "Delta34", " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "4"}], "+", "\[CapitalDelta]"}], ")"}], " ", 
+                   
+                   RowBox[{"(", 
+                    RowBox[{"35", "-", 
+                    RowBox[{"l", "^", "2"}], "+", 
+                    RowBox[{"\[CapitalDelta]", "^", "2"}], "+", 
+                    RowBox[{"2", " ", "\[CapitalDelta]", " ", 
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "7"}], "+", "\[Epsilon]"}], ")"}]}], "-", 
+                    RowBox[{"2", " ", "l", " ", "\[Epsilon]"}], "-", 
+                    RowBox[{"4", " ", 
+                    RowBox[{"\[Epsilon]", "^", "2"}]}]}], ")"}]}], "+", 
+                  RowBox[{"2", " ", 
+                   RowBox[{"(", 
+                    RowBox[{"83", "-", 
+                    RowBox[{"5", " ", 
+                    RowBox[{"l", "^", "2"}]}], "+", 
+                    RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "39"}], "+", 
+                    RowBox[{"2", " ", 
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "5"}], "+", "l"}], ")"}], " ", "l"}]}], 
+                    ")"}], " ", "\[Epsilon]"}], "+", 
+                    RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "2"}], "+", 
+                    RowBox[{"4", " ", "l"}]}], ")"}], " ", 
+                    RowBox[{"\[Epsilon]", "^", "2"}]}]}], ")"}]}], "+", 
+                  RowBox[{
+                   RowBox[{"Delta12", "^", "2"}], " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "76"}], "+", 
+                    RowBox[{"8", " ", 
+                    RowBox[{"Delta34", "^", "2"}]}], "+", 
+                    RowBox[{"l", "^", "2"}], "+", 
+                    RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{"37", "-", 
+                    RowBox[{"4", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                    "\[CapitalDelta]"}], "+", 
+                    RowBox[{"2", " ", 
+                    RowBox[{"(", 
+                    RowBox[{"16", "+", "l", "-", 
+                    RowBox[{"5", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                    "\[Epsilon]"}], "-", 
+                    RowBox[{"Delta34", " ", 
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "71"}], "+", 
+                    RowBox[{"16", " ", "\[CapitalDelta]"}], "+", 
+                    RowBox[{"10", " ", "\[Epsilon]"}]}], ")"}]}]}], ")"}]}], 
+                  "-", 
+                  RowBox[{"2", " ", "Delta12", " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"2", " ", 
+                    RowBox[{"Delta34", "^", "3"}]}], "-", 
+                    RowBox[{
+                    RowBox[{"1", "/", "2"}], " ", 
+                    RowBox[{"Delta34", "^", "2"}], " ", 
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "71"}], "+", 
+                    RowBox[{"16", " ", "\[CapitalDelta]"}], "+", 
+                    RowBox[{"10", " ", "\[Epsilon]"}]}], ")"}]}], "+", 
+                    RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "4"}], "+", "\[CapitalDelta]"}], ")"}], " ", 
+                    
+                    RowBox[{"(", 
+                    RowBox[{"35", "-", 
+                    RowBox[{"l", "^", "2"}], "+", 
+                    RowBox[{"\[CapitalDelta]", "^", "2"}], "+", 
+                    RowBox[{"2", " ", "\[CapitalDelta]", " ", 
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "7"}], "+", "\[Epsilon]"}], ")"}]}], "-", 
+                    RowBox[{"2", " ", "l", " ", "\[Epsilon]"}], "-", 
+                    RowBox[{"4", " ", 
+                    RowBox[{"\[Epsilon]", "^", "2"}]}]}], ")"}]}], "+", 
+                    RowBox[{
+                    RowBox[{"1", "/", "2"}], " ", "Delta34", " ", 
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "172"}], "+", 
+                    RowBox[{"2", " ", 
+                    RowBox[{"l", "^", "2"}]}], "+", 
+                    RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{"87", "-", 
+                    RowBox[{"10", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                    "\[CapitalDelta]"}], "+", 
+                    RowBox[{"2", " ", 
+                    RowBox[{"(", 
+                    RowBox[{"22", "+", 
+                    RowBox[{"2", " ", "l"}], "-", 
+                    RowBox[{"9", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                    "\[Epsilon]"}], "+", 
+                    RowBox[{"8", " ", 
+                    RowBox[{"\[Epsilon]", "^", "2"}]}]}], ")"}]}]}], 
+                    ")"}]}]}], ")"}]}]}], ")"}], "/", 
+             RowBox[{"(", 
+              RowBox[{"n", " ", 
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"-", "1"}], "+", "l", "+", "n", "+", 
+                 "\[CapitalDelta]"}], ")"}], " ", 
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"-", "1"}], "-", "l", "+", "n", "+", 
+                 "\[CapitalDelta]", "-", 
+                 RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}], " ", 
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"-", "2"}], "+", "n", "+", 
+                 RowBox[{"2", " ", "\[CapitalDelta]"}], "-", 
+                 RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}]}], ")"}]}], ",", 
+            RowBox[{
+             RowBox[{"(", 
+              RowBox[{"468", "-", 
+               RowBox[{"33", " ", 
+                RowBox[{"l", "^", "2"}]}], "+", 
+               RowBox[{"3", " ", 
+                RowBox[{"n", "^", "4"}]}], "+", 
+               RowBox[{"16", " ", 
+                RowBox[{"Delta34", "^", "3"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"-", "3"}], "+", "\[CapitalDelta]"}], ")"}]}], "-", 
+               
+               RowBox[{"16", " ", 
+                RowBox[{"Delta12", "^", "3"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"-", "3"}], "+", "Delta34", "+", 
+                  "\[CapitalDelta]"}], ")"}]}], "+", 
+               RowBox[{"108", " ", "\[Epsilon]"}], "-", 
+               RowBox[{"66", " ", "l", " ", "\[Epsilon]"}], "+", 
+               RowBox[{"2", " ", 
+                RowBox[{"l", "^", "2"}], " ", "\[Epsilon]"}], "-", 
+               RowBox[{"72", " ", 
+                RowBox[{"\[Epsilon]", "^", "2"}]}], "+", 
+               RowBox[{"4", " ", "l", " ", 
+                RowBox[{"\[Epsilon]", "^", "2"}]}], "-", 
+               RowBox[{"4", " ", 
+                RowBox[{"n", "^", "3"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{"10", "-", 
+                  RowBox[{"4", " ", "Delta12"}], "+", 
+                  RowBox[{"4", " ", "Delta34"}], "-", 
+                  RowBox[{"3", " ", "\[CapitalDelta]"}], "+", "\[Epsilon]"}], 
+                 ")"}]}], "+", 
+               RowBox[{"2", " ", 
+                RowBox[{"\[CapitalDelta]", "^", "3"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"-", "7"}], "+", 
+                  RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}]}], "+", 
+               RowBox[{"4", " ", 
+                RowBox[{"Delta34", "^", "2"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"-", "48"}], "+", 
+                  RowBox[{"l", "^", "2"}], "+", 
+                  RowBox[{
+                   RowBox[{"(", 
+                    RowBox[{"29", "-", 
+                    RowBox[{"4", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                   "\[CapitalDelta]"}], "+", 
+                  RowBox[{"2", " ", 
+                   RowBox[{"(", 
+                    RowBox[{"l", "+", 
+                    RowBox[{"3", " ", 
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "4"}], "+", "\[CapitalDelta]"}], ")"}]}]}], 
+                    ")"}], " ", "\[Epsilon]"}]}], ")"}]}], "+", 
+               RowBox[{"4", " ", 
+                RowBox[{"Delta12", "^", "2"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"-", "48"}], "+", 
+                  RowBox[{"8", " ", 
+                   RowBox[{"Delta34", "^", "2"}]}], "+", 
+                  RowBox[{"l", "^", "2"}], "+", 
+                  RowBox[{
+                   RowBox[{"(", 
+                    RowBox[{"29", "-", 
+                    RowBox[{"4", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                   "\[CapitalDelta]"}], "+", 
+                  RowBox[{
+                   RowBox[{"1", "/", "2"}], " ", "Delta34", " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "82"}], "+", 
+                    RowBox[{"32", " ", "\[CapitalDelta]"}], "-", 
+                    RowBox[{"20", " ", "\[Epsilon]"}]}], ")"}]}], "+", 
+                  RowBox[{"2", " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "12"}], "+", "l", "+", 
+                    RowBox[{"3", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                   "\[Epsilon]"}]}], ")"}]}], "+", 
+               RowBox[{"8", " ", "Delta34", " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"-", "3"}], "+", "\[CapitalDelta]"}], ")"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"l", "^", "2"}], "-", 
+                  RowBox[{
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "7"}], "+", "\[CapitalDelta]"}], ")"}], " ", 
+                   
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "3"}], "+", "\[CapitalDelta]"}], ")"}]}], 
+                  "+", 
+                  RowBox[{"2", " ", 
+                   RowBox[{"(", 
+                    RowBox[{"l", "-", "\[CapitalDelta]"}], ")"}], " ", 
+                   "\[Epsilon]"}], "+", 
+                  RowBox[{"4", " ", 
+                   RowBox[{"\[Epsilon]", "^", "2"}]}]}], ")"}]}], "-", 
+               RowBox[{"2", " ", "\[CapitalDelta]", " ", 
+                RowBox[{"(", 
+                 RowBox[{"216", "-", 
+                  RowBox[{"7", " ", 
+                   RowBox[{"l", "^", "2"}]}], "+", 
+                  RowBox[{
+                   RowBox[{"(", 
+                    RowBox[{"11", "+", 
+                    RowBox[{"2", " ", 
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "7"}], "+", "l"}], ")"}], " ", "l"}]}], 
+                    ")"}], " ", "\[Epsilon]"}], "+", 
+                  RowBox[{
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "22"}], "+", 
+                    RowBox[{"4", " ", "l"}]}], ")"}], " ", 
+                   RowBox[{"\[Epsilon]", "^", "2"}]}]}], ")"}]}], "+", 
+               RowBox[{
+                RowBox[{"n", "^", "2"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{"209", "-", 
+                  RowBox[{"20", " ", 
+                   RowBox[{"Delta12", "^", "2"}]}], "-", 
+                  RowBox[{"20", " ", 
+                   RowBox[{"Delta34", "^", "2"}]}], "-", 
+                  RowBox[{"3", " ", 
+                   RowBox[{"l", "^", "2"}]}], "-", 
+                  RowBox[{"48", " ", "Delta34", " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "3"}], "+", "\[CapitalDelta]"}], ")"}]}], 
+                  "+", 
+                  RowBox[{"15", " ", 
+                   RowBox[{"\[CapitalDelta]", "^", "2"}]}], "+", 
+                  RowBox[{"48", " ", "Delta12", " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "3"}], "+", "Delta34", "+", 
+                    "\[CapitalDelta]"}], ")"}]}], "+", 
+                  RowBox[{"34", " ", "\[Epsilon]"}], "-", 
+                  RowBox[{"6", " ", "l", " ", "\[Epsilon]"}], "-", 
+                  RowBox[{"4", " ", 
+                   RowBox[{"\[Epsilon]", "^", "2"}]}], "-", 
+                  RowBox[{"6", " ", "\[CapitalDelta]", " ", 
+                   RowBox[{"(", 
+                    RowBox[{"19", "+", "\[Epsilon]"}], ")"}]}]}], ")"}]}], 
+               "+", 
+               RowBox[{
+                RowBox[{"\[CapitalDelta]", "^", "2"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{"133", "-", 
+                  RowBox[{"2", " ", "\[Epsilon]", " ", 
+                   RowBox[{"(", 
+                    RowBox[{"7", "+", 
+                    RowBox[{"4", " ", "\[Epsilon]"}]}], ")"}]}]}], ")"}]}], 
+               "-", 
+               RowBox[{"8", " ", "Delta12", " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"2", " ", 
+                   RowBox[{"Delta34", "^", "3"}]}], "+", 
+                  RowBox[{
+                   RowBox[{"1", "/", "4"}], " ", 
+                   RowBox[{"Delta34", "^", "2"}], " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "82"}], "+", 
+                    RowBox[{"32", " ", "\[CapitalDelta]"}], "-", 
+                    RowBox[{"20", " ", "\[Epsilon]"}]}], ")"}]}], "+", 
+                  RowBox[{
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "3"}], "+", "\[CapitalDelta]"}], ")"}], " ", 
+                   
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"l", "^", "2"}], "-", 
+                    RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "7"}], "+", "\[CapitalDelta]"}], ")"}], " ", 
+                    
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "3"}], "+", "\[CapitalDelta]"}], ")"}]}], 
+                    "+", 
+                    RowBox[{"2", " ", 
+                    RowBox[{"(", 
+                    RowBox[{"l", "-", "\[CapitalDelta]"}], ")"}], " ", 
+                    "\[Epsilon]"}], "+", 
+                    RowBox[{"4", " ", 
+                    RowBox[{"\[Epsilon]", "^", "2"}]}]}], ")"}]}], "+", 
+                  RowBox[{
+                   RowBox[{"1", "/", "2"}], " ", "Delta34", " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "123"}], "+", 
+                    RowBox[{"2", " ", 
+                    RowBox[{"l", "^", "2"}]}], "+", 
+                    RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{"73", "-", 
+                    RowBox[{"10", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                    "\[CapitalDelta]"}], "+", 
+                    RowBox[{"2", " ", 
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "27"}], "+", 
+                    RowBox[{"2", " ", "l"}], "+", 
+                    RowBox[{"5", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                    "\[Epsilon]"}], "+", 
+                    RowBox[{"8", " ", 
+                    RowBox[{"\[Epsilon]", "^", "2"}]}]}], ")"}]}]}], ")"}]}], 
+               "+", 
+               RowBox[{"2", " ", "n", " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"-", "252"}], "-", 
+                  RowBox[{"8", " ", 
+                   RowBox[{"Delta12", "^", "3"}]}], "+", 
+                  RowBox[{"8", " ", 
+                   RowBox[{"Delta34", "^", "3"}]}], "+", 
+                  RowBox[{"10", " ", 
+                   RowBox[{"l", "^", "2"}]}], "+", 
+                  RowBox[{"3", " ", 
+                   RowBox[{"\[CapitalDelta]", "^", "3"}]}], "+", 
+                  RowBox[{
+                   RowBox[{"\[CapitalDelta]", "^", "2"}], " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "44"}], "+", "\[Epsilon]"}], ")"}]}], "-", 
+                  RowBox[{"51", " ", "\[Epsilon]"}], "+", 
+                  RowBox[{"20", " ", "l", " ", "\[Epsilon]"}], "+", 
+                  RowBox[{
+                   RowBox[{"l", "^", "2"}], " ", "\[Epsilon]"}], "+", 
+                  RowBox[{"18", " ", 
+                   RowBox[{"\[Epsilon]", "^", "2"}]}], "+", 
+                  RowBox[{"2", " ", "l", " ", 
+                   RowBox[{"\[Epsilon]", "^", "2"}]}], "+", 
+                  RowBox[{"2", " ", 
+                   RowBox[{"Delta34", "^", "2"}], " ", 
+                   RowBox[{"(", 
+                    RowBox[{"31", "-", 
+                    RowBox[{"10", " ", "\[CapitalDelta]"}], "+", 
+                    RowBox[{"8", " ", "\[Epsilon]"}]}], ")"}]}], "+", 
+                  RowBox[{"2", " ", 
+                   RowBox[{"Delta12", "^", "2"}], " ", 
+                   RowBox[{"(", 
+                    RowBox[{"31", "+", 
+                    RowBox[{"16", " ", "Delta34"}], "-", 
+                    RowBox[{"10", " ", "\[CapitalDelta]"}], "+", 
+                    RowBox[{"8", " ", "\[Epsilon]"}]}], ")"}]}], "-", 
+                  RowBox[{"3", " ", "\[CapitalDelta]", " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "63"}], "+", 
+                    RowBox[{"l", "^", "2"}], "+", 
+                    RowBox[{"2", " ", "l", " ", "\[Epsilon]"}], "+", 
+                    RowBox[{"2", " ", 
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "2"}], "+", "\[Epsilon]"}], ")"}], " ", 
+                    "\[Epsilon]"}]}], ")"}]}], "+", 
+                  RowBox[{"4", " ", "Delta34", " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "57"}], "+", 
+                    RowBox[{"l", "^", "2"}], "+", 
+                    RowBox[{"34", " ", "\[CapitalDelta]"}], "-", 
+                    RowBox[{"5", " ", 
+                    RowBox[{"\[CapitalDelta]", "^", "2"}]}], "+", 
+                    RowBox[{"2", " ", "l", " ", "\[Epsilon]"}], "-", 
+                    RowBox[{"2", " ", "\[CapitalDelta]", " ", "\[Epsilon]"}], 
+                    "+", 
+                    RowBox[{"4", " ", 
+                    RowBox[{"\[Epsilon]", "^", "2"}]}]}], ")"}]}], "-", 
+                  RowBox[{"4", " ", "Delta12", " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "57"}], "+", 
+                    RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{"77", " ", "Delta34"}], ")"}], "/", "2"}], "+", 
+                    RowBox[{"8", " ", 
+                    RowBox[{"Delta34", "^", "2"}]}], "+", 
+                    RowBox[{"l", "^", "2"}], "-", 
+                    RowBox[{"5", " ", 
+                    RowBox[{"\[CapitalDelta]", "^", "2"}]}], "+", 
+                    RowBox[{"7", " ", "Delta34", " ", "\[Epsilon]"}], "+", 
+                    RowBox[{"2", " ", "l", " ", "\[Epsilon]"}], "+", 
+                    RowBox[{"4", " ", 
+                    RowBox[{"\[Epsilon]", "^", "2"}]}], "-", 
+                    RowBox[{"2", " ", "\[CapitalDelta]", " ", 
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "17"}], "+", 
+                    RowBox[{"6", " ", "Delta34"}], "+", "\[Epsilon]"}], 
+                    ")"}]}]}], ")"}]}]}], ")"}]}]}], ")"}], "/", 
+             RowBox[{"(", 
+              RowBox[{"n", " ", 
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"-", "1"}], "+", "l", "+", "n", "+", 
+                 "\[CapitalDelta]"}], ")"}], " ", 
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"-", "1"}], "-", "l", "+", "n", "+", 
+                 "\[CapitalDelta]", "-", 
+                 RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}], " ", 
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"-", "2"}], "+", "n", "+", 
+                 RowBox[{"2", " ", "\[CapitalDelta]"}], "-", 
+                 RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}]}], ")"}]}], ",", 
+            RowBox[{
+             RowBox[{"(", 
+              RowBox[{
+               RowBox[{"3", " ", 
+                RowBox[{"n", "^", "4"}]}], "+", 
+               RowBox[{"4", " ", 
+                RowBox[{"n", "^", "3"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"-", "7"}], "-", 
+                  RowBox[{"2", " ", "Delta12"}], "+", 
+                  RowBox[{"2", " ", "Delta34"}], "+", 
+                  RowBox[{"3", " ", "\[CapitalDelta]"}], "-", "\[Epsilon]"}], 
+                 ")"}]}], "+", 
+               RowBox[{
+                RowBox[{"n", "^", "2"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{"107", "-", 
+                  RowBox[{"20", " ", 
+                   RowBox[{"Delta12", "^", "2"}]}], "-", 
+                  RowBox[{"20", " ", 
+                   RowBox[{"Delta34", "^", "2"}]}], "-", 
+                  RowBox[{"3", " ", 
+                   RowBox[{"l", "^", "2"}]}], "+", 
+                  RowBox[{"15", " ", 
+                   RowBox[{"\[CapitalDelta]", "^", "2"}]}], "+", 
+                  RowBox[{"22", " ", "\[Epsilon]"}], "-", 
+                  RowBox[{"6", " ", "l", " ", "\[Epsilon]"}], "-", 
+                  RowBox[{"4", " ", 
+                   RowBox[{"\[Epsilon]", "^", "2"}]}], "-", 
+                  RowBox[{"6", " ", "\[CapitalDelta]", " ", 
+                   RowBox[{"(", 
+                    RowBox[{"13", "+", "\[Epsilon]"}], ")"}]}], "-", 
+                  RowBox[{"12", " ", "Delta34", " ", 
+                   RowBox[{"(", 
+                    RowBox[{"5", "-", 
+                    RowBox[{"2", " ", "\[CapitalDelta]"}], "+", 
+                    RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}]}], "+", 
+                  RowBox[{"4", " ", "Delta12", " ", 
+                   RowBox[{"(", 
+                    RowBox[{"15", "+", 
+                    RowBox[{"11", " ", "Delta34"}], "-", 
+                    RowBox[{"6", " ", "\[CapitalDelta]"}], "+", 
+                    RowBox[{"6", " ", "\[Epsilon]"}]}], ")"}]}]}], ")"}]}], 
+               "-", 
+               RowBox[{"2", " ", "n", " ", 
+                RowBox[{"(", 
+                 RowBox[{"97", "-", 
+                  RowBox[{"7", " ", 
+                   RowBox[{"l", "^", "2"}]}], "-", 
+                  RowBox[{"3", " ", 
+                   RowBox[{"\[CapitalDelta]", "^", "3"}]}], "+", 
+                  RowBox[{"2", " ", 
+                   RowBox[{"Delta12", "^", "2"}], " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "21"}], "+", 
+                    RowBox[{"4", " ", "Delta34"}], "+", 
+                    RowBox[{"10", " ", "\[CapitalDelta]"}], "-", 
+                    RowBox[{"8", " ", "\[Epsilon]"}]}], ")"}]}], "-", 
+                  RowBox[{
+                   RowBox[{"\[CapitalDelta]", "^", "2"}], " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "29"}], "+", "\[Epsilon]"}], ")"}]}], "+", 
+                  RowBox[{"23", " ", "\[Epsilon]"}], "-", 
+                  RowBox[{"14", " ", "l", " ", "\[Epsilon]"}], "-", 
+                  RowBox[{
+                   RowBox[{"l", "^", "2"}], " ", "\[Epsilon]"}], "-", 
+                  RowBox[{"14", " ", 
+                   RowBox[{"\[Epsilon]", "^", "2"}]}], "-", 
+                  RowBox[{"2", " ", "l", " ", 
+                   RowBox[{"\[Epsilon]", "^", "2"}]}], "-", 
+                  RowBox[{"2", " ", 
+                   RowBox[{"Delta34", "^", "2"}], " ", 
+                   RowBox[{"(", 
+                    RowBox[{"21", "-", 
+                    RowBox[{"10", " ", "\[CapitalDelta]"}], "+", 
+                    RowBox[{"8", " ", "\[Epsilon]"}]}], ")"}]}], "+", 
+                  RowBox[{"3", " ", "\[CapitalDelta]", " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "31"}], "+", 
+                    RowBox[{"l", "^", "2"}], "+", 
+                    RowBox[{"2", " ", "l", " ", "\[Epsilon]"}], "+", 
+                    RowBox[{"2", " ", 
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "1"}], "+", "\[Epsilon]"}], ")"}], " ", 
+                    "\[Epsilon]"}]}], ")"}]}], "-", 
+                  RowBox[{"2", " ", "Delta12", " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "37"}], "+", 
+                    RowBox[{"4", " ", 
+                    RowBox[{"Delta34", "^", "2"}]}], "+", 
+                    RowBox[{"l", "^", "2"}], "+", 
+                    RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{"28", "-", 
+                    RowBox[{"5", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                    "\[CapitalDelta]"}], "+", 
+                    RowBox[{
+                    RowBox[{"1", "/", "2"}], " ", "Delta34", " ", 
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "87"}], "+", 
+                    RowBox[{"44", " ", "\[CapitalDelta]"}], "-", 
+                    RowBox[{"42", " ", "\[Epsilon]"}]}], ")"}]}], "+", 
+                    RowBox[{"2", " ", 
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "14"}], "+", "l", "+", 
+                    RowBox[{"5", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                    "\[Epsilon]"}], "-", 
+                    RowBox[{"4", " ", 
+                    RowBox[{"\[Epsilon]", "^", "2"}]}]}], ")"}]}], "-", 
+                  RowBox[{"2", " ", "Delta34", " ", 
+                   RowBox[{"(", 
+                    RowBox[{"37", "-", 
+                    RowBox[{"l", "^", "2"}], "+", 
+                    RowBox[{"\[CapitalDelta]", " ", 
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "28"}], "+", 
+                    RowBox[{"5", " ", "\[CapitalDelta]"}]}], ")"}]}], "-", 
+                    RowBox[{"2", " ", 
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "14"}], "+", "l", "+", 
+                    RowBox[{"5", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                    "\[Epsilon]"}], "+", 
+                    RowBox[{"4", " ", 
+                    RowBox[{"\[Epsilon]", "^", "2"}]}]}], ")"}]}]}], ")"}]}], 
+               "+", 
+               RowBox[{"4", " ", 
+                RowBox[{"(", 
+                 RowBox[{"34", "-", 
+                  RowBox[{"4", " ", 
+                   RowBox[{"l", "^", "2"}]}], "+", 
+                  RowBox[{
+                   RowBox[{"\[CapitalDelta]", "^", "3"}], " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "2"}], "+", "\[Epsilon]"}], ")"}]}], "+", 
+                  RowBox[{"9", " ", "\[Epsilon]"}], "-", 
+                  RowBox[{"8", " ", "l", " ", "\[Epsilon]"}], "+", 
+                  RowBox[{
+                   RowBox[{"l", "^", "2"}], " ", "\[Epsilon]"}], "-", 
+                  RowBox[{"10", " ", 
+                   RowBox[{"\[Epsilon]", "^", "2"}]}], "+", 
+                  RowBox[{"2", " ", "l", " ", 
+                   RowBox[{"\[Epsilon]", "^", "2"}]}], "+", 
+                  RowBox[{
+                   RowBox[{"1", "/", "2"}], " ", "Delta34", " ", 
+                   RowBox[{"(", 
+                    RowBox[{"5", "-", 
+                    RowBox[{"2", " ", "\[CapitalDelta]"}], "+", 
+                    RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}], " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"l", "^", "2"}], "-", 
+                    RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "6"}], "+", "\[CapitalDelta]"}], ")"}], " ", 
+                    
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "2"}], "+", "\[CapitalDelta]"}], ")"}]}], 
+                    "+", 
+                    RowBox[{"2", " ", 
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "4"}], "+", "l", "+", "\[CapitalDelta]"}], 
+                    ")"}], " ", "\[Epsilon]"}]}], ")"}]}], "+", 
+                  RowBox[{
+                   RowBox[{"Delta34", "^", "2"}], " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "22"}], "+", 
+                    RowBox[{"l", "^", "2"}], "+", 
+                    RowBox[{"19", " ", "\[CapitalDelta]"}], "-", 
+                    RowBox[{"4", " ", 
+                    RowBox[{"\[CapitalDelta]", "^", "2"}]}], "+", 
+                    RowBox[{"2", " ", 
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "8"}], "+", "l", "+", 
+                    RowBox[{"3", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                    "\[Epsilon]"}]}], ")"}]}], "-", 
+                  RowBox[{"\[CapitalDelta]", " ", 
+                   RowBox[{"(", 
+                    RowBox[{"39", "+", 
+                    RowBox[{
+                    RowBox[{"l", "^", "2"}], " ", 
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "2"}], "+", "\[Epsilon]"}], ")"}]}], "+", 
+                    "\[Epsilon]", "+", 
+                    RowBox[{"2", " ", "l", " ", 
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "2"}], "+", "\[Epsilon]"}], ")"}], " ", 
+                    "\[Epsilon]"}], "-", 
+                    RowBox[{"8", " ", 
+                    RowBox[{"\[Epsilon]", "^", "2"}]}]}], ")"}]}], "+", 
+                  RowBox[{
+                   RowBox[{"\[CapitalDelta]", "^", "2"}], " ", 
+                   RowBox[{"(", 
+                    RowBox[{"15", "-", 
+                    RowBox[{"\[Epsilon]", " ", 
+                    RowBox[{"(", 
+                    RowBox[{"3", "+", 
+                    RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}]}]}], ")"}]}], 
+                  "+", 
+                  RowBox[{
+                   RowBox[{"Delta12", "^", "2"}], " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "22"}], "+", 
+                    RowBox[{"l", "^", "2"}], "+", 
+                    RowBox[{"19", " ", "\[CapitalDelta]"}], "-", 
+                    RowBox[{"4", " ", 
+                    RowBox[{"\[CapitalDelta]", "^", "2"}]}], "+", 
+                    RowBox[{"2", " ", 
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "8"}], "+", "l", "+", 
+                    RowBox[{"3", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                    "\[Epsilon]"}], "+", 
+                    RowBox[{"Delta34", " ", 
+                    RowBox[{"(", 
+                    RowBox[{"7", "-", 
+                    RowBox[{"4", " ", "\[CapitalDelta]"}], "+", 
+                    RowBox[{"6", " ", "\[Epsilon]"}]}], ")"}]}]}], ")"}]}], 
+                  "-", 
+                  RowBox[{
+                   RowBox[{"1", "/", "2"}], " ", "Delta12", " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"2", " ", 
+                    RowBox[{"Delta34", "^", "2"}], " ", 
+                    RowBox[{"(", 
+                    RowBox[{"7", "-", 
+                    RowBox[{"4", " ", "\[CapitalDelta]"}], "+", 
+                    RowBox[{"6", " ", "\[Epsilon]"}]}], ")"}]}], "+", 
+                    RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{"5", "-", 
+                    RowBox[{"2", " ", "\[CapitalDelta]"}], "+", 
+                    RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}], " ", 
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"l", "^", "2"}], "-", 
+                    RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "6"}], "+", "\[CapitalDelta]"}], ")"}], " ", 
+                    
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "2"}], "+", "\[CapitalDelta]"}], ")"}]}], 
+                    "+", 
+                    RowBox[{"2", " ", 
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "4"}], "+", "l", "+", "\[CapitalDelta]"}], 
+                    ")"}], " ", "\[Epsilon]"}]}], ")"}]}], "-", 
+                    RowBox[{"Delta34", " ", 
+                    RowBox[{"(", 
+                    RowBox[{"86", "-", 
+                    RowBox[{"4", " ", 
+                    RowBox[{"l", "^", "2"}]}], "-", 
+                    RowBox[{"79", " ", "\[CapitalDelta]"}], "+", 
+                    RowBox[{"18", " ", 
+                    RowBox[{"\[CapitalDelta]", "^", "2"}]}], "+", 
+                    RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{"74", "-", 
+                    RowBox[{"8", " ", "l"}], "-", 
+                    RowBox[{"34", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                    "\[Epsilon]"}], "+", 
+                    RowBox[{"12", " ", 
+                    RowBox[{"\[Epsilon]", "^", "2"}]}]}], ")"}]}]}], 
+                    ")"}]}]}], ")"}]}]}], ")"}], "/", 
+             RowBox[{"(", 
+              RowBox[{"n", " ", 
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"-", "1"}], "+", "l", "+", "n", "+", 
+                 "\[CapitalDelta]"}], ")"}], " ", 
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"-", "1"}], "-", "l", "+", "n", "+", 
+                 "\[CapitalDelta]", "-", 
+                 RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}], " ", 
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"-", "2"}], "+", "n", "+", 
+                 RowBox[{"2", " ", "\[CapitalDelta]"}], "-", 
+                 RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}]}], ")"}]}], ",", 
+            RowBox[{
+             RowBox[{"(", 
+              RowBox[{
+               RowBox[{"-", 
+                RowBox[{"n", "^", "4"}]}], "+", 
+               RowBox[{"4", " ", 
+                RowBox[{"n", "^", "3"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{"2", "-", 
+                  RowBox[{"2", " ", "Delta12"}], "+", 
+                  RowBox[{"2", " ", "Delta34"}], "-", "\[CapitalDelta]", "+", 
+                  "\[Epsilon]"}], ")"}]}], "+", 
+               RowBox[{
+                RowBox[{"n", "^", "2"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"-", "23"}], "+", 
+                  RowBox[{"l", "^", "2"}], "+", 
+                  RowBox[{"22", " ", "\[CapitalDelta]"}], "-", 
+                  RowBox[{"5", " ", 
+                   RowBox[{"\[CapitalDelta]", "^", "2"}]}], "-", 
+                  RowBox[{"4", " ", "Delta12", " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "9"}], "+", "Delta34", "+", 
+                    RowBox[{"6", " ", "\[CapitalDelta]"}], "-", 
+                    RowBox[{"6", " ", "\[Epsilon]"}]}], ")"}]}], "-", 
+                  RowBox[{"22", " ", "\[Epsilon]"}], "+", 
+                  RowBox[{"2", " ", "l", " ", "\[Epsilon]"}], "+", 
+                  RowBox[{"10", " ", "\[CapitalDelta]", " ", "\[Epsilon]"}], 
+                  "-", 
+                  RowBox[{"4", " ", 
+                   RowBox[{"\[Epsilon]", "^", "2"}]}], "-", 
+                  RowBox[{"12", " ", "Delta34", " ", 
+                   RowBox[{"(", 
+                    RowBox[{"3", "-", 
+                    RowBox[{"2", " ", "\[CapitalDelta]"}], "+", 
+                    RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}]}]}], ")"}]}], 
+               "+", 
+               RowBox[{
+                RowBox[{"(", 
+                 RowBox[{"3", "-", 
+                  RowBox[{"2", " ", "\[CapitalDelta]"}], "+", 
+                  RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{
+                   RowBox[{"(", 
+                    RowBox[{"1", "+", 
+                    RowBox[{"2", " ", "Delta34"}]}], ")"}], " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "2"}], "+", "l", "+", "\[CapitalDelta]"}], 
+                    ")"}], " ", 
+                   RowBox[{"(", 
+                    RowBox[{"2", "+", "l", "-", "\[CapitalDelta]", "+", 
+                    RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}]}], "-", 
+                  RowBox[{"2", " ", "Delta12", " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "2"}], "+", "l", "+", "\[CapitalDelta]"}], 
+                    ")"}], " ", 
+                    RowBox[{"(", 
+                    RowBox[{"2", "+", "l", "-", "\[CapitalDelta]", "+", 
+                    RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}]}], "+", 
+                    RowBox[{
+                    RowBox[{"1", "/", "2"}], " ", "Delta34", " ", 
+                    RowBox[{"(", 
+                    RowBox[{"2", "-", 
+                    RowBox[{"2", " ", "\[CapitalDelta]"}], "+", 
+                    RowBox[{"4", " ", "\[Epsilon]"}]}], ")"}]}]}], ")"}]}]}], 
+                 ")"}]}], "-", 
+               RowBox[{"2", " ", "n", " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{
+                   RowBox[{"(", 
+                    RowBox[{"2", "-", "\[CapitalDelta]", "+", "\[Epsilon]"}], 
+                    ")"}], " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "7"}], "+", 
+                    RowBox[{"l", "^", "2"}], "-", 
+                    RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "6"}], "+", "\[CapitalDelta]"}], ")"}], " ", 
+                    "\[CapitalDelta]"}], "+", 
+                    RowBox[{"2", " ", 
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "3"}], "+", "l", "+", "\[CapitalDelta]"}], 
+                    ")"}], " ", "\[Epsilon]"}]}], ")"}]}], "+", 
+                  RowBox[{"2", " ", "Delta34", " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "13"}], "+", 
+                    RowBox[{"l", "^", "2"}], "+", 
+                    RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{"16", "-", 
+                    RowBox[{"5", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                    "\[CapitalDelta]"}], "+", 
+                    RowBox[{"2", " ", 
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "8"}], "+", "l", "+", 
+                    RowBox[{"5", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                    "\[Epsilon]"}], "-", 
+                    RowBox[{"4", " ", 
+                    RowBox[{"\[Epsilon]", "^", "2"}]}]}], ")"}]}], "-", 
+                  RowBox[{"2", " ", "Delta12", " ", 
+                   RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "13"}], "+", 
+                    RowBox[{"l", "^", "2"}], "+", 
+                    RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{"16", "-", 
+                    RowBox[{"5", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                    "\[CapitalDelta]"}], "+", 
+                    RowBox[{"2", " ", 
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "8"}], "+", "l", "+", 
+                    RowBox[{"5", " ", "\[CapitalDelta]"}]}], ")"}], " ", 
+                    "\[Epsilon]"}], "-", 
+                    RowBox[{"4", " ", 
+                    RowBox[{"\[Epsilon]", "^", "2"}]}], "+", 
+                    RowBox[{
+                    RowBox[{"1", "/", "2"}], " ", "Delta34", " ", 
+                    RowBox[{"(", 
+                    RowBox[{"5", "-", 
+                    RowBox[{"4", " ", "\[CapitalDelta]"}], "+", 
+                    RowBox[{"6", " ", "\[Epsilon]"}]}], ")"}]}]}], ")"}]}]}], 
+                 ")"}]}]}], ")"}], "/", 
+             RowBox[{"(", 
+              RowBox[{"n", " ", 
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"-", "1"}], "+", "l", "+", "n", "+", 
+                 "\[CapitalDelta]"}], ")"}], " ", 
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"-", "1"}], "-", "l", "+", "n", "+", 
+                 "\[CapitalDelta]", "-", 
+                 RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}], " ", 
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"-", "2"}], "+", "n", "+", 
+                 RowBox[{"2", " ", "\[CapitalDelta]"}], "-", 
+                 RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}]}], ")"}]}]}], 
+           "}"}]}], ";", "\[IndentingNewLine]", "\[IndentingNewLine]", 
+         RowBox[{"zdermax", "=", 
+          RowBox[{
+           RowBox[{"2", "nmax"}], "+", "mmax"}]}], ";", "\[IndentingNewLine]",
+          "\[IndentingNewLine]", "\[IndentingNewLine]", 
+         RowBox[{"\[Rho]num", "=", 
+          RowBox[{"SetPrecision", "[", 
+           RowBox[{
+            RowBox[{"3", "-", 
+             RowBox[{"2", 
+              SqrtBox["2"]}]}], ",", "prec"}], "]"}]}], ";", 
+         "\[IndentingNewLine]", "\[IndentingNewLine]", 
+         RowBox[{"z", "=", 
+          RowBox[{"1", "/", "2"}]}], ";", " ", 
+         RowBox[{"(*", 
+          RowBox[{
+          "If", " ", "we", " ", "want", " ", "to", " ", "generate", " ", 
+           "blocks", " ", "at", " ", "some", " ", "other", " ", "point", " ", 
+           "this", " ", "needs", " ", "to", " ", "be", " ", "changed"}], 
+          "*)"}], "\[IndentingNewLine]", 
+         RowBox[{"coeffTab", "=", 
+          RowBox[{"SetNDer", "[", 
+           RowBox[{"zdermax", ",", "prec", ",", "z"}], "]"}]}], ";", 
+         "\[IndentingNewLine]", "\[IndentingNewLine]", 
+         RowBox[{
+          RowBox[{"casCoeffs", "[", 
+           RowBox[{"m_", ",", "n_", ",", "\[Epsilon]_", ",", "l_"}], "]"}], 
+          "=", 
+          RowBox[{
+           RowBox[{"{", 
+            RowBox[{
+             RowBox[{"-", 
+              FractionBox[
+               RowBox[{
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"-", "2"}], "+", "m"}], ")"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"-", "1"}], "+", "m"}], ")"}], " ", "m"}], 
+               RowBox[{"8", " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"-", "1"}], "+", "z"}], ")"}], " ", 
+                SuperscriptBox["z", "2"]}]]}], ",", 
+             RowBox[{"-", 
+              FractionBox[
+               RowBox[{
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"-", "1"}], "+", "m"}], ")"}], " ", "m", " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"-", "1"}], "+", 
+                  RowBox[{"3", " ", "z"}]}], ")"}]}], 
+               RowBox[{"4", " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"-", "1"}], "+", "z"}], ")"}], " ", 
+                SuperscriptBox["z", "2"]}]]}], ",", 
+             RowBox[{"-", 
+              RowBox[{"(", 
+               RowBox[{
+                RowBox[{"(", 
+                 RowBox[{"m", " ", 
+                  RowBox[{"(", 
+                   RowBox[{"22", "-", 
+                    RowBox[{"13", " ", "m"}], "+", 
+                    SuperscriptBox["m", "2"], "-", 
+                    RowBox[{"34", " ", "n"}], "+", 
+                    RowBox[{"12", " ", "m", " ", "n"}], "+", 
+                    RowBox[{"12", " ", 
+                    SuperscriptBox["n", "2"]}], "+", 
+                    RowBox[{"Delta34", " ", 
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "5"}], "+", "m", "+", 
+                    RowBox[{"4", " ", "n"}]}], ")"}]}], "-", 
+                    RowBox[{"Delta12", " ", 
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "5"}], "+", "Delta34", "+", "m", "+", 
+                    RowBox[{"4", " ", "n"}]}], ")"}]}], "+", 
+                    RowBox[{"2", " ", 
+                    RowBox[{"(", 
+                    RowBox[{"1", "+", "m", "-", 
+                    RowBox[{"2", " ", "n"}]}], ")"}], " ", "\[Epsilon]"}]}], 
+                   ")"}]}], ")"}], "/", 
+                RowBox[{"(", 
+                 RowBox[{"16", " ", 
+                  RowBox[{"(", 
+                   RowBox[{
+                    RowBox[{"-", "1"}], "+", "z"}], ")"}], " ", 
+                  SuperscriptBox["z", "2"], " ", 
+                  RowBox[{"(", 
+                   RowBox[{
+                    RowBox[{"-", "1"}], "+", 
+                    RowBox[{"2", " ", "n"}], "+", 
+                    RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}]}], ")"}]}], 
+               ")"}]}], ",", 
+             FractionBox[
+              RowBox[{"m", " ", 
+               RowBox[{"(", 
+                RowBox[{"2", "-", 
+                 RowBox[{"3", " ", "z"}]}], ")"}]}], 
+              RowBox[{"2", " ", 
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"-", "1"}], "+", "z"}], ")"}], " ", "z"}]], ",", 
+             RowBox[{
+              RowBox[{"-", 
+               FractionBox["1", 
+                RowBox[{"8", " ", 
+                 RowBox[{"(", 
+                  RowBox[{
+                   RowBox[{"-", "1"}], "+", "z"}], ")"}], " ", 
+                 SuperscriptBox["z", "2"], " ", 
+                 RowBox[{"(", 
+                  RowBox[{
+                   RowBox[{"-", "1"}], "+", 
+                   RowBox[{"2", " ", "n"}], "+", 
+                   RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}]}]]}], 
+              RowBox[{"(", 
+               RowBox[{
+                RowBox[{"-", "6"}], "+", 
+                SuperscriptBox["l", "2"], "-", 
+                RowBox[{
+                 RowBox[{"(", 
+                  RowBox[{
+                   RowBox[{"-", "10"}], "+", 
+                   RowBox[{"Delta12", " ", 
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "4"}], "+", "Delta34"}], ")"}]}], "+", 
+                   RowBox[{"4", " ", "Delta34"}]}], ")"}], " ", "z"}], "+", 
+                RowBox[{
+                 SuperscriptBox["m", "2"], " ", 
+                 RowBox[{"(", 
+                  RowBox[{
+                   RowBox[{"-", "1"}], "+", 
+                   RowBox[{"3", " ", "z"}]}], ")"}]}], "+", 
+                RowBox[{"2", " ", "n", " ", 
+                 RowBox[{"(", 
+                  RowBox[{"5", "-", 
+                   RowBox[{"2", " ", "n"}], "+", 
+                   RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "11"}], "-", 
+                    RowBox[{"2", " ", "Delta12"}], "+", 
+                    RowBox[{"2", " ", "Delta34"}], "+", 
+                    RowBox[{"6", " ", "n"}]}], ")"}], " ", "z"}]}], ")"}]}], 
+                "+", 
+                RowBox[{"m", " ", 
+                 RowBox[{"(", 
+                  RowBox[{"9", "-", 
+                   RowBox[{"8", " ", "n"}], "+", 
+                   RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "23"}], "-", 
+                    RowBox[{"2", " ", "Delta12"}], "+", 
+                    RowBox[{"2", " ", "Delta34"}], "+", 
+                    RowBox[{"24", " ", "n"}]}], ")"}], " ", "z"}]}], ")"}]}], 
+                "+", 
+                RowBox[{
+                 RowBox[{"(", 
+                  RowBox[{
+                   RowBox[{"-", "2"}], "+", "\[CapitalDelta]"}], ")"}], " ", 
+                 "\[CapitalDelta]"}], "+", 
+                RowBox[{"2", " ", 
+                 RowBox[{"(", 
+                  RowBox[{
+                   RowBox[{"-", "2"}], "+", "l", "-", 
+                   RowBox[{"2", " ", "n", " ", 
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "1"}], "+", "z"}], ")"}]}], "+", 
+                   RowBox[{"2", " ", 
+                    RowBox[{"(", 
+                    RowBox[{"1", "+", "m"}], ")"}], " ", "z"}], "-", 
+                   "\[CapitalDelta]"}], ")"}], " ", "\[Epsilon]"}]}], ")"}]}],
+              ",", 
+             FractionBox[
+              RowBox[{
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"-", "1"}], "+", "n"}], ")"}], " ", 
+               RowBox[{"(", 
+                RowBox[{"6", "+", "Delta12", "-", "Delta34", "-", 
+                 RowBox[{"3", " ", "m"}], "-", 
+                 RowBox[{"4", " ", "n"}], "+", 
+                 RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}]}], 
+              RowBox[{"16", " ", 
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"-", "1"}], "+", "z"}], ")"}], " ", 
+               SuperscriptBox["z", "2"], " ", 
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"-", "1"}], "+", 
+                 RowBox[{"2", " ", "n"}], "+", 
+                 RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}]}]], ",", 
+             RowBox[{
+              RowBox[{"(", 
+               RowBox[{
+                RowBox[{"-", "8"}], "+", 
+                RowBox[{"8", " ", "n"}], "+", 
+                RowBox[{"m", " ", 
+                 RowBox[{"(", 
+                  RowBox[{"2", "-", 
+                   RowBox[{"3", " ", "z"}]}], ")"}]}], "+", 
+                RowBox[{
+                 RowBox[{"(", 
+                  RowBox[{"10", "+", "Delta12", "-", "Delta34"}], ")"}], " ", 
+                 "z"}], "-", 
+                RowBox[{"2", " ", "z", " ", 
+                 RowBox[{"(", 
+                  RowBox[{
+                   RowBox[{"6", " ", "n"}], "+", "\[Epsilon]"}], ")"}]}]}], 
+               ")"}], "/", 
+              RowBox[{"(", 
+               RowBox[{"4", " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"-", "1"}], "+", "z"}], ")"}], " ", "z", " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"-", "1"}], "+", 
+                  RowBox[{"2", " ", "n"}], "+", 
+                  RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}]}], ")"}]}], ",", 
+             RowBox[{"-", 
+              FractionBox[
+               RowBox[{
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"-", "1"}], "+", "n"}], ")"}], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"-", "1"}], "+", 
+                  RowBox[{"3", " ", "z"}]}], ")"}]}], 
+               RowBox[{"8", " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"-", "1"}], "+", "z"}], ")"}], " ", 
+                SuperscriptBox["z", "2"], " ", 
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"-", "1"}], "+", 
+                  RowBox[{"2", " ", "n"}], "+", 
+                  RowBox[{"2", " ", "\[Epsilon]"}]}], ")"}]}]]}], ",", 
+             FractionBox["1", 
+              RowBox[{"2", "-", 
+               RowBox[{"4", " ", "n"}], "-", 
+               RowBox[{"4", " ", "\[Epsilon]"}]}]]}], "}"}], "//", 
+           "Simplify"}]}], ";", "\[IndentingNewLine]", "\[IndentingNewLine]", 
+         
+         RowBox[{
+          RowBox[{"casInds", "[", 
+           RowBox[{"m_", ",", "n_"}], "]"}], "=", 
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"-", "3"}], "+", "m"}], ",", "n"}], "}"}], ",", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"-", "2"}], "+", "m"}], ",", "n"}], "}"}], ",", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"-", "1"}], "+", "m"}], ",", 
+              RowBox[{
+               RowBox[{"-", "1"}], "+", "n"}]}], "}"}], ",", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"-", "1"}], "+", "m"}], ",", "n"}], "}"}], ",", " ", 
+            RowBox[{"{", 
+             RowBox[{"m", ",", 
+              RowBox[{
+               RowBox[{"-", "1"}], "+", "n"}]}], "}"}], ",", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"1", "+", "m"}], ",", 
+              RowBox[{
+               RowBox[{"-", "2"}], "+", "n"}]}], "}"}], ",", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"1", "+", "m"}], ",", 
+              RowBox[{
+               RowBox[{"-", "1"}], "+", "n"}]}], "}"}], ",", " ", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"2", "+", "m"}], ",", 
+              RowBox[{
+               RowBox[{"-", "2"}], "+", "n"}]}], "}"}], ",", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"2", "+", "m"}], ",", 
+              RowBox[{
+               RowBox[{"-", "1"}], "+", "n"}]}], "}"}]}], "}"}]}], ";", 
+         "\[IndentingNewLine]", "\[IndentingNewLine]", 
+         RowBox[{"(*", 
+          RowBox[{"**", "**", "**", "**", "**", "**", "**", "**", "**"}], 
+          "******)"}], "\[IndentingNewLine]", "\[IndentingNewLine]", 
+         "\[IndentingNewLine]", "\[IndentingNewLine]", "\[IndentingNewLine]", 
+         "\[IndentingNewLine]", 
+         RowBox[{
+          RowBox[{"cn", "[", "n_", "]"}], ":=", 
+          RowBox[{
+           RowBox[{"cn", "[", "n", "]"}], "=", 
+           RowBox[{"Chop", "[", 
+            RowBox[{"Apart", "[", 
+             RowBox[{
+              RowBox[{"Expand", "[", 
+               RowBox[{"Sum", "[", 
+                RowBox[{
+                 RowBox[{
+                  RowBox[{
+                   RowBox[{"coeffs", "[", "n", "]"}], "[", 
+                   RowBox[{"[", "i", "]"}], "]"}], 
+                  RowBox[{"cn", "[", 
+                   RowBox[{"n", "-", "8", "+", "i"}], "]"}]}], ",", 
+                 RowBox[{"{", 
+                  RowBox[{"i", ",", "7"}], "}"}]}], "]"}], "]"}], ",", 
+              "\[CapitalDelta]"}], "]"}], "]"}]}]}], ";", 
+         "\[IndentingNewLine]", 
+         RowBox[{
+          RowBox[{"cn", "[", "0", "]"}], "=", "1"}], ";", 
+         "\[IndentingNewLine]", 
+         RowBox[{
+          RowBox[{"cn", "[", 
+           RowBox[{"x_", "/;", 
+            RowBox[{"x", "<", "0"}]}], "]"}], "=", "0"}], ";", 
+         "\[IndentingNewLine]", "\[IndentingNewLine]", "\[IndentingNewLine]", 
+         
+         RowBox[{"(*", " ", 
+          RowBox[{
+           RowBox[{"Power", " ", "series", " ", "are", " ", 
+            RowBox[{
+             RowBox[{"rho", "^"}], "\\", "Delta"}], " ", "Sum", 
+            RowBox[{"(", " ", 
+             RowBox[{
+              RowBox[{"cnrhoder", "[", 
+               RowBox[{"n", ",", "i"}], "]"}], " ", 
+              RowBox[{"rho", "^", 
+               RowBox[{"(", 
+                RowBox[{"n", "-", "i"}], ")"}]}]}], ")"}]}], ";"}], "  ", 
+          "*)"}], "\[IndentingNewLine]", 
+         RowBox[{"(*", " ", 
+          RowBox[{
+           RowBox[{
+           "fudge", " ", "factor", " ", "is", " ", "required", " ", "to", " ",
+             "prevent", " ", "certain", " ", "cancellations", " ", "from", 
+            " ", "occurring"}], ";", " ", 
+           RowBox[{
+           "otherwise", " ", "different", " ", "components", " ", "will", " ",
+             "have", " ", "different", " ", "poles"}]}], " ", "*)"}], 
+         "\[IndentingNewLine]", "\[IndentingNewLine]", "\[IndentingNewLine]", 
+         "\[IndentingNewLine]", 
+         RowBox[{
+          RowBox[{"cnRhoDer", "[", 
+           RowBox[{"n_", ",", "i_"}], "]"}], ":=", 
+          RowBox[{
+           RowBox[{"cnRhoDer", "[", 
+            RowBox[{"n", ",", "i"}], "]"}], "=", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"Expand", "[", 
+              RowBox[{
+               RowBox[{"(", 
+                RowBox[{"\[CapitalDelta]", "+", "n", "-", 
+                 RowBox[{"(", 
+                  RowBox[{"i", "-", "1"}], ")"}], "+", "fudge"}], ")"}], 
+               RowBox[{"cnRhoDer", "[", 
+                RowBox[{"n", ",", 
+                 RowBox[{"i", "-", "1"}]}], "]"}]}], "]"}], "/.", 
+             RowBox[{"{", 
+              RowBox[{
+               RowBox[{
+                RowBox[{"\[CapitalDelta]", " ", 
+                 RowBox[{"r", "[", 
+                  RowBox[{"1", ",", "a_"}], "]"}]}], "\[RuleDelayed]", "  ", 
+                RowBox[{"1", "+", " ", 
+                 RowBox[{"a", " ", 
+                  RowBox[{"r", "[", 
+                   RowBox[{"1", ",", "a"}], "]"}]}]}]}], ",", 
+               RowBox[{
+                RowBox[{
+                 SuperscriptBox["\[CapitalDelta]", "2"], " ", 
+                 RowBox[{"r", "[", 
+                  RowBox[{"1", ",", "a_"}], "]"}]}], "\[RuleDelayed]", "  ", 
+                RowBox[{"\[CapitalDelta]", "+", "a", "+", " ", 
+                 RowBox[{
+                  SuperscriptBox["a", "2"], " ", 
+                  RowBox[{"r", "[", 
+                   RowBox[{"1", ",", "a"}], "]"}]}]}]}]}], "}"}]}], "/.", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"\[CapitalDelta]", " ", 
+                RowBox[{"r", "[", 
+                 RowBox[{"2", ",", "a_"}], "]"}]}], "\[RuleDelayed]", "  ", 
+               RowBox[{
+                RowBox[{"a", " ", 
+                 RowBox[{"r", "[", 
+                  RowBox[{"2", ",", "a"}], "]"}]}], "+", " ", 
+                RowBox[{"r", "[", 
+                 RowBox[{"1", ",", "a"}], "]"}]}]}], ",", 
+              RowBox[{
+               RowBox[{
+                SuperscriptBox["\[CapitalDelta]", "2"], " ", 
+                RowBox[{"r", "[", 
+                 RowBox[{"2", ",", "a_"}], "]"}]}], "\[RuleDelayed]", "  ", 
+               RowBox[{"1", "+", 
+                RowBox[{
+                 SuperscriptBox["a", "2"], " ", 
+                 RowBox[{"r", "[", 
+                  RowBox[{"2", ",", "a"}], "]"}]}], "+", 
+                RowBox[{"2", "a", " ", 
+                 RowBox[{"r", "[", 
+                  RowBox[{"1", ",", "a"}], "]"}]}]}]}], ",", 
+              RowBox[{
+               RowBox[{
+                SuperscriptBox["\[CapitalDelta]", "3"], 
+                RowBox[{"r", "[", 
+                 RowBox[{"2", ",", "a_"}], "]"}]}], "\[Rule]", 
+               RowBox[{
+                RowBox[{"2", "a"}], "+", "\[CapitalDelta]", "+", 
+                RowBox[{
+                 SuperscriptBox["a", "3"], 
+                 RowBox[{"r", "[", 
+                  RowBox[{"2", ",", "a"}], "]"}]}], "+", 
+                RowBox[{"3", 
+                 SuperscriptBox["a", "2"], 
+                 RowBox[{"r", "[", 
+                  RowBox[{"1", ",", "a"}], "]"}]}]}]}]}], "}"}]}]}]}], ";", 
+         "\[IndentingNewLine]", 
+         RowBox[{
+          RowBox[{"cnRhoDer", "[", 
+           RowBox[{"n_", ",", "0"}], "]"}], ":=", 
+          RowBox[{
+           RowBox[{"cnRhoDer", "[", 
+            RowBox[{"n", ",", "0"}], "]"}], "=", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"cn", "[", "n", "]"}], "/.", 
+             RowBox[{"{", 
+              RowBox[{
+               RowBox[{
+                FractionBox["1", "\[CapitalDelta]"], "\[RuleDelayed]", 
+                RowBox[{"r", "[", 
+                 RowBox[{"1", ",", "0"}], "]"}]}], ",", 
+               RowBox[{
+                FractionBox["1", 
+                 RowBox[{"a_", "+", 
+                  RowBox[{"b_", " ", "\[CapitalDelta]"}]}]], "\[RuleDelayed]",
+                 " ", 
+                RowBox[{
+                 FractionBox["1", "b"], 
+                 RowBox[{"r", "[", 
+                  RowBox[{"1", ",", 
+                   RowBox[{
+                    RowBox[{"-", "a"}], "/", "b"}]}], "]"}]}]}], ",", 
+               RowBox[{
+                FractionBox["1", 
+                 RowBox[{"a_", "+", "\[CapitalDelta]"}]], "\[RuleDelayed]", 
+                " ", 
+                RowBox[{"r", "[", 
+                 RowBox[{"1", ",", 
+                  RowBox[{"-", "a"}]}], "]"}]}]}], "}"}]}], "/.", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"Power", "[", 
+                RowBox[{
+                 RowBox[{"a_", "+", 
+                  RowBox[{"b_", " ", "\[CapitalDelta]"}]}], ",", "m_"}], 
+                "]"}], "\[RuleDelayed]", " ", 
+               RowBox[{
+                FractionBox["1", 
+                 SuperscriptBox["b", 
+                  RowBox[{"-", "m"}]]], 
+                RowBox[{"r", "[", 
+                 RowBox[{
+                  RowBox[{"-", "m"}], ",", 
+                  RowBox[{
+                   RowBox[{"-", "a"}], "/", "b"}]}], "]"}]}]}], ",", 
+              RowBox[{
+               RowBox[{"Power", "[", 
+                RowBox[{
+                 RowBox[{"a_", "+", "\[CapitalDelta]"}], ",", "m_"}], "]"}], 
+               "\[RuleDelayed]", " ", 
+               RowBox[{"r", "[", 
+                RowBox[{
+                 RowBox[{"-", "m"}], ",", 
+                 RowBox[{"-", "a"}]}], "]"}]}]}], "}"}]}]}]}], ";", 
+         "\[IndentingNewLine]", "\[IndentingNewLine]", 
+         RowBox[{"t1", "=", 
+          RowBox[{"AbsoluteTiming", "[", "\[IndentingNewLine]", 
+           RowBox[{"Do", "[", 
+            RowBox[{
+             RowBox[{"cn", "[", "k", "]"}], ",", 
+             RowBox[{"{", 
+              RowBox[{"k", ",", "0", ",", "kmax"}], "}"}]}], "]"}], "]"}]}], 
+         ";", "\[IndentingNewLine]", "\[IndentingNewLine]", 
+         "\[IndentingNewLine]", 
+         RowBox[{"(*", 
+          RowBox[{
+           RowBox[{"Need", " ", "to", " ", "convert", " ", "to", " ", "z"}], 
+           "=", 
+           RowBox[{"zb", " ", "derivatives", " ", 
+            RowBox[{"(", 
+             RowBox[{
+             "or", " ", "more", " ", "precisely", " ", "the", " ", "a", " ", 
+              "derivatives"}], " "}]}]}], "*)"}], "\[IndentingNewLine]", 
+         RowBox[{"t2", "=", 
+          RowBox[{"AbsoluteTiming", "[", "\[IndentingNewLine]", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"AllDer", "[", 
+              RowBox[{"ll", ",", "0", ",", "0"}], "]"}], "=", 
+             RowBox[{
+              RowBox[{
+               RowBox[{
+                RowBox[{"(", 
+                 RowBox[{
+                  RowBox[{"Sum", "[", 
+                   RowBox[{
+                    RowBox[{"Expand", "[", 
+                    RowBox[{
+                    RowBox[{"cn", "[", "k", "]"}], 
+                    SuperscriptBox["\[Rho]num", "k"]}], "]"}], ",", 
+                    RowBox[{"{", 
+                    RowBox[{"k", ",", "0", ",", "kmax"}], "}"}]}], "]"}], "//",
+                   "Expand"}], ")"}], "/.", 
+                RowBox[{"{", 
+                 RowBox[{
+                  RowBox[{
+                   FractionBox["1", "\[CapitalDelta]"], "\[RuleDelayed]", 
+                   RowBox[{"r", "[", 
+                    RowBox[{"1", ",", "0"}], "]"}]}], ",", 
+                  RowBox[{
+                   FractionBox["1", 
+                    RowBox[{"a_", "+", 
+                    RowBox[{"b_", " ", "\[CapitalDelta]"}]}]], 
+                   "\[RuleDelayed]", " ", 
+                   RowBox[{
+                    FractionBox["1", "b"], 
+                    RowBox[{"r", "[", 
+                    RowBox[{"1", ",", 
+                    RowBox[{
+                    RowBox[{"-", "a"}], "/", "b"}]}], "]"}]}]}], ",", 
+                  RowBox[{
+                   FractionBox["1", 
+                    RowBox[{"a_", "+", "\[CapitalDelta]"}]], "\[RuleDelayed]",
+                    " ", 
+                   RowBox[{"r", "[", 
+                    RowBox[{"1", ",", 
+                    RowBox[{"-", "a"}]}], "]"}]}]}], "}"}]}], "/.", 
+               RowBox[{"{", 
+                RowBox[{
+                 RowBox[{
+                  RowBox[{"Power", "[", 
+                   RowBox[{
+                    RowBox[{"a_", "+", 
+                    RowBox[{"b_", " ", "\[CapitalDelta]"}]}], ",", "m_"}], 
+                   "]"}], "\[RuleDelayed]", " ", 
+                  RowBox[{
+                   FractionBox["1", 
+                    SuperscriptBox["b", 
+                    RowBox[{"-", "m"}]]], 
+                   RowBox[{"r", "[", 
+                    RowBox[{
+                    RowBox[{"-", "m"}], ",", 
+                    RowBox[{
+                    RowBox[{"-", "a"}], "/", "b"}]}], "]"}]}]}], ",", 
+                 RowBox[{
+                  RowBox[{"Power", "[", 
+                   RowBox[{
+                    RowBox[{"a_", "+", "\[CapitalDelta]"}], ",", "m_"}], 
+                   "]"}], "\[RuleDelayed]", " ", 
+                  RowBox[{"r", "[", 
+                   RowBox[{
+                    RowBox[{"-", "m"}], ",", 
+                    RowBox[{"-", "a"}]}], "]"}]}]}], "}"}]}], "//", 
+              "Simplify"}]}], ";"}], "\[IndentingNewLine]", "]"}]}], ";", 
+         "\[IndentingNewLine]", "\[IndentingNewLine]", 
+         RowBox[{"t3", "=", 
+          RowBox[{"AbsoluteTiming", "[", "\[IndentingNewLine]", 
+           RowBox[{
+            RowBox[{"Do", "[", "\[IndentingNewLine]", 
+             RowBox[{
+              RowBox[{
+               RowBox[{
+                RowBox[{"AllDer", "[", 
+                 RowBox[{"ll", ",", "m", ",", "0"}], "]"}], "=", 
+                RowBox[{"(", 
+                 RowBox[{
+                  FractionBox["1", 
+                   SuperscriptBox["2", "m"]], 
+                  RowBox[{"Sum", "[", 
+                   RowBox[{
+                    RowBox[{
+                    RowBox[{
+                    RowBox[{"Expand", "[", 
+                    RowBox[{
+                    RowBox[{"coeffTab", "[", 
+                    RowBox[{"[", 
+                    RowBox[{"m", ",", "i"}], "]"}], "]"}], 
+                    RowBox[{"cnRhoDer", "[", 
+                    RowBox[{"k", ",", "i"}], "]"}], 
+                    SuperscriptBox["\[Rho]num", 
+                    RowBox[{"k", "-", "i"}]]}], "]"}], "/.", 
+                    RowBox[{"{", 
+                    RowBox[{
+                    RowBox[{
+                    RowBox[{"\[CapitalDelta]", " ", 
+                    RowBox[{"r", "[", 
+                    RowBox[{"1", ",", "a_"}], "]"}]}], "\[RuleDelayed]", "  ", 
+                    RowBox[{"1", "+", " ", 
+                    RowBox[{"a", " ", 
+                    RowBox[{"r", "[", 
+                    RowBox[{"1", ",", "a"}], "]"}]}]}]}], ",", 
+                    RowBox[{
+                    RowBox[{
+                    SuperscriptBox["\[CapitalDelta]", "2"], " ", 
+                    RowBox[{"r", "[", 
+                    RowBox[{"1", ",", "a_"}], "]"}]}], "\[RuleDelayed]", "  ", 
+                    RowBox[{"\[CapitalDelta]", "+", "a", "+", " ", 
+                    RowBox[{
+                    SuperscriptBox["a", "2"], " ", 
+                    RowBox[{"r", "[", 
+                    RowBox[{"1", ",", "a"}], "]"}]}]}]}]}], "}"}]}], "/.", 
+                    RowBox[{"{", 
+                    RowBox[{
+                    RowBox[{
+                    RowBox[{"\[CapitalDelta]", " ", 
+                    RowBox[{"r", "[", 
+                    RowBox[{"2", ",", "a_"}], "]"}]}], "\[RuleDelayed]", "  ", 
+                    RowBox[{
+                    RowBox[{"a", " ", 
+                    RowBox[{"r", "[", 
+                    RowBox[{"2", ",", "a"}], "]"}]}], "+", " ", 
+                    RowBox[{"r", "[", 
+                    RowBox[{"1", ",", "a"}], "]"}]}]}], ",", 
+                    RowBox[{
+                    RowBox[{
+                    SuperscriptBox["\[CapitalDelta]", "2"], " ", 
+                    RowBox[{"r", "[", 
+                    RowBox[{"2", ",", "a_"}], "]"}]}], "\[RuleDelayed]", "  ", 
+                    RowBox[{"1", "+", 
+                    RowBox[{
+                    SuperscriptBox["a", "2"], " ", 
+                    RowBox[{"r", "[", 
+                    RowBox[{"2", ",", "a"}], "]"}]}], "+", 
+                    RowBox[{"2", "a", " ", 
+                    RowBox[{"r", "[", 
+                    RowBox[{"1", ",", "a"}], "]"}]}]}]}], ",", 
+                    RowBox[{
+                    RowBox[{
+                    SuperscriptBox["\[CapitalDelta]", "3"], 
+                    RowBox[{"r", "[", 
+                    RowBox[{"2", ",", "a_"}], "]"}]}], "\[Rule]", 
+                    RowBox[{
+                    RowBox[{"2", "a"}], "+", "\[CapitalDelta]", "+", 
+                    RowBox[{
+                    SuperscriptBox["a", "3"], 
+                    RowBox[{"r", "[", 
+                    RowBox[{"2", ",", "a"}], "]"}]}], "+", 
+                    RowBox[{"3", 
+                    SuperscriptBox["a", "2"], 
+                    RowBox[{"r", "[", 
+                    RowBox[{"1", ",", "a"}], "]"}]}]}]}]}], "}"}]}], ",", 
+                    RowBox[{"{", 
+                    RowBox[{"k", ",", "0", ",", "kmax"}], "}"}], ",", 
+                    RowBox[{"{", 
+                    RowBox[{"i", ",", "1", ",", 
+                    RowBox[{"Length", "[", 
+                    RowBox[{"coeffTab", "[", 
+                    RowBox[{"[", "m", "]"}], "]"}], "]"}]}], "}"}]}], "]"}]}],
+                  ")"}]}], ";"}], "\[IndentingNewLine]", ",", 
+              RowBox[{"{", 
+               RowBox[{"m", ",", "1", ",", "zdermax"}], "}"}]}], "]"}], ";"}],
+            "\[IndentingNewLine]", "]"}]}], ";", "\[IndentingNewLine]", 
+         "\[IndentingNewLine]", 
+         RowBox[{"(*", " ", 
+          RowBox[{"Use", " ", "Casimir", " ", "rec"}], "*)"}], 
+         "\[IndentingNewLine]", 
+         RowBox[{
+          RowBox[{"CRec", "[", 
+           RowBox[{
+            RowBox[{"m_", "/;", 
+             RowBox[{"m", "<", "0"}]}], ",", "n_"}], "]"}], ":=", "0"}], ";", 
+         "\[IndentingNewLine]", 
+         RowBox[{
+          RowBox[{"CRec", "[", 
+           RowBox[{"m_", ",", 
+            RowBox[{"n_", "/;", 
+             RowBox[{"n", "<", "0"}]}]}], "]"}], ":=", "0"}], ";", 
+         "\[IndentingNewLine]", 
+         RowBox[{"Do", "[", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"CRec", "[", 
+             RowBox[{"m", ",", "0"}], "]"}], "=", 
+            RowBox[{"AllDer", "[", 
+             RowBox[{"ll", ",", "m", ",", "0"}], "]"}]}], ",", 
+           RowBox[{"{", 
+            RowBox[{"m", ",", "0", ",", "zdermax"}], "}"}]}], "]"}], ";", 
+         "\[IndentingNewLine]", "\[IndentingNewLine]", 
+         RowBox[{"t4", "=", 
+          RowBox[{"AbsoluteTiming", "[", "\[IndentingNewLine]", 
+           RowBox[{
+            RowBox[{"Do", "[", "\[IndentingNewLine]", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"cs", "=", 
+                RowBox[{
+                 RowBox[{"casCoeffs", "[", 
+                  RowBox[{"m", ",", "n", ",", "eps", ",", "ll"}], "]"}], "//",
+                  "Simplify"}]}], ";", "\[IndentingNewLine]", 
+               "\[IndentingNewLine]", 
+               RowBox[{
+                RowBox[{"AllDer", "[", 
+                 RowBox[{"ll", ",", "m", ",", "n"}], "]"}], "=", 
+                RowBox[{
+                 RowBox[{"CRec", "[", 
+                  RowBox[{"m", ",", "n"}], "]"}], "=", 
+                 RowBox[{
+                  RowBox[{
+                   RowBox[{"Expand", "[", 
+                    RowBox[{"Sum", "[", 
+                    RowBox[{
+                    RowBox[{
+                    RowBox[{"cs", "[", 
+                    RowBox[{"[", "i", "]"}], "]"}], 
+                    RowBox[{"CRec", "@@", 
+                    RowBox[{
+                    RowBox[{"casInds", "[", 
+                    RowBox[{"m", ",", "n"}], "]"}], "[", 
+                    RowBox[{"[", "i", "]"}], "]"}]}]}], ",", 
+                    RowBox[{"{", 
+                    RowBox[{"i", ",", 
+                    RowBox[{"Length", "[", "cs", "]"}]}], "}"}]}], "]"}], 
+                    "]"}], "/.", 
+                   RowBox[{"{", 
+                    RowBox[{
+                    RowBox[{
+                    RowBox[{"\[CapitalDelta]", " ", 
+                    RowBox[{"r", "[", 
+                    RowBox[{"1", ",", "a_"}], "]"}]}], "\[RuleDelayed]", "  ", 
+                    RowBox[{"1", "+", " ", 
+                    RowBox[{"a", " ", 
+                    RowBox[{"r", "[", 
+                    RowBox[{"1", ",", "a"}], "]"}]}]}]}], ",", 
+                    RowBox[{
+                    RowBox[{
+                    SuperscriptBox["\[CapitalDelta]", "2"], " ", 
+                    RowBox[{"r", "[", 
+                    RowBox[{"1", ",", "a_"}], "]"}]}], "\[RuleDelayed]", "  ", 
+                    RowBox[{"\[CapitalDelta]", "+", "a", "+", " ", 
+                    RowBox[{
+                    SuperscriptBox["a", "2"], " ", 
+                    RowBox[{"r", "[", 
+                    RowBox[{"1", ",", "a"}], "]"}]}]}]}]}], "}"}]}], "/.", 
+                  RowBox[{"{", 
+                   RowBox[{
+                    RowBox[{
+                    RowBox[{"\[CapitalDelta]", " ", 
+                    RowBox[{"r", "[", 
+                    RowBox[{"2", ",", "a_"}], "]"}]}], "\[RuleDelayed]", "  ", 
+                    RowBox[{
+                    RowBox[{"a", " ", 
+                    RowBox[{"r", "[", 
+                    RowBox[{"2", ",", "a"}], "]"}]}], "+", " ", 
+                    RowBox[{"r", "[", 
+                    RowBox[{"1", ",", "a"}], "]"}]}]}], ",", 
+                    RowBox[{
+                    RowBox[{
+                    SuperscriptBox["\[CapitalDelta]", "2"], " ", 
+                    RowBox[{"r", "[", 
+                    RowBox[{"2", ",", "a_"}], "]"}]}], "\[RuleDelayed]", "  ", 
+                    RowBox[{"1", "+", 
+                    RowBox[{
+                    SuperscriptBox["a", "2"], " ", 
+                    RowBox[{"r", "[", 
+                    RowBox[{"2", ",", "a"}], "]"}]}], "+", 
+                    RowBox[{"2", "a", " ", 
+                    RowBox[{"r", "[", 
+                    RowBox[{"1", ",", "a"}], "]"}]}]}]}], ",", 
+                    RowBox[{
+                    RowBox[{
+                    SuperscriptBox["\[CapitalDelta]", "3"], 
+                    RowBox[{"r", "[", 
+                    RowBox[{"2", ",", "a_"}], "]"}]}], ":>", 
+                    RowBox[{
+                    RowBox[{"2", "a"}], "+", "\[CapitalDelta]", "+", 
+                    RowBox[{
+                    SuperscriptBox["a", "3"], 
+                    RowBox[{"r", "[", 
+                    RowBox[{"2", ",", "a"}], "]"}]}], "+", 
+                    RowBox[{"3", 
+                    SuperscriptBox["a", "2"], 
+                    RowBox[{"r", "[", 
+                    RowBox[{"1", ",", "a"}], "]"}]}]}]}]}], "}"}]}]}]}], 
+               ";"}], "\[IndentingNewLine]", ",", 
+              RowBox[{"{", 
+               RowBox[{"n", ",", "1", ",", "nmax"}], "}"}], ",", 
+              RowBox[{"{", 
+               RowBox[{"m", ",", "0", ",", 
+                RowBox[{
+                 RowBox[{"2", 
+                  RowBox[{"(", 
+                   RowBox[{"nmax", "-", "n"}], ")"}]}], "+", "mmax"}]}], 
+               "}"}]}], "]"}], ";"}], "\[IndentingNewLine]", "]"}]}], ";", 
+         "\[IndentingNewLine]", 
+         RowBox[{"Clear", "[", "z", "]"}], ";", "\[IndentingNewLine]", 
+         RowBox[{"Return", "[", "]"}], ";"}], "\[IndentingNewLine]", ")"}], 
+       ";"}]}], "\[IndentingNewLine]", "]"}]}], ";"}], "\[IndentingNewLine]", 
+  "\[IndentingNewLine]"}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.645883692525117*^9, 3.645883707493622*^9}, {
+   3.645883827779853*^9, 3.6458838338631067`*^9}, {3.645884028698545*^9, 
+   3.645884029723259*^9}, {3.645884163960992*^9, 3.6458842017855053`*^9}, 
+   3.645884288877784*^9, {3.645884643448269*^9, 3.645884649583901*^9}, {
+   3.645884691697542*^9, 3.645884700721279*^9}, 3.6458847568478518`*^9, {
+   3.645886674103901*^9, 3.645886674736217*^9}, 3.6458993726286287`*^9, {
+   3.64589944770683*^9, 3.645899470753868*^9}, {3.645900659333088*^9, 
+   3.645900659413394*^9}}]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -1472,8 +4014,10 @@ Cell[BoxData[
                    RowBox[{"tmp", "/.", 
                     RowBox[{
                     RowBox[{"r1", "[", "x_", "]"}], "\[Rule]", "0"}]}], "/.", 
+                   
                    RowBox[{
                     RowBox[{"r2", "[", "x_", "]"}], "\[Rule]", "0"}]}], "/.", 
+                  
                   RowBox[{"\[CapitalDelta]", "\[Rule]", 
                    RowBox[{"\[CapitalDelta]", "+", 
                     RowBox[{"2", "\[Epsilon]"}], "+", "L"}]}]}], ",", 
@@ -1579,7 +4123,7 @@ Cell[BoxData[
   3.6257675961560535`*^9, 3.625767599074015*^9}, {3.6257676892912736`*^9, 
   3.625767735920618*^9}, {3.6257679170533733`*^9, 3.6257679307725945`*^9}}]
 }, Open  ]]
-}, Closed]],
+}, Open  ]],
 
 Cell[CellGroupData[{
 
@@ -1595,7 +4139,9 @@ Cell[BoxData[{
     RowBox[{
      RowBox[{"kMax", "\[Rule]", "60"}], ",", 
      RowBox[{"Prec", "\[Rule]", "64"}], ",", 
-     RowBox[{"AllSpins", "\[Rule]", "False"}]}], "}"}]}], 
+     RowBox[{"AllSpins", "\[Rule]", "False"}], ",", 
+     RowBox[{"\[CapitalDelta]12", "\[Rule]", "0"}], ",", 
+     RowBox[{"\[CapitalDelta]34", "\[Rule]", "0"}]}], "}"}]}], 
   ";"}], "\[IndentingNewLine]", 
  RowBox[{
   RowBox[{
@@ -1613,7 +4159,8 @@ Cell[BoxData[{
        "plen", ",", "LL", ",", "maxPolylength", ",", "L", ",", 
        "\[CapitalDelta]0", ",", "Poly", ",", "Poles1", ",", "PoleCoeffs1", 
        ",", "Poles2", ",", "PoleCoeffs2", ",", "file", ",", "prec", ",", 
-       "kmax"}], "}"}], ",", "\[IndentingNewLine]", "\[IndentingNewLine]", 
+       "kmax", ",", "Delta12", ",", "Delta34"}], "}"}], ",", 
+     "\[IndentingNewLine]", "\[IndentingNewLine]", 
      RowBox[{
       RowBox[{"prec", "=", 
        RowBox[{"OptionValue", "[", "Prec", "]"}]}], ";", 
@@ -1631,21 +4178,50 @@ Cell[BoxData[{
       RowBox[{"eps", "=", 
        RowBox[{"Rationalize", "[", 
         FractionBox[
-         RowBox[{"Dim", "-", "2"}], "2"], "]"}]}], ";", "\[IndentingNewLine]",
-       "\[IndentingNewLine]", "\[IndentingNewLine]", 
-      RowBox[{"Monitor", "[", 
+         RowBox[{"Dim", "-", "2"}], "2"], "]"}]}], ";", "\[IndentingNewLine]", 
+      RowBox[{"Delta12", "=", 
+       RowBox[{"OptionValue", "[", "\[CapitalDelta]12", "]"}]}], ";", "\n", 
+      "       ", 
+      RowBox[{"Delta34", "=", 
+       RowBox[{"OptionValue", "[", "\[CapitalDelta]34", "]"}]}], ";", 
+      "\[IndentingNewLine]", "\[IndentingNewLine]", 
+      RowBox[{"If", "[", 
        RowBox[{
-        RowBox[{"For", "[", 
+        RowBox[{"(", 
          RowBox[{
-          RowBox[{"Lct", "=", "0"}], ",", 
-          RowBox[{"Lct", "\[LessEqual]", "Lmax"}], ",", 
-          RowBox[{"Lct", "+=", "spinstep"}], ",", "\[IndentingNewLine]", 
+          RowBox[{"Delta12", "\[NotEqual]", "0"}], "||", 
+          RowBox[{"Delta34", "\[NotEqual]", "0"}]}], ")"}], ",", 
+        "\[IndentingNewLine]", 
+        RowBox[{
+         RowBox[{"Monitor", "[", 
           RowBox[{
-           RowBox[{"Recurse", "[", 
+           RowBox[{"For", "[", 
             RowBox[{
-            "eps", ",", "Lct", ",", "prec", ",", "mmax", ",", "nmax", ",", 
-             "kmax"}], "]"}], ";"}]}], "]"}], "\[IndentingNewLine]", ",", 
-        "Lct"}], "]"}], ";", "\[IndentingNewLine]", "\[IndentingNewLine]", 
+             RowBox[{"Lct", "=", "0"}], ",", 
+             RowBox[{"Lct", "\[LessEqual]", "Lmax"}], ",", 
+             RowBox[{"Lct", "+=", "spinstep"}], ",", "\[IndentingNewLine]", 
+             RowBox[{
+              RowBox[{"Recurse2", "[", 
+               RowBox[{
+               "eps", ",", "Lct", ",", "Delta12", ",", "Delta34", ",", "prec",
+                 ",", "mmax", ",", "nmax", ",", "kmax"}], "]"}], ";"}]}], 
+            "]"}], "\[IndentingNewLine]", ",", "Lct"}], "]"}], ";"}], 
+        "\[IndentingNewLine]", ",", "\[IndentingNewLine]", 
+        RowBox[{
+         RowBox[{"Monitor", "[", 
+          RowBox[{
+           RowBox[{"For", "[", 
+            RowBox[{
+             RowBox[{"Lct", "=", "0"}], ",", 
+             RowBox[{"Lct", "\[LessEqual]", "Lmax"}], ",", 
+             RowBox[{"Lct", "+=", "spinstep"}], ",", "\[IndentingNewLine]", 
+             RowBox[{
+              RowBox[{"Recurse", "[", 
+               RowBox[{
+               "eps", ",", "Lct", ",", "prec", ",", "mmax", ",", "nmax", ",", 
+                "kmax"}], "]"}], ";"}]}], "]"}], "\[IndentingNewLine]", ",", 
+           "Lct"}], "]"}], ";"}]}], "\[IndentingNewLine]", "]"}], ";", 
+      "\[IndentingNewLine]", "\[IndentingNewLine]", 
       RowBox[{"Res", "=", 
        RowBox[{"{", "}"}]}], ";", 
       RowBox[{"For", "[", 
@@ -1745,6 +4321,7 @@ Cell[BoxData[{
                    RowBox[{"nmax", "-", "n"}], ")"}]}], "+", "mmax"}]}], 
                "}"}]}], "]"}], ",", "1"}], "]"}]}], ";", 
          "\[IndentingNewLine]", "\[IndentingNewLine]", "\[IndentingNewLine]", 
+         
          RowBox[{"AppendTo", "[", 
           RowBox[{"Res", ",", 
            RowBox[{"{", 
@@ -1773,8 +4350,10 @@ Cell[BoxData[{
         RowBox[{"N", "[", "eps", "]"}]}], "]"}], ";", "\[IndentingNewLine]", 
       RowBox[{"Write", "[", 
        RowBox[{"file", ",", " ", "nmax"}], "]"}], ";", "\[IndentingNewLine]", 
+      
       RowBox[{"Write", "[", 
        RowBox[{"file", ",", " ", "mmax"}], "]"}], ";", "\[IndentingNewLine]", 
+      
       RowBox[{"Write", "[", 
        RowBox[{"file", ",", "Lmax"}], "]"}], ";", "\[IndentingNewLine]", 
       RowBox[{"Write", "[", 
@@ -1837,6 +4416,7 @@ Cell[BoxData[{
            RowBox[{"[", 
             RowBox[{"Lct", ",", "5"}], "]"}], "]"}]}], ";", 
          "\[IndentingNewLine]", "\[IndentingNewLine]", "\[IndentingNewLine]", 
+         
          RowBox[{"plen", "=", 
           RowBox[{"Length", "[", 
            RowBox[{"Flatten", "[", 
@@ -1866,6 +4446,7 @@ Cell[BoxData[{
           RowBox[{"spinstep", "*", 
            RowBox[{"(", 
             RowBox[{"Lct", "-", "1"}], ")"}]}]}], ";", "\[IndentingNewLine]", 
+         
          RowBox[{"\[CapitalDelta]0", "=", 
           RowBox[{
            RowBox[{"2", "eps"}], "+", "L"}]}], ";", "\[IndentingNewLine]", 
@@ -1980,27 +4561,29 @@ Cell[BoxData[{
     "\[IndentingNewLine]", "]"}]}], ";"}], "\[IndentingNewLine]"}], "Input",
  InitializationCell->True,
  CellChangeTimes->{{3.625766879969144*^9, 3.6257673085583344`*^9}, {
-  3.6257674521602583`*^9, 3.625767501532447*^9}, {3.62576756605282*^9, 
-  3.6257675719778013`*^9}, {3.6257676041514287`*^9, 3.625767605649438*^9}, {
-  3.6257677408969655`*^9, 3.625767750021097*^9}, {3.6257679769956665`*^9, 
-  3.6257680624944353`*^9}, {3.627304542497828*^9, 3.627304569097207*^9}}]
+   3.6257674521602583`*^9, 3.625767501532447*^9}, {3.62576756605282*^9, 
+   3.6257675719778013`*^9}, {3.6257676041514287`*^9, 3.625767605649438*^9}, {
+   3.6257677408969655`*^9, 3.625767750021097*^9}, {3.6257679769956665`*^9, 
+   3.6257680624944353`*^9}, {3.627304542497828*^9, 3.627304569097207*^9}, 
+   3.645883409350483*^9, {3.6458834586916647`*^9, 3.645883467896105*^9}, {
+   3.645883509596355*^9, 3.645883548214526*^9}, {3.645883578596449*^9, 
+   3.645883627019691*^9}, 3.6458996135034103`*^9, {3.645900042069193*^9, 
+   3.645900052920384*^9}}]
 }, Open  ]]
 },
 AutoGeneratedPackage->Automatic,
-WindowSize->{1902, 835},
-WindowMargins->{{0, Automatic}, {Automatic, 0}},
+WindowSize->{1911, 923},
+WindowMargins->{{Automatic, 0}, {Automatic, 0}},
 ShowSelection->True,
-Magnification->0.9499999284744263,
-FrontEndVersion->"10.0 for Mac OS X x86 (32-bit, 64-bit Kernel) (September 9, \
-2014)",
+Magnification:>1.5 Inherited,
+FrontEndVersion->"9.0 for Microsoft Windows (64-bit) (November 20, 2012)",
 StyleDefinitions->Notebook[{
    Cell[
     StyleData[StyleDefinitions -> "Default.nb"]], 
    Cell[
     StyleData["Text"], FontColor -> RGBColor[1, 0, 0]]}, Visible -> False, 
-  FrontEndVersion -> 
-  "10.0 for Mac OS X x86 (32-bit, 64-bit Kernel) (September 9, 2014)", 
-  StyleDefinitions -> "PrivateStylesheetFormatting.nb"]
+  FrontEndVersion -> "9.0 for Microsoft Windows (64-bit) (November 20, 2012)",
+   StyleDefinitions -> "PrivateStylesheetFormatting.nb"]
 ]
 (* End of Notebook Content *)
 
@@ -2014,37 +4597,39 @@ CellTagsIndex->{}
 (*NotebookFileOutline
 Notebook[{
 Cell[CellGroupData[{
-Cell[579, 22, 357, 5, 86, "Title",
+Cell[579, 22, 357, 5, 134, "Title",
  InitializationCell->True],
-Cell[939, 29, 253, 7, 48, "Text",
+Cell[939, 29, 253, 7, 74, "Text",
  InitializationCell->True],
-Cell[1195, 38, 570, 12, 44, "Input",
+Cell[1195, 38, 570, 12, 75, "Input",
  InitializationCell->True],
-Cell[1768, 52, 228, 3, 29, "Text",
+Cell[1768, 52, 228, 3, 45, "Text",
  InitializationCell->True],
-Cell[1999, 57, 118, 2, 27, "Input",
+Cell[1999, 57, 118, 2, 45, "Input",
  InitializationCell->True],
-Cell[2120, 61, 4865, 124, 331, "Input",
+Cell[2120, 61, 4872, 125, 579, "Input",
  InitializationCell->True],
-Cell[6988, 187, 119, 2, 27, "Input",
+Cell[6995, 188, 119, 2, 45, "Input",
  InitializationCell->True],
 Cell[CellGroupData[{
-Cell[7132, 193, 129, 2, 33, "Subsubsection",
+Cell[7139, 194, 129, 2, 51, "Subsubsection",
  InitializationCell->True],
-Cell[7264, 197, 53919, 1212, 1727, "Input",
+Cell[7271, 198, 54089, 1218, 5106, "Input",
+ InitializationCell->True],
+Cell[61363, 1418, 112354, 2533, 8435, "Input",
  InitializationCell->True]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[61220, 1414, 127, 2, 33, "Subsubsection",
+Cell[173754, 3956, 127, 2, 51, "Subsubsection",
  InitializationCell->True],
-Cell[61350, 1418, 6939, 161, 451, "Input",
+Cell[173884, 3960, 6978, 163, 785, "Input",
  InitializationCell->True]
 }, Open  ]]
-}, Closed]],
+}, Open  ]],
 Cell[CellGroupData[{
-Cell[68338, 1585, 129, 2, 62, "Title",
+Cell[180911, 4129, 129, 2, 134, "Title",
  InitializationCell->True],
-Cell[68470, 1589, 16222, 396, 1190, "Input",
+Cell[181043, 4133, 17917, 437, 2368, "Input",
  InitializationCell->True]
 }, Open  ]]
 }
