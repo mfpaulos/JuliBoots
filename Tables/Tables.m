@@ -31,14 +31,13 @@ SetNDer[nzder_,prec_,zv_]:=
 Module[{\[Rho]0,\[Rho]der,F,coeff,coeffTab,zdermax,f,zz,z},(* \[Rho]der[n] is the n-th derivative of rho(z) at z=1/2 *)
 $MaxExtraPrecision=100;
 Clear[\[Rho]0,\[Rho]der];
-\[Rho]0[0]=(2-z-2Sqrt[1-z])/z;
+t1=AbsoluteTiming[\[Rho]0[0]=(2-z-2Sqrt[1-z])/z;
 \[Rho]0[n_]:=\[Rho]0[n]=D[\[Rho]0[n-1],z];
-\[Rho]der[n_]:=\[Rho]der[n]=((\[Rho]0[n]/.z->zv//Simplify))//Expand//Simplify;
+\[Rho]der[n_]:=\[Rho]der[n]=((\[Rho]0[n]/.z->zv//Simplify))//Expand//Simplify][[1]];
 
 ClearAll[F];
-F[0]:=f[\[Rho][zz]];
-F[n_/;n>0]:=F[n]=D[F[n-1],zz];
-coeff[i_,j_]:=(((Coefficient[F[i],Derivative[j][f][\[Rho][zz]]])/.Derivative[a_][\[Rho]][zz]:>\[Rho]der[a]))//Expand;
+
+coeff[i_,j_]:=BellY[i,j,Table[\[Rho]der[p],{p,1,i-j+1}]];
 coeffTab = Table[coeff[i,j],{i,nzder},{j,i}];
 zdermax = nzder;
 Return[SetPrecision[coeffTab,prec]];
@@ -48,7 +47,8 @@ Return[SetPrecision[coeffTab,prec]];
 
 
 
-Recurse[eps_,ll_,prec_,mmax_,nmax_,kmax_]:=Module[{\[Epsilon],l,fudge,expr,zdermax,t1,t2,t3,t4,coeffs,cn,cnRhoDer,CRec,cs,\[Rho]num,coeffTab,z,casCoeffs},(
+Options[Recurse2]={coeffTab->None};
+Recurse[eps_,ll_,prec_,mmax_,nmax_,kmax_,OptionsPattern[]]:=Module[{\[Epsilon],l,fudge,expr,zdermax,t1,t2,t3,t4,coeffs,cn,cnRhoDer,CRec,cs,\[Rho]num,coeffTb,z,casCoeffs},(
 
 ClearAll[cn,cnRhoDer,CRec];
 
@@ -63,7 +63,7 @@ zdermax=2nmax+mmax;
 \[Rho]num=SetPrecision[3-2Sqrt[2],prec];
 
 z=1/2; (*If we want to generate blocks at some other point this needs to be changed*)
-coeffTab=SetNDer[zdermax,prec,z];
+coeffTb=OptionValue[coeffTab];
 
 casCoeffs[m_,n_,\[Epsilon]_,l_]={-((m (2-3 m+m^2) )/(4 z^2 (-2+2 z))),-(((-1+m) m (-2+6 z) )/(4 z^2 (-2+2 z))),-(m (22+m^2+12 n^2+2 \[Epsilon]-2 n (17+2 \[Epsilon])+m (-13+12 n+2 \[Epsilon])))/(8 z^2 (-2+2 z) (-1+2 n+2 \[Epsilon])),(m (4-6 z) )/(2 z (-2+2 z)),1/(8 z^2 (-2+2 z) (-1+2 n+2 \[Epsilon])) (-2 z (3 m^2+2 (-1+n) (-5+6 n-2 \[Epsilon])+m (-27+24 n+2 (2+2 \[Epsilon])))+2 (m^2+m (-9+8 n)+2 (3+2 n^2-1/2 \[CapitalDelta] (-2+\[CapitalDelta]-2 \[Epsilon])+2 \[Epsilon]-n (5+2 \[Epsilon])-1/2 l (l+2 \[Epsilon])))),-(((-1+n) (-6+3 m+4 n-2 \[Epsilon]) )/(8 z^2 (-2+2 z) (-1+2 n+2 \[Epsilon]))),+((4 (-4+m+4 n)-2 z (-10+3 m+12 n+2 \[Epsilon])))/(4 z (-2+2 z) (-1+2 n+2 \[Epsilon])),-(((-1+n) (-2+6 z))/(8 z^2 (-2+2 z) (-1+2 n+2 \[Epsilon]))),+(1/(6-4 n-2 (2+2 \[Epsilon])))}//Simplify;
 
@@ -86,7 +86,7 @@ cn[x_/;x<0]=0;
 
 
 cnRhoDer[n_,i_]:=cnRhoDer[n,i]=Expand[(\[CapitalDelta]+2n-(i-1)+fudge)cnRhoDer[n,i-1]]/.{\[CapitalDelta] r[1,a_]:>  1+ a r[1,a],\[CapitalDelta]^2 r[1,a_]:>  \[CapitalDelta]+a+ a^2 r[1,a]}/.{\[CapitalDelta] r[2,a_]:>  a r[2,a]+ r[1,a],\[CapitalDelta]^2 r[2,a_]:>  1+a^2 r[2,a]+2a r[1,a],\[CapitalDelta]^3 r[2,a_]->2a+\[CapitalDelta]+a^3 r[2,a]+3a^2 r[1,a]};
-cnRhoDer[n_,0]:=cnRhoDer[n,0]=cn[n]/.{1/\[CapitalDelta]:>r[1,0],1/(a_+b_ \[CapitalDelta]):> 1/b r[1,-a/b],1/(a_+\[CapitalDelta]):> r[1,-a]}/.{Power[a_+b_ \[CapitalDelta],m_]:> 1/b^-m r[-m,-a/b],Power[a_+\[CapitalDelta],m_]:> r[-m,-a]};
+cnRhoDer[n_,0]:=cnRhoDer[n,0]=cn[n]/.{1/\[CapitalDelta]:>r[1,0],1/\[CapitalDelta]^2:>r[2,0],1/(a_+b_ \[CapitalDelta]):> 1/b r[1,-a/b],1/(a_+\[CapitalDelta]):> r[1,-a]}/.{Power[a_+b_ \[CapitalDelta],m_]:> 1/b^-m r[-m,-a/b],Power[a_+\[CapitalDelta],m_]:> r[-m,-a]};
 
 t1=AbsoluteTiming[
 Do[cn[k],{k,0,kmax}]];
@@ -94,12 +94,12 @@ Do[cn[k],{k,0,kmax}]];
 
 (*Need to convert to z=zb derivatives (or more precisely the a derivatives *)
 t2=AbsoluteTiming[
-AllDer[ll,0,0]=(Sum[Expand[cn[k]\[Rho]num^(2k)],{k,0,kmax}]//Expand)/.{1/\[CapitalDelta]:>r[1,0],1/(a_+b_ \[CapitalDelta]):> 1/b r[1,-a/b],1/(a_+\[CapitalDelta]):> r[1,-a]}/.{Power[a_+b_ \[CapitalDelta],m_]:> 1/b^-m r[-m,-a/b],Power[a_+\[CapitalDelta],m_]:> r[-m,-a]}//Simplify;
+AllDer[ll,0,0]=(Sum[Expand[cn[k]\[Rho]num^(2k)],{k,0,kmax}]//Expand)/.{1/\[CapitalDelta]:>r[1,0],1/\[CapitalDelta]^2:>r[2,0],1/(a_+b_ \[CapitalDelta]):> 1/b r[1,-a/b],1/(a_+\[CapitalDelta]):> r[1,-a]}/.{Power[a_+b_ \[CapitalDelta],m_]:> 1/b^-m r[-m,-a/b],Power[a_+\[CapitalDelta],m_]:> r[-m,-a]}//Simplify;
 ];
 
 t3=AbsoluteTiming[
 Do[
-AllDer[ll,m,0]=(1/2^m Sum[Expand[coeffTab[[m,i]]cnRhoDer[k,i]\[Rho]num^(2k-i)]/.{\[CapitalDelta] r[1,a_]:>  1+ a r[1,a],\[CapitalDelta]^2 r[1,a_]:>  \[CapitalDelta]+a+ a^2 r[1,a]}/.{\[CapitalDelta] r[2,a_]:>  a r[2,a]+ r[1,a],\[CapitalDelta]^2 r[2,a_]:>  1+a^2 r[2,a]+2a r[1,a],\[CapitalDelta]^3 r[2,a_]->2a+\[CapitalDelta]+a^3 r[2,a]+3a^2 r[1,a]},{k,0,kmax},{i,1,Length[coeffTab[[m]]]}]);
+AllDer[ll,m,0]=(1/2^m Sum[Expand[coeffTb[[m,i]]cnRhoDer[k,i]\[Rho]num^(2k-i)]/.{\[CapitalDelta] r[1,a_]:>  1+ a r[1,a],\[CapitalDelta]^2 r[1,a_]:>  \[CapitalDelta]+a+ a^2 r[1,a]}/.{\[CapitalDelta] r[2,a_]:>  a r[2,a]+ r[1,a],\[CapitalDelta]^2 r[2,a_]:>  1+a^2 r[2,a]+2a r[1,a],\[CapitalDelta]^3 r[2,a_]->2a+\[CapitalDelta]+a^3 r[2,a]+3a^2 r[1,a]},{k,0,kmax},{i,1,Length[coeffTb[[m]]]}]);
 ,{m,1,zdermax}];
 ];
 
@@ -123,7 +123,8 @@ Return[];
 
 
 
-Recurse2[eps_,ll_,Delta12_,Delta34_,prec_,mmax_,nmax_,kmax_]:=Module[{\[Epsilon],l,fudge,expr,zdermax,t1,t2,t3,t4,coeffs,cn,cnRhoDer,CRec,cs,\[Rho]num,coeffTab,z,casCoeffs},(
+Options[Recurse2]={coeffTab->None};
+Recurse2[eps_,ll_,Delta12_,Delta34_,prec_,mmax_,nmax_,kmax_,OptionsPattern[]]:=Module[{\[Epsilon],l,fudge,expr,zdermax,t1,t2,t3,t4,coeffs,cn,cnRhoDer,CRec,cs,\[Rho]num,coeffTb,z,casCoeffs},(
 
 ClearAll[cn,cnRhoDer,CRec];
 
@@ -138,7 +139,7 @@ zdermax=2nmax+mmax;
 \[Rho]num=SetPrecision[3-2Sqrt[2],prec];
 
 z=1/2; (*If we want to generate blocks at some other point this needs to be changed*)
-coeffTab=SetNDer[zdermax,prec,z];
+coeffTb=OptionValue[coeffTab];
 
 casCoeffs[m_,n_,\[Epsilon]_,l_]={-(((-2+m) (-1+m) m)/(8 (-1+z) z^2)),-(((-1+m) m (-1+3 z))/(4 (-1+z) z^2)),-((m (22-13 m+m^2-34 n+12 m n+12 n^2+Delta34 (-5+m+4 n)-Delta12 (-5+Delta34+m+4 n)+2 (1+m-2 n) \[Epsilon]))/(16 (-1+z) z^2 (-1+2 n+2 \[Epsilon]))),(m (2-3 z))/(2 (-1+z) z),-(1/(8 (-1+z) z^2 (-1+2 n+2 \[Epsilon])))(-6+l^2-(-10+Delta12 (-4+Delta34)+4 Delta34) z+m^2 (-1+3 z)+2 n (5-2 n+(-11-2 Delta12+2 Delta34+6 n) z)+m (9-8 n+(-23-2 Delta12+2 Delta34+24 n) z)+(-2+\[CapitalDelta]) \[CapitalDelta]+2 (-2+l-2 n (-1+z)+2 (1+m) z-\[CapitalDelta]) \[Epsilon]),((-1+n) (6+Delta12-Delta34-3 m-4 n+2 \[Epsilon]))/(16 (-1+z) z^2 (-1+2 n+2 \[Epsilon])),(-8+8 n+m (2-3 z)+(10+Delta12-Delta34) z-2 z (6 n+\[Epsilon]))/(4 (-1+z) z (-1+2 n+2 \[Epsilon])),-(((-1+n) (-1+3 z))/(8 (-1+z) z^2 (-1+2 n+2 \[Epsilon]))),1/(2-4 n-4 \[Epsilon])}//Simplify;
 
@@ -161,7 +162,7 @@ cn[x_/;x<0]=0;
 
 
 cnRhoDer[n_,i_]:=cnRhoDer[n,i]=Expand[(\[CapitalDelta]+n-(i-1)+fudge)cnRhoDer[n,i-1]]/.{\[CapitalDelta] r[1,a_]:>  1+ a r[1,a],\[CapitalDelta]^2 r[1,a_]:>  \[CapitalDelta]+a+ a^2 r[1,a]}/.{\[CapitalDelta] r[2,a_]:>  a r[2,a]+ r[1,a],\[CapitalDelta]^2 r[2,a_]:>  1+a^2 r[2,a]+2a r[1,a],\[CapitalDelta]^3 r[2,a_]->2a+\[CapitalDelta]+a^3 r[2,a]+3a^2 r[1,a]};
-cnRhoDer[n_,0]:=cnRhoDer[n,0]=cn[n]/.{1/\[CapitalDelta]:>r[1,0],1/(a_+b_ \[CapitalDelta]):> 1/b r[1,-a/b],1/(a_+\[CapitalDelta]):> r[1,-a]}/.{Power[a_+b_ \[CapitalDelta],m_]:> 1/b^-m r[-m,-a/b],Power[a_+\[CapitalDelta],m_]:> r[-m,-a]};
+cnRhoDer[n_,0]:=cnRhoDer[n,0]=cn[n]/.{1/\[CapitalDelta]:>r[1,0],1/\[CapitalDelta]^2:>r[2,0],1/(a_+b_ \[CapitalDelta]):> 1/b r[1,-a/b],1/(a_+\[CapitalDelta]):> r[1,-a]}/.{Power[a_+b_ \[CapitalDelta],m_]:> 1/b^-m r[-m,-a/b],Power[a_+\[CapitalDelta],m_]:> r[-m,-a]};
 
 t1=AbsoluteTiming[
 Do[cn[k],{k,0,kmax}]];
@@ -169,12 +170,12 @@ Do[cn[k],{k,0,kmax}]];
 
 (*Need to convert to z=zb derivatives (or more precisely the a derivatives *)
 t2=AbsoluteTiming[
-AllDer[ll,0,0]=(Sum[Expand[cn[k]\[Rho]num^k],{k,0,kmax}]//Expand)/.{1/\[CapitalDelta]:>r[1,0],1/(a_+b_ \[CapitalDelta]):> 1/b r[1,-a/b],1/(a_+\[CapitalDelta]):> r[1,-a]}/.{Power[a_+b_ \[CapitalDelta],m_]:> 1/b^-m r[-m,-a/b],Power[a_+\[CapitalDelta],m_]:> r[-m,-a]}//Simplify;
+AllDer[ll,0,0]=(Sum[Expand[cn[k]\[Rho]num^k],{k,0,kmax}]//Expand)/.{1/\[CapitalDelta]:>r[1,0],1/\[CapitalDelta]^2:>r[2,0],1/(a_+b_ \[CapitalDelta]):> 1/b r[1,-a/b],1/(a_+\[CapitalDelta]):> r[1,-a]}/.{Power[a_+b_ \[CapitalDelta],m_]:> 1/b^-m r[-m,-a/b],Power[a_+\[CapitalDelta],m_]:> r[-m,-a]}//Simplify;
 ];
 
 t3=AbsoluteTiming[
 Do[
-AllDer[ll,m,0]=(1/2^m Sum[Expand[coeffTab[[m,i]]cnRhoDer[k,i]\[Rho]num^(k-i)]/.{\[CapitalDelta] r[1,a_]:>  1+ a r[1,a],\[CapitalDelta]^2 r[1,a_]:>  \[CapitalDelta]+a+ a^2 r[1,a]}/.{\[CapitalDelta] r[2,a_]:>  a r[2,a]+ r[1,a],\[CapitalDelta]^2 r[2,a_]:>  1+a^2 r[2,a]+2a r[1,a],\[CapitalDelta]^3 r[2,a_]->2a+\[CapitalDelta]+a^3 r[2,a]+3a^2 r[1,a]},{k,0,kmax},{i,1,Length[coeffTab[[m]]]}]);
+AllDer[ll,m,0]=(1/2^m Sum[Expand[coeffTb[[m,i]]cnRhoDer[k,i]\[Rho]num^(k-i)]/.{\[CapitalDelta] r[1,a_]:>  1+ a r[1,a],\[CapitalDelta]^2 r[1,a_]:>  \[CapitalDelta]+a+ a^2 r[1,a]}/.{\[CapitalDelta] r[2,a_]:>  a r[2,a]+ r[1,a],\[CapitalDelta]^2 r[2,a_]:>  1+a^2 r[2,a]+2a r[1,a],\[CapitalDelta]^3 r[2,a_]->2a+\[CapitalDelta]+a^3 r[2,a]+3a^2 r[1,a]},{k,0,kmax},{i,1,Length[coeffTb[[m]]]}]);
 ,{m,1,zdermax}];
 ];
 
@@ -227,7 +228,7 @@ Return[{Poly,Poles1,PoleCoeffs1,Poles2,PoleCoeffs2}];
 
 
 Options[ComputeTable]={kMax->60,Prec->64,AllSpins->False,\[CapitalDelta]12->0,\[CapitalDelta]34->0};
-ComputeTable[Dim_,nmax_,mmax_,Lmax_,filename_,OptionsPattern[]]:=Module[{allspins,spinstep,eps,Lct,Res,t1,t2,t3,t4,t5,polylist,polelist1,polelist2,clist1,clist2,plen,LL,maxPolylength,L,\[CapitalDelta]0,Poly,Poles1,PoleCoeffs1,Poles2,PoleCoeffs2,file,prec,kmax,Delta12,Delta34},
+ComputeTable[Dim_,nmax_,mmax_,Lmax_,filename_,OptionsPattern[]]:=Module[{allspins,spinstep,eps,Lct,Res,t1,t2,t3,t4,t5,polylist,polelist1,polelist2,clist1,clist2,plen,LL,maxPolylength,L,\[CapitalDelta]0,Poly,Poles1,PoleCoeffs1,Poles2,PoleCoeffs2,file,prec,kmax,Delta12,Delta34,zdermax,z,coeffTb},
 
 prec=OptionValue[Prec];
 kmax=OptionValue[kMax];
@@ -237,13 +238,19 @@ eps=Rationalize[(Dim-2)/2];
 Delta12=OptionValue[\[CapitalDelta]12];
        Delta34=OptionValue[\[CapitalDelta]34];
 
+zdermax=2nmax+mmax;
+
+z=1/2; (*If we want to generate blocks at some other point this needs to be changed*)
+coeffTb=SetNDer[zdermax,prec,z];
+
+
 If[(Delta12!=0||Delta34!=0),
 Monitor[For[Lct=0,Lct<=Lmax,Lct+=spinstep,
-Recurse2[eps,Lct,Delta12,Delta34,prec,mmax,nmax,kmax];]
+Recurse2[eps,Lct,Delta12,Delta34,prec,mmax,nmax,kmax,coeffTab->coeffTb];]
 ,Lct];
 ,
 Monitor[For[Lct=0,Lct<=Lmax,Lct+=spinstep,
-Recurse[eps,Lct,prec,mmax,nmax,kmax];]
+Recurse[eps,Lct,prec,mmax,nmax,kmax,coeffTab->coeffTb];]
 ,Lct];
 ];
 
