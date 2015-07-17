@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       157,          7]
-NotebookDataLength[      4957,        156]
-NotebookOptionsPosition[      4312,        129]
-NotebookOutlinePosition[      4656,        144]
-CellTagsIndexPosition[      4613,        141]
+NotebookDataLength[      5016,        157]
+NotebookOptionsPosition[      4371,        130]
+NotebookOutlinePosition[      4715,        145]
+CellTagsIndexPosition[      4672,        142]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -93,27 +93,28 @@ Cell[CellGroupData[{
 
 Cell[BoxData[{
  RowBox[{
-  RowBox[{"dim", "=", "1"}], ";"}], "\[IndentingNewLine]", 
+  RowBox[{"dim", "=", "3"}], ";"}], "\[IndentingNewLine]", 
  RowBox[{
-  RowBox[{"nmax", "=", "0"}], ";"}], "\[IndentingNewLine]", 
+  RowBox[{"nmax", "=", "3"}], ";"}], "\[IndentingNewLine]", 
  RowBox[{
-  RowBox[{"mmax", "=", "80"}], ";"}], "\[IndentingNewLine]", 
+  RowBox[{"mmax", "=", "1"}], ";"}], "\[IndentingNewLine]", 
  RowBox[{
-  RowBox[{"Lmax", "=", "0"}], ";"}], "\[IndentingNewLine]", 
+  RowBox[{"Lmax", "=", "20"}], ";"}], "\[IndentingNewLine]", 
  RowBox[{
   RowBox[{"filename", "=", 
    RowBox[{
-    RowBox[{"NotebookDirectory", "[", "]"}], "<>", "\"\<D1_m80.txt\>\""}]}], 
-  ";"}], "\[IndentingNewLine]", 
+    RowBox[{"NotebookDirectory", "[", "]"}], "<>", 
+    "\"\<D3_n3m1_L20.txt\>\""}]}], ";"}], "\[IndentingNewLine]", 
  RowBox[{"ComputeTable", "[", 
   RowBox[{"dim", ",", "nmax", ",", "mmax", ",", "Lmax", ",", "filename", ",", 
-   RowBox[{"Prec", "\[Rule]", "110"}], ",", 
-   RowBox[{"kMax", "\[Rule]", "80"}]}], "]"}]}], "Input",
+   RowBox[{"Prec", "\[Rule]", "80"}], ",", 
+   RowBox[{"kMax", "\[Rule]", "60"}]}], "]"}]}], "Input",
  CellChangeTimes->{{3.6257673834626875`*^9, 3.6257674039594665`*^9}, {
   3.6257685936739063`*^9, 3.6257686914396267`*^9}, {3.6442196854736767`*^9, 
   3.644219702914246*^9}, {3.644220379958175*^9, 3.6442203970765285`*^9}, {
   3.644317592844001*^9, 3.6443176145198555`*^9}, {3.644396238144423*^9, 
-  3.6443962505766687`*^9}, {3.6445759417432337`*^9, 3.644575962884256*^9}}],
+  3.6443962505766687`*^9}, {3.6445759417432337`*^9, 3.644575962884256*^9}, {
+  3.6461214061831408`*^9, 3.6461214406951857`*^9}}],
 
 Cell[BoxData["$Aborted"], "Output",
  CellChangeTimes->{3.6445766085491214`*^9, 3.6445800041340666`*^9}]
@@ -152,10 +153,10 @@ Cell[CellGroupData[{
 Cell[2423, 80, 97, 1, 43, "Subsection"],
 Cell[2523, 83, 329, 6, 30, "Text"],
 Cell[CellGroupData[{
-Cell[2877, 93, 1044, 22, 132, "Input"],
-Cell[3924, 117, 103, 1, 31, "Output"]
+Cell[2877, 93, 1103, 23, 132, "Input"],
+Cell[3983, 118, 103, 1, 31, "Output"]
 }, Open  ]],
-Cell[4042, 121, 242, 4, 30, "Text"]
+Cell[4101, 122, 242, 4, 30, "Text"]
 }, Open  ]]
 }, Open  ]]
 }

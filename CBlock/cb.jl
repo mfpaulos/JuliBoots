@@ -423,12 +423,10 @@ function convTable(sigma::BigFloat,tab::Array{CBVec_Q{BigFloat},1},sign::Int64)
                     cbvec=tab[i]
                     tmp=mcopy(cbvec[1]) #to hold temporary results
                     for (k,der) in enumerate(comps)
-                        getindex(tmp,cbvec,der)
-                        #println(value(tmp,BigFloat("0.7"))) #DeBUG
+                        getindex(tmp,cbvec,der) #get component der from cbvec, place it in tmp                        
                         mmult(tmp,2*vCoeffs[der])
                         if k==1
-                            push!(convtab[i].vec,mcopy(tmp.func))
-                            #println(value(tmp,BigFloat("0.7"))) #DeBUG
+                            push!(convtab[i].vec,mcopy(tmp.func))                            
                         else
                             mplus(convtab[i].vec[end],tmp.func)
                         end
