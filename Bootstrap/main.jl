@@ -327,7 +327,7 @@ function opemax{T<:Real}(lp::LinearProgram{T},confdim::Real,label::LP.LabelF;ite
         local vector
         for i=1:length(lp2.lpFunctions)
                 lpf=lp2.lpFunctions[i]
-                if lpf.label==label && x<= lpf.range[2] && x>=lpf.range[1]
+                if lpf.label==label #&& x<= lpf.range[2] && x>=lpf.range[1]
                         vector=makeVector(lpf,x); vector.cost=-convert(T,1);
                 end
         end

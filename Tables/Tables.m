@@ -47,7 +47,7 @@ Return[SetPrecision[coeffTab,prec]];
 
 
 
-Options[Recurse2]={coeffTab->None};
+Options[Recurse]={coeffTab->None};
 Recurse[eps_,ll_,prec_,mmax_,nmax_,kmax_,OptionsPattern[]]:=Module[{\[Epsilon],l,fudge,expr,zdermax,t1,t2,t3,t4,coeffs,cn,cnRhoDer,CRec,cs,\[Rho]num,coeffTb,z,casCoeffs},(
 
 ClearAll[cn,cnRhoDer,CRec];

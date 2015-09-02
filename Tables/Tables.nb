@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       157,          7]
-NotebookDataLength[    202942,       4671]
-NotebookOptionsPosition[    201280,       4614]
-NotebookOutlinePosition[    201988,       4638]
-CellTagsIndexPosition[    201945,       4635]
+NotebookDataLength[    202968,       4672]
+NotebookOptionsPosition[    201305,       4615]
+NotebookOutlinePosition[    202013,       4639]
+CellTagsIndexPosition[    201970,       4636]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -180,7 +180,7 @@ Cell["Recurse", "Subsubsection",
 Cell[BoxData[{
  RowBox[{
   RowBox[{
-   RowBox[{"Options", "[", "Recurse2", "]"}], "=", 
+   RowBox[{"Options", "[", "Recurse", "]"}], "=", 
    RowBox[{"{", 
     RowBox[{"coeffTab", "\[Rule]", "None"}], "}"}]}], 
   ";"}], "\[IndentingNewLine]", 
@@ -1414,7 +1414,8 @@ Cell[BoxData[{
    3.6257673243829727`*^9, 3.6257673489805098`*^9}, {3.6461245709828587`*^9, 
    3.646124573221356*^9}, {3.6461247355376043`*^9, 3.6461247742362304`*^9}, {
    3.64612487917682*^9, 3.646124886171488*^9}, {3.646124965639533*^9, 
-   3.6461249673346643`*^9}, {3.6461251984066625`*^9, 3.646125219187535*^9}}],
+   3.6461249673346643`*^9}, {3.6461251984066625`*^9, 3.646125219187535*^9}, 
+   3.650197678506054*^9}],
 
 Cell[BoxData[{
  RowBox[{
@@ -4655,22 +4656,22 @@ Cell[6418, 169, 119, 2, 45, "Input",
 Cell[CellGroupData[{
 Cell[6562, 175, 129, 2, 51, "Subsubsection",
  InitializationCell->True],
-Cell[6694, 179, 54995, 1237, 3469, "Input",
+Cell[6694, 179, 55020, 1238, 3469, "Input",
  InitializationCell->True],
-Cell[61692, 1418, 113263, 2552, 4882, "Input",
+Cell[61717, 1419, 113263, 2552, 4882, "Input",
  InitializationCell->True]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[174992, 3975, 127, 2, 51, "Subsubsection",
+Cell[175017, 3976, 127, 2, 51, "Subsubsection",
  InitializationCell->True],
-Cell[175122, 3979, 6978, 163, 785, "Input",
+Cell[175147, 3980, 6978, 163, 1177, "Input",
  InitializationCell->True]
 }, Closed]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[182149, 4148, 129, 2, 134, "Title",
+Cell[182174, 4149, 129, 2, 134, "Title",
  InitializationCell->True],
-Cell[182281, 4152, 18983, 459, 2542, "Input",
+Cell[182306, 4153, 18983, 459, 2542, "Input",
  InitializationCell->True]
 }, Open  ]]
 }
