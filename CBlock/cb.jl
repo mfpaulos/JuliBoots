@@ -324,8 +324,10 @@ function v_convCoeffs(sigma::Real,tup::(Int64,Int64)) #gives a dictionnary with 
 
         #comment: extra powers of 2 relative to my Mathematica code is due to the way the derivatives are defined by the Pythonists
 
-        return [ (k,l)=> 1/(2^(k+2*l))*binomial(n,n-l)*binomial(m,m-k)*(4)^(-d)*pochhammer(-2d+2*(n-l),m-k)*pochhammer(-d, n-l) for k=0:m, l=0:n]
-end
+        #return [ (k,l)=> 1/(2^(k+2*l))*binomial(n,n-l)*binomial(m,m-k)*(4)^(-d)*pochhammer(-2d+2*(n-l),m-k)*pochhammer(-d, n-l) for k=0:m, l=0:n]
+		# Changed normalization, dividing by 4^(-d)
+		return [ (k,l)=> 1/(2^(k+2*l))*binomial(n,n-l)*binomial(m,m-k)*pochhammer(-2d+2*(n-l),m-k)*pochhammer(-d, n-l) for k=0:m, l=0:n]
+		end
 
 function u_convCoeffs(sigma::Real,tup::(Int64,Int64)) #gives a dictionnary with the coefficients
                                                      # necessary to convolve with to obtain the
@@ -334,9 +336,42 @@ function u_convCoeffs(sigma::Real,tup::(Int64,Int64)) #gives a dictionnary with 
         n=tup[2] #b derivatives
         d=sigma
 
-        return [ (k,l)=> 1/(2^(k+2*l))*(-1)^(m-k)*binomial(n,n-l)*binomial(m,m-k)*(4)^(-d)*pochhammer(-2d+2*(n-l),m-k)*pochhammer(-d, n-l) for k=0:m, l=0:n]
-end
+        #return [ (k,l)=> 1/(2^(k+2*l))*(-1)^(m-k)*binomial(n,n-l)*binomial(m,m-k)*(4)^(-d)*pochhammer(-2d+2*(n-l),m-k)*pochhammer(-d, n-l) for k=0:m, l=0:n]
+		# Changed normalization, dividing by 4^(-d)
+		return [ (k,l)=> 1/(2^(k+2*l))*(-1)^(m-k)*binomial(n,n-l)*binomial(m,m-k)*pochhammer(-2d+2*(n-l),m-k)*pochhammer(-d, n-l) for k=0:m, l=0:n]
+		end
 
+function v_convCoeffs_ds(sigma::Real,tup::(Int64,Int64)) #gives a dictionary with the coefficients
+                                                     # necessary to convolve with to obtain the
+                                                     # derivative (m,n) of \partial_sigma u^sigma G
+        m=tup[1] #a derivatives
+        n=tup[2] #b derivatives
+        d=sigma
+
+        #comment: extra powers of 2 relative to my Mathematica code is due to the way the derivatives are defined by the Pythonists
+
+        #return [ (k,l)=> 1/(2^(k+2*l))*binomial(n,n-l)*binomial(m,m-k)*(4)^(-d)*pochhammer(-2d+2*(n-l),m-k)*pochhammer(-d, n-l) for k=0:m, l=0:n]
+		# Changed normalization, dividing by 4^(-d)
+		return [ (k,l)=> 1/(2^(k+2*l))*binomial(n,n-l)*binomial(m,m-k)*
+		pochhammer(-2d+2*(n-l),m-k)*pochhammer(-d, n-l)*
+		(digamma(-d)+2*digamma(-2d-2l+2n)-digamma(-d-l+n)-2*digamma(-2d-k-2l+m+2n)) for k=0:m, l=0:n]
+		end
+
+function u_convCoeffs_ds(sigma::Real,tup::(Int64,Int64)) #gives a dictionary with the coefficients
+                                                     # necessary to convolve with to obtain the
+                                                     # derivative (m,n) (in the tuple) of \partial_sigma u^sigma G
+        m=tup[1] #a derivatives
+        n=tup[2] #b derivatives
+        d=sigma
+
+        #return [ (k,l)=> 1/(2^(k+2*l))*(-1)^(m-k)*binomial(n,n-l)*binomial(m,m-k)*(4)^(-d)*pochhammer(-2d+2*(n-l),m-k)*pochhammer(-d, n-l) for k=0:m, l=0:n]
+		# Changed normalization, dividing by 4^(-d)
+		return [ (k,l)=> 1/(2^(k+2*l))*(-1)^(m-k)*binomial(n,n-l)*binomial(m,m-k)*pochhammer(-2d+2*(n-l),m-k)*pochhammer(-d, n-l)*
+		(digamma(-d)+2*digamma(-2d-2l+2n)-digamma(-d-l+n)-2*digamma(-2d-k-2l+m+2n)) for k=0:m, l=0:n]
+		end		
+		
+		
+		
 
 convBlockAS(sigma::Real,cbvec::CBVec_Q)=convBlock(sigma,cbvec,-1)
 convBlockS(sigma::Real,cbvec::CBVec_Q)=convBlock(sigma,cbvec,1)

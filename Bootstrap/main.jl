@@ -29,12 +29,16 @@ end
 
 
 
-
-
 function cullpoles{T<:Real}(lp0::LP.LinearProgram{T},cutoff::T)
+	lp=mcopy(lp0)
+	cullpoles(lp.lpFunctions,cutoff)
+	return lp
+end
 
-    lp=mcopy(lp0)
-    for lpf in lp.lpFunctions
+function cullpoles{T<:Real}(lpfs::Array{LP.LPVectorFunction{T},1},cutoff::T)
+
+    
+    for lpf in lpfs
         smallguys=Array(Array{Int64,1},0)
             for qf in lpf.vecfunc
                 push!(smallguys,find(x->abs(x.coeff)<cutoff,qf.poles))
@@ -49,7 +53,7 @@ function cullpoles{T<:Real}(lp0::LP.LinearProgram{T},cutoff::T)
         end
     end
 
-    return lp
+    return lpfs
 end
 
 ############################################################
