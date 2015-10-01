@@ -71,19 +71,20 @@ function loadTable(file::String; label="Vanilla N=0")
 
     nrspins=oddL ? 1+Lmax : convert(Int64,(Lmax/2+1))
     table=Array(CBVec_Q{BigFloat},nrspins);
-    #println(plen)
+    
 
     for lct=1:nrspins
         spin=oddL ? lct-1 : 2*(lct-1)                 # current spin; this holds if we only have even spins in the table
         delta0=myread(f)                      # currently this is always zero in any table. It's a historical artifact
 
-        maxPlength=convert(Int,myread(f))     # the maximum degree of the polynomial piece, across components
+        maxPlength=convert(Int64,myread(f))     # the maximum degree of the polynomial piece, across components
 
         polycoeffs=Array(BigFloat,plen,maxPlength)
 
         singleSpin=CBVec_Q(rho, Array(QFunc{BigFloat},plen), spin,dict,label)  #create CBVec object. dictionary tells us what contents are
 
         # read polynomials
+		
         for pct=1:plen
                 for Pct=1:maxPlength
                     polycoeffs[pct,Pct]=myread(f)
@@ -153,9 +154,9 @@ end
 # it works directly with an array of conformal blocks.
 # The presently defined method allows one to have a nice table object
 
-function convTable(sig::Real,tab::table.CBDerTable_Q,sign::Int64)
+function convTable(sig::Real,tab::table.CBDerTable_Q,sign::Int64;delsigma=false)
         sigma=BigFloat(sig)
-        convtab=cb.convTable(sigma,tab.table,sign)
+        convtab=cb.convTable(sigma,tab.table,sign,delsigma=delsigma)
         ders=sort(collect(keys(convtab[1].dict)))
         table.CBDerTable_Q(convtab,sigma,tab.eps,tab.binprec,tab.nmax,tab.mmax,tab.Lmax,tab.OddL,ders)
 end

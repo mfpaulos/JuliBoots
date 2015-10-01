@@ -50,6 +50,7 @@ mcopy(v::LPVectorFunction{BigFloat})=LPVectorFunction(mcopy(v.range),mcopy(v.vec
 mcopy(o::LPVectorFunction{BigFloat},v::LPVectorFunction{BigFloat})=(mcopy(o.range,v.range); mcopy(o.vecfunc,v.vecfunc);
                                                                    mcopy(o.cost,v.cost); o.label=deepcopy(v.label); o)
 mcopy(v::Array{LPVectorFunction{BigFloat},1})=(o=Array(LPVectorFunction{BigFloat},0); for vf in v push!(o,mcopy(vf)) end; o)
+mcopy(lv::LabelV)=(mcopy(lv[1]),deepcopy(lv[2]))
 
 function mcopy(o::Array{LPVectorFunction{BigFloat},1},v::Array{LPVectorFunction{BigFloat},1})
 

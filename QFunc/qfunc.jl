@@ -57,7 +57,7 @@ function show(io::IO, r::Polynomial)
    pm(x,i)= i==0 ? "$x" : (x < 0 ? " - $(-x) X^$i" :  " + $x X^$i")
 
    zz=convert(Array{Float64,1},r.coeffs)
-   nonzeropos=findn(zz)[1]
+   nonzeropos=find(x->x!=0,zz)
    z=[zz[i] for i in nonzeropos]
    ppm(i)=(if i!=1 return pm(z[i],nonzeropos[i]-1) end;
            return (nonzeropos[1]-1)==0 ? "$(z[1])" : "$(z[1]) X^$(nonzeropos[i]-1)"
@@ -137,14 +137,17 @@ end
 
 function trim!(p::Polynomial) #remove trailing zeros
 
-        nz=findn(p.coeffs)
+        nz=find(x->x!=0,p.coeffs)
+		
        # println("at trim, ",nz)
        # return
-        if length(first(nz))==0
+        
+		
+		if length(nz)==0
             p.coeffs=[zero(p[1])]    # so that it's a zero of the same type (bf, Real, etc)
             return p
         end
-        lastnonzero=last(first(nz)) #for compatibility with v0.3.0
+        lastnonzero=last(nz)
         p.coeffs=p[1:lastnonzero]
         return p
 end
@@ -356,10 +359,20 @@ mcopy(qf::QFunc{BigFloat})=QFunc(mcopy(qf.poly),[mcopy(p)::Pole{bf} for p in qf.
 
 function mcopy(o::QFunc{BigFloat},qf::QFunc{BigFloat})
 
-        if length(qf.poles)!=length(o.poles) println("Wrong dimensions in mcopy(qf,qf)"); return o end
-        mcopy(o.poly,qf.poly); for i=1:length(qf.poles) mcopy(o.poles[i],qf.poles[i]) end
-
-        return o
+        mcopy(o.poly,qf.poly);
+		#if length(qf.poles)!=length(o.poles) println("Wrong dimensions in mcopy(qf,qf)"); return o end
+        
+		
+		l1=length(qf.poles)
+		l2=length(o.poles)
+		for i=1:min(l1,l2) mcopy(o.poles[i],qf.poles[i]) end
+		if l2>l1 
+			for i=1:l2-l1 pop!(o.poles) end 
+		end
+		if l1>l2
+			for i=1:l1-l2 push!(o.poles,mcopy(qf.poles[l2+i])) end
+		end
+		return o        
 end
 
 mcopy(qf::Array{QFunc{BigFloat},1})=[mcopy(t)::QFunc{BigFloat} for t in qf]
