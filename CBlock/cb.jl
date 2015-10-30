@@ -23,6 +23,8 @@ import Base: convert, promote_rule, promote,isequal, getindex,      #
 export CB_Q, CBVec_Q, Conv_Q, ConvVec_Q, DerivativeVec
 export convBlock
 
+bf=BigFloat
+
 #####################################################################################
 #
 #                  General Methods and Types
@@ -272,6 +274,11 @@ shift_arg(cb::CB_Q,x::Real)=CB_Q(cb.rho,(4*cb.rho)^x*shift_arg(cb.func,x),cb.spi
 
 *(a::Vec,x::Real)=(c=mcopy(a); c.vec=x*c.vec; return c)
 *(x::Real,a::Vec)=a*x
+*(a::Array{Vec},x::Real)=[a[i]*x]
+*(x::Real,a::Array{Vec})=[a[i]*x]
+*(a::Array{Comp},x::Real)=[a[i]*x]
+*(x::Real,a::Array{Comp})=[a[i]*x]
+
 
 #Algebra - in place
 
@@ -284,7 +291,15 @@ msub(o::Comp,a::Comp,b::Comp) =(mcopy(o,a); msub(o.func,a.func,b.func); o)
 
 # Derivatives
 
-function derivative(c::Conv_Q,i::Int64)
+function derivative(c::Vec,i::Int64)
+    res=mcopy(c)
+    for j=1:length(res)
+        res.vec[j]=derivative(c[j],i).func
+    end
+    res
+end
+
+function derivative(c::Comp,i::Int64)
 
         if i==0 return mcopy(c) end
 
@@ -293,7 +308,7 @@ function derivative(c::Conv_Q,i::Int64)
 
         res.func=binomial(i,0)*derivative(res.func,i)
         for k=1:i
-            res.func+=binomial(i,k)*(x^k)*derivative(res.func,i-k)
+            res.func+=binomial(i,k)*(x^k)*derivative(c.func,i-k)
         end
 
 
@@ -320,13 +335,15 @@ function v_convCoeffs(sigma::Real,tup::(Int64,Int64)) #gives a dictionnary with 
                                                      # derivatives of u^sigma G
         m=tup[1] #a derivatives
         n=tup[2] #b derivatives
+		m=convert(Int128,m)
+		n=convert(Int128,n)
         d=sigma
 
         #comment: extra powers of 2 relative to my Mathematica code is due to the way the derivatives are defined by the Pythonists
 
         #return [ (k,l)=> 1/(2^(k+2*l))*binomial(n,n-l)*binomial(m,m-k)*(4)^(-d)*pochhammer(-2d+2*(n-l),m-k)*pochhammer(-d, n-l) for k=0:m, l=0:n]
 		# Changed normalization, dividing by 4^(-d)
-		return [ (k,l)=> 1/(2^(k+2*l))*binomial(n,n-l)*binomial(m,m-k)*pochhammer(-2d+2*(n-l),m-k)*pochhammer(-d, n-l) for k=0:m, l=0:n]
+		return [ (k,l)=> 1/(bf(2)^(k+2*l))*binomial(n,n-l)*binomial(m,m-k)*pochhammer(-2d+2*(n-l),m-k)*pochhammer(-d, n-l) for k=0:m, l=0:n]
 		end
 
 function u_convCoeffs(sigma::Real,tup::(Int64,Int64)) #gives a dictionnary with the coefficients
@@ -334,11 +351,13 @@ function u_convCoeffs(sigma::Real,tup::(Int64,Int64)) #gives a dictionnary with 
                                                      # derivative (m,n) (in the tuple) of u^sigma G
         m=tup[1] #a derivatives
         n=tup[2] #b derivatives
+		m=convert(Int128,m)
+		n=convert(Int128,n)
         d=sigma
 
         #return [ (k,l)=> 1/(2^(k+2*l))*(-1)^(m-k)*binomial(n,n-l)*binomial(m,m-k)*(4)^(-d)*pochhammer(-2d+2*(n-l),m-k)*pochhammer(-d, n-l) for k=0:m, l=0:n]
 		# Changed normalization, dividing by 4^(-d)
-		return [ (k,l)=> 1/(2^(k+2*l))*(-1)^(m-k)*binomial(n,n-l)*binomial(m,m-k)*pochhammer(-2d+2*(n-l),m-k)*pochhammer(-d, n-l) for k=0:m, l=0:n]
+		return [ (k,l)=> 1/(bf(2)^(k+2*l))*(-1)^(m-k)*binomial(n,n-l)*binomial(m,m-k)*pochhammer(-2d+2*(n-l),m-k)*pochhammer(-d, n-l) for k=0:m, l=0:n]
 		end
 
 function v_convCoeffs_ds(sigma::Real,tup::(Int64,Int64)) #gives a dictionary with the coefficients
@@ -346,13 +365,15 @@ function v_convCoeffs_ds(sigma::Real,tup::(Int64,Int64)) #gives a dictionary wit
                                                      # derivative (m,n) of \partial_sigma u^sigma G
         m=tup[1] #a derivatives
         n=tup[2] #b derivatives
+		m=convert(Int128,m)
+		n=convert(Int128,n)
         d=sigma
 
         #comment: extra powers of 2 relative to my Mathematica code is due to the way the derivatives are defined by the Pythonists
 
         #return [ (k,l)=> 1/(2^(k+2*l))*binomial(n,n-l)*binomial(m,m-k)*(4)^(-d)*pochhammer(-2d+2*(n-l),m-k)*pochhammer(-d, n-l) for k=0:m, l=0:n]
 		# Changed normalization, dividing by 4^(-d)
-		return [ (k,l)=> 1/(2^(k+2*l))*binomial(n,n-l)*binomial(m,m-k)*
+		return [ (k,l)=> 1/(bf(2)^(k+2*l))*binomial(n,n-l)*binomial(m,m-k)*
 		pochhammer(-2d+2*(n-l),m-k)*pochhammer(-d, n-l)*
 		(digamma(-d)+2*digamma(-2d-2l+2n)-digamma(-d-l+n)-2*digamma(-2d-k-2l+m+2n)) for k=0:m, l=0:n]
 		end
@@ -362,11 +383,13 @@ function u_convCoeffs_ds(sigma::Real,tup::(Int64,Int64)) #gives a dictionary wit
                                                      # derivative (m,n) (in the tuple) of \partial_sigma u^sigma G
         m=tup[1] #a derivatives
         n=tup[2] #b derivatives
+		m=convert(Int128,m)
+		n=convert(Int128,n)
         d=sigma
 
         #return [ (k,l)=> 1/(2^(k+2*l))*(-1)^(m-k)*binomial(n,n-l)*binomial(m,m-k)*(4)^(-d)*pochhammer(-2d+2*(n-l),m-k)*pochhammer(-d, n-l) for k=0:m, l=0:n]
 		# Changed normalization, dividing by 4^(-d)
-		return [ (k,l)=> 1/(2^(k+2*l))*(-1)^(m-k)*binomial(n,n-l)*binomial(m,m-k)*pochhammer(-2d+2*(n-l),m-k)*pochhammer(-d, n-l)*
+		return [ (k,l)=> 1/(bf(2)^(k+2*l))*(-1)^(m-k)*binomial(n,n-l)*binomial(m,m-k)*pochhammer(-2d+2*(n-l),m-k)*pochhammer(-d, n-l)*
 		(digamma(-d)+2*digamma(-2d-2l+2n)-digamma(-d-l+n)-2*digamma(-2d-k-2l+m+2n)) for k=0:m, l=0:n]
 		end		
 		
@@ -377,7 +400,7 @@ convBlockAS(sigma::Real,cbvec::CBVec_Q)=convBlock(sigma,cbvec,-1)
 convBlockS(sigma::Real,cbvec::CBVec_Q)=convBlock(sigma,cbvec,1)
 
 
-function convBlock{T<:Real}(sigma::T,cbvec::CBVec_Q{T},sign::Int64)
+function convBlock{T<:Real}(sigma::T,cbvec::CBVec_Q{T},sign::Int64;delsigma=false)
 
         dict=cbvec.dict
         ders=sort(collect(keys(dict)))
@@ -403,7 +426,7 @@ function convBlock{T<:Real}(sigma::T,cbvec::CBVec_Q{T},sign::Int64)
 
                 push!(convblock.dict,(m,n),ct); ct+=1
 
-                vCoeffs=v_convCoeffs(sigma,(m,n))
+                vCoeffs=vCoeffs= !delsigma ? v_convCoeffs(sigma,(m,n)):v_convCoeffs_ds(sigma,(m,n))
                 comps=[(k,l) for k=0:m, l=0:n]
 
                 for (i,der) in enumerate(comps)
@@ -424,7 +447,7 @@ end
 
 
 
-function convTable(sigma::BigFloat,tab::Array{CBVec_Q{BigFloat},1},sign::Int64)
+function convTable(sigma::BigFloat,tab::Array{CBVec_Q{BigFloat},1},sign::Int64;delsigma=false)
 
         dict=tab[1].dict
         ders=sort(collect(keys(dict)))
@@ -451,7 +474,7 @@ function convTable(sigma::BigFloat,tab::Array{CBVec_Q{BigFloat},1},sign::Int64)
                 end
                 ct+=1
 
-                vCoeffs=v_convCoeffs(sigma,(m,n))
+                vCoeffs= !delsigma ? v_convCoeffs(sigma,(m,n)):v_convCoeffs_ds(sigma,(m,n))
                 comps=[(k,l) for k=0:m, l=0:n]
 
                 for i=1:length(tab)
