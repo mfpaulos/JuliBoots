@@ -32,7 +32,7 @@ const DEFAULT_PRECISION = [consts.PRECISION]
 # Methods
 
 #---- Seem to remember there was a problem with using gamma function ratios in Julia for bigfloats..
-pochhammer(x::Number,n::Int64)= n>0 ? (x+n-1)*pochhammer(x,n-1) : 1
+pochhammer(x::Number,n::Integer)= n>0 ? (x+n-1)*pochhammer(x,n-1) : 1
 #pochhammer(x::Number,y::Number)=gamma(x+y)/gamma(x)
 #------------------
 
@@ -170,7 +170,7 @@ mcopy(a::(BigFloat,BigFloat))=(mcopy(a[1]),mcopy(a[2]))::(BigFloat,BigFloat)
 
 function dot(a::Array{BigFloat,1},b::Array{BigFloat,1})
 
-         if size(a)!=size(b) println("Different dimensions!") end
+         if size(a)!=size(b) println("In various.dot: Different dimensions!") end
          res=BigFloat(0)
          tmp=BigFloat(1)
 
