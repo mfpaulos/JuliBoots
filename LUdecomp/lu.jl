@@ -221,26 +221,4 @@ end
 
 
 
-#tot=[1 2 3; 1 2 5; 6 7 10]*1.0
-tot=[1 2 3; 1 2 5; 6 7 10]*BigFloat(1);
-mig1=LUdata(deepcopy(tot))
-
-tot2=[1 -2 4 77; 1 -2 5 -32; -0.00001 72 13 14; 0.24 0.12 -50000 3];
-tot2=convert(Array{BigFloat,2},tot)
-mig2=LUdata(deepcopy(tot2))
-
-#mig=LUdata(tot)
-#q=[3, 4, -2]*1.0;
-#res1=dot(q,mig)
-#res2=dot(mig,q)
-
-#tot=rand(Float64,20,20)
-#mig=LUdata(tot)
-
-#q=rand(Float64,20)
-#res=dot(q,mig)    #A^-1.q=res
-#check=res*tot-q     # q=A.res ?
-
-
-
 end

@@ -551,7 +551,7 @@ mmult{T<:Real}(o::Array{QFunc{BigFloat},1},a::Array{QFunc{BigFloat},1},x::Array{
 
 +{T<:Real}(a::Array{QFunc{T},1},b::Array{QFunc{T},1})=[(a[i]+b[i])::QFunc{T} for i=1:length(a)]
 -{T<:Real}(a::Array{QFunc{T},1},b::Array{QFunc{T},1})=[(a[i]-b[i])::QFunc{T} for i=1:length(a)]
-*{T<:Real}(a::Array{QFunc{T},1},x::T)=[(x*qf)::QFunc{T} for qf in a]
+*{T<:Real}(a::Array{QFunc{T},1},x::Real)=[(x*qf)::QFunc{T} for qf in a]
 *{T<:Real}(x::Real,a::Array{QFunc{T},1})=a*x
 *{T<:Real,S<:Real}(x::Array{T,1},a::Array{QFunc{S},1})=[(a[i]*x[i])::QFunc{S} for i=1:length(a)]
 *{T<:Real,S<:Real}(a::Array{QFunc{S},1},x::Array{T,1})=x*a
