@@ -388,6 +388,7 @@ function avgSpec(lp::LP.LinearProgram;cutoff=1e-6)
 			dim=(ope*dim+Cs[i+k]*Ds[i+k])/(ope+Cs[i+k])
 			ope=ope+Cs[i+k];
 			k+=1
+			if i+k>length(Ds) eps=2*cutoff; continue end
 			eps=Ds[i+k]-dim;        
 		end
 		i=i+k;
