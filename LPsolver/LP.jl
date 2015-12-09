@@ -122,22 +122,24 @@ type LinearProgram{T<:Real}
 
     label::String               # A description of this linear problem
     coeffs::Array{T,1}          # the coefficients in the current solution
+    status::ASCIIString
 
 end
 
 
 mcopy(lp::LinearProgram{BigFloat})=LinearProgram(mcopy(lp.lpFunctions),mcopy(lp.lpVectors),mcopy(lp.target),
-                                        mcopy(lp.solVecs),mcopy(lp.functional),mcopy(lp.invA),deepcopy(lp.label),mcopy(lp.coeffs))
+                                        mcopy(lp.solVecs),mcopy(lp.functional),mcopy(lp.invA),deepcopy(lp.label),mcopy(lp.coeffs),deepcopy(lp.status))
 
 mcopy(o::LinearProgram{BigFloat},lp::LinearProgram{BigFloat})=(mcopy(o.lpFunctions,lp.lpFunctions); mcopy(o.lpVectors,lp.lpVectors);
                                                             mcopy(o.target,lp.target); mcopy(o.solVecs,lp.solVecs); mcopy(o.functional,lp.functional);
-                                                            mcopy(o.invA,lp.invA); o.label=deepcopy(lp.label); mcopy(o.coeffs,lp.coeffs); o)
+                                                            mcopy(o.invA,lp.invA); o.label=deepcopy(lp.label); mcopy(o.coeffs,lp.coeffs); o.status=deepcopy(lp.status); o)
 
 
 
 function show(io::IO,lp::LinearProgram)
         print(io,"Linear Problem:")
         print(io,lp.label)
+        println(io,"Status: $(lp.status)")
         #for f in lp.lpFunctions show(io,f) end
         #for v in lp.lpVectors show(io,v) end
 end
@@ -183,7 +185,8 @@ tofloat(lp::LinearProgram)=LinearProgram([tofloat(i)::LPVectorFunction for i in 
                                          [tofloat(i)::LPVector{Float64} for i in lp.solVecs],
                                          tofloat(lp.functional),
                                          tofloat(lp.invA),
-                                         lp.label
+                                         lp.label,
+                                         lp.status
                                          )
 
 #-------- Converts a problem back to big float precision. Takes a Float64 and a BigFloat linear problems, where the first has been
@@ -409,7 +412,7 @@ function iterate!{T<:Real}(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", m
             if method=="mrc"                #in this case simplex uses the vector with smallest minimum reduced cost
 					(mrc,posmin)=findmin(allrc)
 					if mrc>=zero(mrc)
-						if !quiet println("Min cost achieved") end
+						if !quiet println("Min cost achieved"); lp.status="Minimized" end
 						break
 					end
                   nb=nb_rc[posmin][1]
@@ -438,7 +441,7 @@ function iterate!{T<:Real}(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", m
 
                   costvars=[minx_bvar[i][1]*nb_rc[i][2] for i=1:length(minx_bvar)] # all cost variations
                   (costvar,pos)=findmin(costvars)
-                  if costvar==-inf(BigFloat) println("Problem unbounded"); close(log); return lp end
+                  if costvar==-inf(BigFloat) println("Problem unbounded"); lp.status="Unbounded"; break end
                   nb=nb_rc[pos][1]
                   mrc=nb_rc[pos][2]
 				  if mrc>=zero(mrc) 
@@ -480,7 +483,7 @@ function iterate!{T<:Real}(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", m
 
             if abs(cc-currentcost)/maximum([abs(currentcost),FUDGE])<= LP_STOPGOAL stopiters+=1 else stopiters=0 end
             if stopiters== LP_STOPITERS 
-				if !quiet println("Relative cost variation too slow -- Not improving any more.") end
+				if !quiet println("Relative cost variation too slow -- Not improving any more."); lp.status="SlowVar" end
 				break
 			end
             if cc>currentcost println("Cost increased at iteration $i") end
@@ -524,11 +527,12 @@ function initLP{T<:Real}(lpf::Array{LPVectorFunction{T},1},t::Array{T,1},descrip
                         [zero(T) for k=1:n],
                         LPInverse(A),
                         description,
-                        coeffs
+                        coeffs,
+                        "Initialized"
                         )
 
         updateFunctional!(res)
-        updateCoeffs!(res)
+        updateCoeffs!(res)        
         return res
 end
 
@@ -595,6 +599,7 @@ function status(lp::LinearProgram)
                 )
         end
         println("Cost: $(cost(lp))")
+        println("Status: $(lp.status)")
         return
 end
 

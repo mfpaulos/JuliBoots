@@ -125,7 +125,7 @@ function loadTable(file::String; label="Vanilla N=0")
         #the hack a[i,:][1:end] picks out column i. Couldn't figure out better way to do it
         # I'm assuming all poles are degree 1. But this can (and will) be changed in the future.
 
-
+		
         for i=1:plen
             polearray=Array(Pole{BigFloat},0)
             for j=1:length(polelist1) push!(polearray,Pole(1,polelist1[j],polecoeffs1[i,j])) end

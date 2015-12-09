@@ -35,7 +35,7 @@ function cullpoles{T<:Real}(lp0::LP.LinearProgram{T},cutoff::T)
 	return lp
 end
 
-function cullpoles{T<:Real}(lpfs::Array{LP.LPVectorFunction{T},1},cutoff::T)
+function cullpoles{T<:Real}(lpfs::Array{LP.LPVectorFunction{T},1},cutoff::T) #Absolute cutoff, would be nice to implement relative
 
     
     for lpf in lpfs
@@ -361,6 +361,12 @@ function avgSpec(lp::LP.LinearProgram;cutoff=1e-6)
 	Cs=[s[2] for s in sol];
 	Ranges=Dict([lpf.label => lpf.range for lpf in lp.lpFunctions])
 
+    distinct_Ls=[Ls[1]]
+    for i=2:length(Ls)
+        if findfirst(distinct_Ls,Ls[i])>0 continue end
+        push!(distinct_Ls,Ls[i])
+    end
+    Ls_pos=[find(x->x==l,Ls) for l in distinct_Ls]
 
 	# Need to average
 
@@ -370,36 +376,50 @@ function avgSpec(lp::LP.LinearProgram;cutoff=1e-6)
 	doubled=Array(Int64,0)
 	labels=Array(LP.LabelF,0)
 
+    Ranges=Dict([lpf.label => lpf.range for lpf in lp.lpFunctions])
+    fixed=Array(Int,0);
+
 	ct=1;
-	while i<=length(Ds)
-		if Ls[i]=="AUX" i+=1; continue end
-		dim=Ds[i]
-		ope=Cs[i]
-		push!(labels,Ls[i])
-		if i==length(Ds)
-			push!(avDs,dim);
-			push!(avCs,ope);
-			break
-		end
-		eps=Ds[i+1]-Ds[i]
-		k=1
-		while abs(eps)<cutoff    
-			push!(doubled,ct)
-			dim=(ope*dim+Cs[i+k]*Ds[i+k])/(ope+Cs[i+k])
-			ope=ope+Cs[i+k];
-			k+=1
-			if i+k>length(Ds) eps=2*cutoff; continue end
-			eps=Ds[i+k]-dim;        
-		end
-		i=i+k;
-		push!(avDs,dim);
-		push!(avCs,ope);    
-		ct+=1;
-	end
+    
+    for (m,L) in enumerate(distinct_Ls)
+        
+        if L=="AUX" continue end      
+        Ds_L=Ds[Ls_pos[m]]
+        Cs_L=Cs[Ls_pos[m]]
+        
+        i=1
+        while i<=length(Ds_L)
+            dim=Ds_L[i]
+		    ope=Cs_L[i]
+		    push!(labels,L)
+            if i==length(Ds_L)
+
+			    push!(avDs,dim);
+			    push!(avCs,ope);
+                ct+=1
+			    break
+		    end
+
+		    eps=Ds_L[i+1]-Ds_L[i]
+
+		    k=1
+		    while abs(eps)<cutoff
+        	    push!(doubled,ct)
+			    dim=(ope*dim+Cs_L[i+k]*Ds_L[i+k])/(ope+Cs_L[i+k])
+			    ope=ope+Cs_L[i+k];
+			    k+=1
+			    if i+k>length(Ds_L) break; end #eps=2*cutoff; break end
+			    eps=Ds_L[i+k]-dim;        
+		    end
+		    i=i+k;
+		    push!(avDs,dim);
+		    push!(avCs,ope);    
+		    ct+=1;
+	    end
+    end
 #get fixed guys
 
-	Ranges=Dict([lpf.label => lpf.range for lpf in lp.lpFunctions])
-	fixed=Array(Int,0);
+
 	for (i,d) in enumerate(avDs)
 		if d==Ranges[labels[i]][1] || d==Ranges[labels[i]][2] push!(fixed,i) end
 	end
