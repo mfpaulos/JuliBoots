@@ -69,7 +69,7 @@ function loadTable(file::String; label="Vanilla N=0")
     #set_bigfloat_precision(binprec)     # set precision to be that of the tables
     rho=BigFloat(3-2*sqrt(BigFloat(2)))       # set rho; this corresponds to z=zb=1/2
 
-    nrspins=oddL ? 1+Lmax : convert(Int64,(Lmax/2+1))
+    nrspins=oddL ? 1+Lmax : div(Lmax,2)+1
     table=Array(CBVec_Q{BigFloat},nrspins);
     
 

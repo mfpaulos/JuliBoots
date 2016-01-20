@@ -139,7 +139,7 @@ mcopy(o::LinearProgram{BigFloat},lp::LinearProgram{BigFloat})=(mcopy(o.lpFunctio
 function show(io::IO,lp::LinearProgram)
         print(io,"Linear Problem:")
         print(io,lp.label)
-        println(io,"Status: $(lp.status)")
+        print(io,"\t Status: $(lp.status)")
         #for f in lp.lpFunctions show(io,f) end
         #for v in lp.lpVectors show(io,v) end
 end
@@ -446,6 +446,7 @@ function iterate!{T<:Real}(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", m
                   mrc=nb_rc[pos][2]
 				  if mrc>=zero(mrc) 
 				  	if !quiet println("Min cost achieved") end
+					lp.status="Minimized"
 					break
 				  end
                   minx=minx_bvar[pos][1]
@@ -541,6 +542,8 @@ end
 
 
 filter(lp::LinearProgram{BigFloat},x::Real,criteria::LabelF)=(y=BigFloat(x); filter(lp,(BigFloat(-100),y),z->z==criteria))
+filter!(lp::LinearProgram{BigFloat},x::Real,criteria::LabelF)=(y=BigFloat(x); filter!(lp,(BigFloat(-100),y),z->z==criteria))
+filter!(lp::LinearProgram{BigFloat},x::Real,criteria::Function)=(y=BigFloat(x); filter!(lp,(BigFloat(-100),y),criteria) )
 filter(lp::LinearProgram{BigFloat},x::Real,criteria::Function)=(y=BigFloat(x); filter(lp,(BigFloat(-100),y),criteria) )
 filter(lp::LinearProgram{BigFloat},range::(BigFloat,BigFloat),criteria::Function)=(lp0=mcopy(lp); filter!(lp0,range,criteria))
 

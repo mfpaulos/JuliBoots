@@ -13,7 +13,7 @@ using table
 
 export chooseTable, setupLP, bissect, value, dropOdd!, changeTarget!,dropEven!,opemax, avgSpec #main functions
 export mcopy
-export filter,iterate!,status,cost,solution,makeVector # LP routines, this makes them accessible when 'using main'
+export filter,filter!,iterate!,status,cost,solution,makeVector # LP routines, this makes them accessible when 'using main'
 export QFunc, Polynomial, Pole
 export MinFunction, FindMinimum, FindLocalMinima
 export loadTable, convTable
