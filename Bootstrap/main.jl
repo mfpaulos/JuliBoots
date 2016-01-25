@@ -9,7 +9,7 @@ import cb
 using LP
 using table
 export chooseTable, setupLP, bissect, value, dropOdd!, changeTarget!,dropEven!,opemax, avgSpec
-export filter,iterate!,status,cost,solution,makeVector # LP routines, this makes them accessible when 'using main'
+export filter,filter!,iterate!,status,cost,solution,makeVector # LP routines, this makes them accessible when 'using main'
 export saveresults
 
 
@@ -266,7 +266,7 @@ function saveresults(file::String,prob::LinearProgram)
         write(f,"{\n")
         for (i,s) in enumerate(sol)
                 # dimension, OPE, type
-                write(f,"{$(convert(Float64,s[1][1])),$(convert(Float64,s[2])),\"$(s[1][2])\"}")
+                write(f,"{$(s[1][1]),$(s[2])),\"$(s[1][2])\"}")
                 if i<length(sol) write(f,",\n") else write(f,"\n}") end
         end
         close(f)
