@@ -266,7 +266,7 @@ function saveresults(file::String,prob::LinearProgram)
         write(f,"{\n")
         for (i,s) in enumerate(sol)
                 # dimension, OPE, type
-                write(f,"{$(s[1][1]),$(s[2])),\"$(s[1][2])\"}")
+                write(f,"{$(s[1][1]),$(s[2]),\"$(s[1][2])\"}")
                 if i<length(sol) write(f,",\n") else write(f,"\n}") end
         end
         close(f)
