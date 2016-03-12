@@ -421,7 +421,7 @@ function avgSpec(lp::LP.LinearProgram;cutoff=1e-6)
 
 
 	for (i,d) in enumerate(avDs)
-		if d==Ranges[labels[i]][1] || d==Ranges[labels[i]][2] push!(fixed,i) end
+		if abs(d-Ranges[labels[i]][1])<=1e-10 || abs(d-Ranges[labels[i]][2])<=1e-10 push!(fixed,i) end
 	end
 
 	#get singles
