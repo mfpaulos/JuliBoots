@@ -10,16 +10,16 @@ type LUdata{T<:Real}
 
 luMat::Array{T,2}
 perm::Array{Int64,1}
-
+scales::Array{T,1}
 end
 
-mcopy(lu::LUdata)=LUdata(mcopy(lu.luMat),deepcopy(lu.perm))
-mcopy(o::LUdata,lu::LUdata)=(mcopy(o.luMat,lu.luMat); o.perm=deepcopy(lu.perm); o)
-tofloat(lu::LUdata)=LUdata{Float64}(convert(Array{Float64,2},lu.luMat),lu.perm)
+mcopy(lu::LUdata)=LUdata(mcopy(lu.luMat),deepcopy(lu.perm),mcopy(lu.scales))
+mcopy(o::LUdata,lu::LUdata)=(mcopy(o.luMat,lu.luMat); o.perm=deepcopy(lu.perm); mcopy(o.scales,lu.scales); o)
+tofloat(lu::LUdata)=LUdata{Float64}(convert(Array{Float64,2},lu.luMat),lu.perm,convert(Array{Float64,1},lu.scales))
 LUdata{T<:Real}(A::Array{T,2})=LUdata!(mcopy(A))
 LUdata(O::Array{BigFloat,2},A::Array{BigFloat,2})=LUdata!(mcopy(O,A))
 
-function LUdata!(A::Array{BigFloat,2})
+function LUdataBACKUP!(A::Array{BigFloat,2})
 
         tmp=BigFloat(0)
         n=stride(A,2)
@@ -31,14 +31,22 @@ function LUdata!(A::Array{BigFloat,2})
         for k=1:n-1
 
 
-            p=findfirst(x->abs(x)>LU_FUDGE,A[k:n,k]) #find pivot
-            #p=findfirst(A[k:n,k])
-            if p==0 error("Singular matrix") end
+            #p=findfirst(x->abs(x)>LU_FUDGE,A[k:n,k]) #find pivot - pivoting to get rid of zeros
+			#pivot, p=findmax(map(abs,A[k:n,k])) #find pivot: partial pivoting for num stability
+			# find pivot: scaled partial pivoting for num stability
+			si=[findmax(map(abs,A[i,1:n]))[1]::BigFloat for i=k:n]                                     
+			p=findmax(map(abs,A[k:n,k]./si))[2]
+			pivot=abs(A[k:n,k][p])   #
+			##########################
+			
+			
+            if pivot<LU_FUDGE error("Singular matrix") end
+			#if p==0 error("Singular matrix") end
             p=p+k-1
 
             if p!=k
                 (perm[k],perm[p])=(perm[p],perm[k]) #swap
-                (A[k,:],A[p,:])=(A[p,:],A[k,:])
+                (A[k,:],A[p,:])=(A[p,:],A[k,:]) #swap rows
             end
             if abs(A[k,k])<10*LU_FUDGE println("Small pivot: $(A[k,k])") end #DEBUGs
             for i=k+1:n
@@ -54,6 +62,59 @@ function LUdata!(A::Array{BigFloat,2})
 
 
         return LUdata(A,perm)
+end
+
+#Added rescalings
+function LUdata!(A::Array{BigFloat,2})
+
+        tmp=BigFloat(0)
+        n=stride(A,2)
+		
+
+        perm=[1:n]
+		scales=[mcopy(maximum(map(abs,A[i,:])))::BigFloat for i=1:n]                                     
+		
+		for i=1:n
+			for j=1:n
+			mdiv(A[i,j],scales[i])
+			end
+		end
+		
+		
+        for k=1:n-1
+
+			#si=scales[perm]
+            #p=findfirst(x->abs(x)>LU_FUDGE,A[k:n,k]) #find pivot - pivoting to get rid of zeros
+			#pivot, p=findmax(map(abs,A[k:n,k])) #find pivot: partial pivoting for num stability
+			# find pivot: scaled partial pivoting for num stability
+			#scales=[findmax(map(abs,A[i,1:n]))[1]::BigFloat for i=k:n]                                     
+			p=findmax(map(abs,A[k:n,k]))[2]   #partial pivoting
+			pivot=abs(A[k:n,k][p])   #
+			##########################
+			
+			
+            if pivot<LU_FUDGE error("Singular matrix") end
+			#if p==0 error("Singular matrix") end
+            p=p+k-1
+
+            if p!=k
+                (perm[k],perm[p])=(perm[p],perm[k]) #swap
+                (A[k,:],A[p,:])=(A[p,:],A[k,:]) #swap rows				
+            end
+            if abs(A[k,k])<10*LU_FUDGE println("Small pivot: $(A[k,k])") end #DEBUGs
+            for i=k+1:n
+                mdiv(A[i,k],A[k,k])
+                #A[i,k]=A[i,k]/A[k,k]
+                for j=k+1:n
+                    mmult(tmp,A[i,k],A[k,j])
+                    msub(A[i,j],tmp)
+                    #A[i,j]-=A[i,k]*A[k,j]
+                end
+            end
+        end
+
+
+        return LUdata(A,perm,scales)
 end
 
 
@@ -76,7 +137,8 @@ function dot{T,S}(lu::LUdata{T},b::Array{S,1})  # this should be understood as (
         n=stride(A,2)
         if n!=length(b) error("Incompatible dimensions") end
                 #Solve Ly=P b
-                Pb=b[lu.perm]
+				si=lu.scales[lu.perm]
+                Pb=b[lu.perm]./si
                 y=Array(T,n)
 
                 for i=1:n
@@ -107,7 +169,8 @@ function dot(o::Array{BigFloat,1},lu::LUdata{BigFloat},b::Array{BigFloat,1})  # 
         if n!=length(b) error("Incompatible dimensions") end
 
         #Solve Ly=P b
-        Pb=b[lu.perm]
+		si=lu.scales[lu.perm]
+        Pb=b[lu.perm]./si
 
 
         for i=1:n
@@ -147,41 +210,13 @@ end
 # x.A=b want to solve for x.  Then x.(P^-1 LU)=b. Solve y.U=b first for y. Then x(P^-1).L)=y for x
 
 
-function dot{T<:Real,S<:Real}(b::Array{S,1},lu::LUdata{T})  # this should be understood as v.(A^-1) !
-
-        A=lu.luMat
-        n=stride(A,2)
-
-
-
-        if n!=length(b) error("Incompatible dimensions") end
-
-
-
-                for i=1:n
-                    y[i]=(b[i]-sum([(A[j,i]y[j])::T for j=1:i-1]))/A[i,i]
-                end
-
-
-                #Solve for x
-                x=Array(T,n)
-
-                for i=n:-1:1
-                    x[i]=(y[i]-sum([(A[j,i]*x[j])::T for j in i+1:n]))
-                end
-
-                return ipermute!(x,lu.perm)    #inverse permutation
-
-end
-
-
 dot(b::Array{BigFloat,1},lu::LUdata{BigFloat})=(o=[BigFloat(0) for i=1:length(b)]; dot(o,b,lu))
 
 function dot(o::Array{BigFloat,1},b::Array{BigFloat,1},lu::LUdata{BigFloat})  # this should be understood as v.(A^-1) !
 
         A=lu.luMat
         n=stride(A,2)
-
+		
         tmp1=mcopy(zerobf); tmp2=mcopy(zerobf); #two temporary variables initialized at zero
         if n!=length(b) error("Incompatible dimensions") end
 
@@ -210,7 +245,11 @@ function dot(o::Array{BigFloat,1},b::Array{BigFloat,1},lu::LUdata{BigFloat})  # 
                     msub(o[i],tmp2)
                 end
 
-                return ipermute!(o,lu.perm)    #inverse permutation
+                ipermute!(o,lu.perm)    #inverse permutation
+				for i=1:n
+				mdiv(o[i],lu.scales[i])
+				end
+				o
 
 end
 
