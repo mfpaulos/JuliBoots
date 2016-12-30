@@ -365,8 +365,8 @@ function v_convCoeffs_ds(sigma::Real,tup::(Int64,Int64)) #gives a dictionary wit
                                                      # derivative (m,n) of \partial_sigma u^sigma G
         m=tup[1] #a derivatives
         n=tup[2] #b derivatives
-		m=convert(Int128,m)
-		n=convert(Int128,n)
+		m=convert(BigInt,m)
+		n=convert(BigInt,n)
         d=sigma
 
         #comment: extra powers of 2 relative to my Mathematica code is due to the way the derivatives are defined by the Pythonists
@@ -383,8 +383,8 @@ function u_convCoeffs_ds(sigma::Real,tup::(Int64,Int64)) #gives a dictionary wit
                                                      # derivative (m,n) (in the tuple) of \partial_sigma u^sigma G
         m=tup[1] #a derivatives
         n=tup[2] #b derivatives
-		m=convert(Int128,m)
-		n=convert(Int128,n)
+		m=convert(BigInt,m)
+		n=convert(BigInt,n)
         d=sigma
 
         #return [ (k,l)=> 1/(2^(k+2*l))*(-1)^(m-k)*binomial(n,n-l)*binomial(m,m-k)*(4)^(-d)*pochhammer(-2d+2*(n-l),m-k)*pochhammer(-d, n-l) for k=0:m, l=0:n]

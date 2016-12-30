@@ -22,7 +22,7 @@ push!(LOAD_PATH,"$(pwd())/Bootstrap")
 
 import consts
 import Base: deepcopy,dot
-export derivative, pochhammer, padL, padR, value, tofloat,msum,mplus,msub,mdiv,mpow,mmult,MPFR_clear, mcopy, onebf,zerobf
+export derivative, pochhammer, padL, padR, value, tofloat,msum,mplus,msub,mdiv,mpow,mmult,MPFR_clear, mcopy, onebf,zerobf,tofloat
 
 
 
