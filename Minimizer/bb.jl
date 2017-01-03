@@ -15,7 +15,7 @@ using various
 
 type MinFunction{T<:Real}
 
-        range::(T,T)
+        range::Array{T,1}
         f::Function
         df::Function
         d2f::Function
@@ -65,7 +65,7 @@ end
 type BBproblem{T<:Real}
 
         mf::MinFunction{T}
-        range::(T,T)
+        range::Array{T,1}
         badList::Array{Interval{T},1}
         goodList::Array{GoodInterval{T},1}
 end
@@ -325,7 +325,7 @@ function Newton(mf::MinFunction{BigFloat},xl::BigFloat,xr::BigFloat)
             #diff=BigFloat(0)
         else
             #diff=-(sqrt(tmp)-mf.d2f(x0))/mf.d3f(x0)
-            tmp1=mf.d2f(x0); mpow(tmp2,BigFloat("0.5")); msub(tmp2,tmp1); mdiv(diff,tmp2,-1*mf.d3f(x0));
+            tmp1=mf.d2f(x0); mpow(tmp2,BigFloat(1/2)); msub(tmp2,tmp1); mdiv(diff,tmp2,-1*mf.d3f(x0));
         end
 
         while abs(diff)>BB_NEWTON_GOAL && iter<=BB_ITERMAX
@@ -361,7 +361,7 @@ function FindLocalMinima{T<:Real}(mf::MinFunction{T})
         divide!(bb)
 
         if VERBOSE println("Overall time spent on divide: $(time()-t0)") end
-        minList=Array((T,T),0)    # xmin, min
+        minList=Array(Tuple{T,T},0)    # xmin, min
         t0=time()
 
         for i in bb.goodList
@@ -396,7 +396,7 @@ dddf=x->-1000*BigFloat(10)*cos(BigFloat(10)x)
 #ddf=x->0*x
 #dddf=x->0*x
 bf=BigFloat
-mf=MinFunction((bf(1),bf(15)),f,df,ddf,dddf)
+mf=MinFunction([bf(1),bf(15)],f,df,ddf,dddf)
 
 
 bbp=BBproblem(mf)

@@ -74,7 +74,7 @@ type CB_Q{T<:Real} <: CB    # stands for some component of a CB with a rational 
     rho::T     #the value of a CB is the value of the rational function times 4^delta rho^delta
     func::QFunc{T}
     spin::Int64
-    label::(Int64,Int64,String)     #label is the derivative (m,n) it corresponds to. String is some name
+    label::Tuple{Int64,Int64,String}     #label is the derivative (m,n) it corresponds to. String is some name
 
 end
 
@@ -93,7 +93,7 @@ type CBVec_Q{T<:Real} <:CBVec
         rho::T
         vec::Array{QFunc{T},1}  # a set of CB's representing different derivatives
         spin::Int64
-        dict::Dict{(Int64,Int64),Int64}  #derivatives, and corresponding index
+        dict::Dict{Tuple{Int64,Int64},Int64}  #derivatives, and corresponding index
         label::String
 end
 
@@ -110,7 +110,7 @@ type Conv_Q{T<:Real} <: Convolved
         sigma::T
         func::QFunc{T}
         spin::Int64
-        label::(Int64,Int64,String) #label is the (m,n) derivative it corresponds to, and the string
+        label::Tuple{Int64,Int64,String} #label is the (m,n) derivative it corresponds to, and the string
                                     # tells us if it's convolved in a symmetric or antisymmetric fashion
 end
 
@@ -125,7 +125,7 @@ type ConvVec_Q{T<:Real} <: ConvolvedVec
         sigma::T
         vec::Array{QFunc{T},1}
         spin::Int64
-        dict::Dict{(Int64,Int64),Int64}
+        dict::Dict{Tuple{Int64,Int64},Int64}
         label::String
 end
 
@@ -135,12 +135,12 @@ mcopy(cbo::ConvVec_Q{BigFloat},cb::ConvVec_Q{BigFloat})=
 
 #constructor
 
-ConvVec_Q{T<:Real}(cbvec::CBVec_Q{T},sigma::Real,label::String)=ConvVec_Q(cbvec.rho,sigma,Array(QFunc{T},0),cbvec.spin,Dict{(Int64,Int64),Int64}(),label)
+ConvVec_Q{T<:Real}(cbvec::CBVec_Q{T},sigma::Real,label::String)=ConvVec_Q(cbvec.rho,sigma,Array(QFunc{T},0),cbvec.spin,Dict{Tuple{Int64,Int64},Int64}(),label)
 
 
 # convenient to define derivative vec type
-DerivativeVec=Union(CBVec_Q{BigFloat},CBVec_Q{Float64},ConvVec_Q{BigFloat},ConvVec_Q{Float64})   #all vectors of derivatives
-CBDerVec=Union(CBVec_Q{BigFloat},CBVec_Q{Float64})     # vectors of derivatives of conformal blocks
+DerivativeVec=Union{CBVec_Q{BigFloat},CBVec_Q{Float64},ConvVec_Q{BigFloat},ConvVec_Q{Float64}}   #all vectors of derivatives
+CBDerVec=Union{CBVec_Q{BigFloat},CBVec_Q{Float64}}     # vectors of derivatives of conformal blocks
 
 
 #-----------------------------------------------------------------------------------#
@@ -149,8 +149,8 @@ CBDerVec=Union(CBVec_Q{BigFloat},CBVec_Q{Float64})     # vectors of derivatives 
 
 
 # Get derivatives out of vectors using their dictionaries;
-getindex(dv::DerivativeVec,tup::(Int64,Int64))=dv[dv.dict[tup]]
-getindex(o::Comp,dv::DerivativeVec,tup::(Int64,Int64))=getindex(o,dv,dv.dict[tup])
+getindex(dv::DerivativeVec,tup::Tuple{Int64,Int64})=dv[dv.dict[tup]]
+getindex(o::Comp,dv::DerivativeVec,tup::Tuple{Int64,Int64})=getindex(o,dv,dv.dict[tup])
 
 # Join different vectors as a single one
 function mjoin(vecs::Vec...)
@@ -178,8 +178,8 @@ end
 # -------- Get Index ---------
 
 #utility
-function orderedkeys(dic::Dict{(Int64,Int64),Int64})
-        o=Array((Int64,Int64),0)
+function orderedkeys(dic::Dict{Tuple{Int64,Int64},Int64})
+        o=Array(Tuple{Int64,Int64},0)
         for i=1:length(dic)
             derpos=findfirst([j for j in values(dic)],i)
             push!(o,getindex([k for k in keys(dic)],derpos))
@@ -233,13 +233,13 @@ function getindex{T<:Real}(v::ConvVec_Q{T},is::Array{Int64,1})
         ders=[getindex([i for i in keys(v.dict)],dp) for dp in derspos]
         #
         newvec=[v.vec[i]::QFunc{T} for i in is]
-        newdict=Dict{(Int64,Int64),Int64}()
-        for (i,d) in enumerate(ders) push!(newdict,d,i) end
+        newdict=Dict{Tuple{Int64,Int64},Int64}()
+        for (i,d) in enumerate(ders) newdict[d]=i end
 
         ConvVec_Q{T}(v.rho,v.sigma,newvec,v.spin,newdict,v.label)
 end
 
-getindex{T<:Real}(v::ConvVec_Q{T},ders::Array{(Int64,Int64),1})=getindex(v,[v.dict[d]::Int64 for d in ders])
+getindex{T<:Real}(v::ConvVec_Q{T},ders::Array{Tuple{Int64,Int64},1})=getindex(v,[v.dict[d]::Int64 for d in ders])
 
 #------- end testing
 
@@ -330,9 +330,9 @@ tofloat(cb::CBVec_Q)=CBVec_Q(tofloat(cb.rho),tofloat(cb.vec),cb.spin,cb.dict,cb.
 #
 ###############################################################################################
 
-function v_convCoeffs(sigma::Real,tup::(Int64,Int64)) #gives a dictionnary with the coefficients
+function v_convCoeffs(sigma::Real,tup::Tuple{Int64,Int64}) #gives a dictionnary with the coefficients
                                                      # necessary to convolve with to obtain the
-                                                     # derivatives of u^sigma G
+                                                     # derivatives of v^sigma G
         m=tup[1] #a derivatives
         n=tup[2] #b derivatives
 		m=convert(BigInt,m)
@@ -343,10 +343,10 @@ function v_convCoeffs(sigma::Real,tup::(Int64,Int64)) #gives a dictionnary with 
 
         #return [ (k,l)=> 1/(2^(k+2*l))*binomial(n,n-l)*binomial(m,m-k)*(4)^(-d)*pochhammer(-2d+2*(n-l),m-k)*pochhammer(-d, n-l) for k=0:m, l=0:n]
 		# Changed normalization, dividing by 4^(-d)
-		return [ (k,l)=> 1/(bf(2)^(k+2*l))*binomial(n,n-l)*binomial(m,m-k)*pochhammer(-2d+2*(n-l),m-k)*pochhammer(-d, n-l) for k=0:m, l=0:n]
+		return [(k,l)=> 1/(bf(2)^(k+2*l))*binomial(n,n-l)*binomial(m,m-k)*pochhammer(-2d+2*(n-l),m-k)*pochhammer(-d, n-l) for k=0:m, l=0:n]
 		end
 
-function u_convCoeffs(sigma::Real,tup::(Int64,Int64)) #gives a dictionnary with the coefficients
+function u_convCoeffs(sigma::Real,tup::Tuple{Int64,Int64}) #gives a dictionnary with the coefficients
                                                      # necessary to convolve with to obtain the
                                                      # derivative (m,n) (in the tuple) of u^sigma G
         m=tup[1] #a derivatives
@@ -360,7 +360,7 @@ function u_convCoeffs(sigma::Real,tup::(Int64,Int64)) #gives a dictionnary with 
 		return [ (k,l)=> 1/(bf(2)^(k+2*l))*(-1)^(m-k)*binomial(n,n-l)*binomial(m,m-k)*pochhammer(-2d+2*(n-l),m-k)*pochhammer(-d, n-l) for k=0:m, l=0:n]
 		end
 
-function v_convCoeffs_ds(sigma::Real,tup::(Int64,Int64)) #gives a dictionary with the coefficients
+function v_convCoeffs_ds(sigma::Real,tup::Tuple{Int64,Int64}) #gives a dictionary with the coefficients
                                                      # necessary to convolve with to obtain the
                                                      # derivative (m,n) of \partial_sigma u^sigma G
         m=tup[1] #a derivatives
@@ -378,7 +378,7 @@ function v_convCoeffs_ds(sigma::Real,tup::(Int64,Int64)) #gives a dictionary wit
 		(digamma(-d)+2*digamma(-2d-2l+2n)-digamma(-d-l+n)-2*digamma(-2d-k-2l+m+2n)) for k=0:m, l=0:n]
 		end
 
-function u_convCoeffs_ds(sigma::Real,tup::(Int64,Int64)) #gives a dictionary with the coefficients
+function u_convCoeffs_ds(sigma::Real,tup::Tuple{Int64,Int64}) #gives a dictionary with the coefficients
                                                      # necessary to convolve with to obtain the
                                                      # derivative (m,n) (in the tuple) of \partial_sigma u^sigma G
         m=tup[1] #a derivatives
@@ -470,7 +470,7 @@ function convTable(sigma::BigFloat,tab::Array{CBVec_Q{BigFloat},1},sign::Int64;d
                 if m%2==1 && sign==1 continue end #skip odd m, since they lead to zeros for components
 
                 for i=1:length(tab)
-                        push!(convtab[i].dict,(m,n),ct)
+                        convtab[i].dict[(m,n)]=ct
                 end
                 ct+=1
 

@@ -6,6 +6,7 @@
 
 module LP
 
+using JLD
 using various
 import various: value, tofloat, mcopy, mmult, mplus,mdiv, derivative
 
@@ -14,11 +15,12 @@ import consts: LPFILE
 using LPlinks
 import LPlinks: LPFindMinimum, LPInverse, VecFunc, Func, CostFunction, Inverse
 
-import Base: getindex, length, show
+import Base: getindex, length, show,filter,filter!
 #import PyPlot
 
-export LinearProgram, iterate!,filter,filter!,cost,updateFunctional!,
-        updateInverse!,updateCoeffs!,LabelF,solution,status,makeVector
+export LinearProgram, iterate!,cost,updateFunctional!,
+        updateInverse!,updateCoeffs!,LabelF,solution,status,makeVector,filter,filter!,
+		LPsave
 export findMRC
 export findBVar
 
@@ -36,11 +38,11 @@ bf=BigFloat
 #-- own types
 
 typealias LabelF Any   # how to label functions
-typealias LabelV (Real,LabelF)   # how to label vectors (conf dimension, other labels)
+typealias LabelV Tuple{Real,LabelF}   # how to label vectors (conf dimension, other labels)
 
 
 type LPVectorFunction{T<:Real}
-    range::(T,T)
+    range::Array{T,1}
     vecfunc::VecFunc
     cost::CostFunction
     label::LabelF
@@ -73,7 +75,7 @@ end
 type LPVector{T<:Real}
     vector::Array{T,1}
     cost::T
-    label::(T,LabelF)
+    label::Tuple{T,LabelF}
 end
 
 mcopy(v::LPVector{BigFloat})=LPVector(mcopy(v.vector),mcopy(v.cost),(mcopy(v.label[1]),deepcopy(v.label[2])))
@@ -122,7 +124,7 @@ type LinearProgram{T<:Real}
 
     label::String               # A description of this linear problem
     coeffs::Array{T,1}          # the coefficients in the current solution
-    status::ASCIIString
+    status::String
 
 end
 
@@ -144,6 +146,7 @@ function show(io::IO,lp::LinearProgram)
         #for v in lp.lpVectors show(io,v) end
 end
 
+LPsave(file::String,lp::LinearProgram)=save(file,"lp",lp) #assumes filename ends in JLD
 
 
 
@@ -168,7 +171,7 @@ end
  	
 derivative(lv::LPVectorFunction,i::Int64)=LPVectorFunction(lv.range,derivative(lv.vecfunc,i),lv.cost,lv.label)
 
-getindex{T<:Real}(lpa::Array{LPVectorFunction{T},1},label::ASCIIString)=(lpa[find(x->x.label==label,lpa)[1]])
+getindex{T<:Real}(lpa::Array{LPVectorFunction{T},1},label::String)=(lpa[find(x->x.label==label,lpa)[1]])
 getindex(lv::LPVector,i::Int64)=lv.vector[i]
 length(lv::LPVector)=length(lv.vector)
 length(lv::LPVectorFunction)=length(lv.vecfunc)
@@ -266,7 +269,7 @@ function findAllRC{T<:Real}(lp::LinearProgram{T}; minMethod="bbGlobal")   #assum
 
 
         htime=0.
-        mrcs=Array((LPVector{T},T),0)
+        mrcs=Array(Tuple{LPVector{T},T},0)
         for i=1:length(lp.lpFunctions)
             t=@elapsed tmp=findMRC(lp.lpFunctions[i],lp.functional; minMethod=minMethod) #this returns a list of minima (eventually with a single element)
             t+=@elapsed for min in tmp push!(mrcs,min) end    #populates mrcs with the minima (which take the form (LPVector, mrc) )
@@ -280,7 +283,7 @@ function findAllRC{T<:Real}(lp::LinearProgram{T}; minMethod="bbGlobal")   #assum
         # tmp=[(@spawnat i findMRC(lp.lpFunctions[i],lp.functional)) for i=1:length(lp.lpFunctions)]
         # mrc1=[fetch(t) for t in tmp]
         #--
-        t=@elapsed for vec in lp.lpVectors push!(mrcs,findMRC(vec,lp.functional)::(LPVector{T},T)) end
+        t=@elapsed for vec in lp.lpVectors push!(mrcs,findMRC(vec,lp.functional)::Tuple{LPVector{T},T}) end
         if VERBOSE println("Vectors findMRC time: $t") end
 
         return mrcs
@@ -331,7 +334,7 @@ function findBVar{T<:Real}(lp::LinearProgram{T},nba::Array{LPVector{T},1})
 
         for nbv in nba
             icol=dot(lp.invA,nbv.vector)
-            xvals=[icol[i]> zero(T) ? ivec[i]/icol[i] : inf(T) for i=1:length(ivec)]
+            xvals=[icol[i]> zero(T) ? ivec[i]/icol[i] : typemax(T) for i=1:length(ivec)]
 
             (minx,bvar)=findmin(xvals)
             #if minx==inf(T) println("Problem unbounded"); return "unbounded" end
@@ -347,7 +350,7 @@ findBVar(lp::LinearProgram{BigFloat},nb::LPVector{BigFloat})=(l=findBVar(lp,[nb]
 function findBVar(lp::LinearProgram{BigFloat},nba::Array{LPVector{BigFloat},1})
 
         ivec=lp.coeffs
-        minx_bvar=Array((BigFloat,Int64),0)
+        minx_bvar=Array(Tuple{BigFloat,Int64},0)
         icol=[BigFloat(0) for i=1:length(ivec)]
         infs=[BigFloat(Inf) for i=1:length(ivec)]
         xvals=mcopy(infs)
@@ -383,28 +386,31 @@ end
 
 #-------- Basic iteration of simplex method
 
-function iterate!{T<:Real}(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", method="mcv", quiet=false)
+function iterate!{T<:Real}(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", method="mcv", quiet=false,bak_file="NoBak",bak_iters=100,log_file=LPFILE)
 
 
         #Initializations
-        log=open(LPFILE,"w")
+        log=open(log_file,"w")
         tmp=BigFloat(0)         #temporary variable
         stopiters=0
         starttime=time()
-        if !quiet println("Started at: $(strftime(time()))\t\t Initial Cost: $(convert(Float64,cost(lp)))") end
+        if !quiet println("Started at: $(strtime(time()))\t\t Initial Cost: $(convert(Float64,cost(lp)))") end
 
         for i=1:n            
             t0=time()
             currentcost=cost(lp)            
-            write(log,"$i - $(strftime(time())) - Iteration: $i\n")
-            write(log,"$i - $(strftime(time())) - Current cost: $(currentcost)\n")
+            write(log,"$i - $(strtime(time())) - Iteration: $i\n")
+            write(log,"$i - $(strtime(time())) - Current cost: $(currentcost)\n")
             if i%100==0 && !quiet println("Iteration $i\nCurrent cost: $(convert(Float64,currentcost))\t\t Elapsed: $(time()-starttime)") end
-
+			
+			if i%bak_iters==0 && bak_file!="NoBak"
+				LPsave(bak_file,lp)
+			end
 
             #---- Find a vector to bring in -------
 
             t=@elapsed nb_rc=findAllRC(lp,minMethod=minMethod)     #this is a list of LPVectors and associated reduced costs
-            write(log,"$i - $(strftime(time())) - mrc done in $t\n")
+            write(log,"$i - $(strtime(time())) - mrc done in $t\n")
 
 
             allrc=[nb_rc[i][2] for i=1:length(nb_rc)]       #all reduced costs: one per vector, and a set of local minima for each lpFunction
@@ -420,15 +426,15 @@ function iterate!{T<:Real}(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", m
                   #---- Swapping ---------------
                   t=@elapsed minx, bvar=findBVar(lp,nb)
                   swapped=(mcopy(lp.solVecs[bvar].label[1]),deepcopy(lp.solVecs[bvar].label[2]));
-                  write(log,"$i - $(strftime(time())) - BVar done in $t\n")
+                  write(log,"$i - $(strtime(time())) - BVar done in $t\n")
                   t=@elapsed swapBNB!(lp,nb,bvar)
-                  write(log,"$i - $(strftime(time())) - Swapping done in $t \n")
+                  write(log,"$i - $(strtime(time())) - Swapping done in $t \n")
                   #-----------------------------
             end
 
             if method=="mcv"       # maximum cost variation: simplex brings in the vector leading to the greatest cost decrease
                   allnb=[nb_rc[i][1]::LPVector{T} for i=1:length(nb_rc)]     #all the LPVector candidates
-                  write(log,"$i - $(strftime(time())) - Candidate minima: $(length(allnb))\n")
+                  write(log,"$i - $(strtime(time())) - Candidate minima: $(length(allnb))\n")
                   minx_bvar=findBVar(lp,allnb)
 
 
@@ -441,7 +447,7 @@ function iterate!{T<:Real}(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", m
 
                   costvars=[minx_bvar[i][1]*nb_rc[i][2] for i=1:length(minx_bvar)] # all cost variations
                   (costvar,pos)=findmin(costvars)
-                  if costvar==-inf(BigFloat) println("Problem unbounded"); lp.status="Unbounded"; break end
+                  if costvar==-typemax(BigFloat) println("Problem unbounded"); lp.status="Unbounded"; break end
                   nb=nb_rc[pos][1]
                   mrc=nb_rc[pos][2]
 				  if mrc>=zero(mrc) 
@@ -453,7 +459,7 @@ function iterate!{T<:Real}(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", m
                   bvar=minx_bvar[pos][2]
                   swapped=(mcopy(lp.solVecs[bvar].label[1]),deepcopy(lp.solVecs[bvar].label[2]));
                   t=@elapsed swapBNB!(lp,nb,bvar)
-                  write(log,"$i - $(strftime(time())) - Swapping done in $t \n")                  
+                  write(log,"$i - $(strtime(time())) - Swapping done in $t \n")                  
             end
 
 
@@ -462,23 +468,23 @@ function iterate!{T<:Real}(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", m
 
 
 
-            write(log,"$i - $(strftime(time())) - Inverting done in $t \n")
+            write(log,"$i - $(strtime(time())) - Inverting done in $t \n")
             t=@elapsed updateFunctional!(lp)
             t+=@elapsed updateCoeffs!(lp)
-            write(log,"$i - $(strftime(time())) - Updates done in $t \n")
+            write(log,"$i - $(strtime(time())) - Updates done in $t \n")
 
             t=@elapsed cc=cost(lp)
-            write(log,"$i - $(strftime(time())) - Cost computed in $t \n")
-            write(log,"$i - $(strftime(time())) - Total time: $(time()-t0)\n\n")
+            write(log,"$i - $(strtime(time())) - Cost computed in $t \n")
+            write(log,"$i - $(strtime(time())) - Total time: $(time()-t0)\n\n")
 
 
-            write(log,"$i - $(strftime(time())) - mrc: $mrc\n")
-            write(log,"$i - $(strftime(time())) - nb: $(nb.label)\n")
-            write(log,"$i - $(strftime(time())) - minx: $(minx)\n")
-            write(log,"$i - $(strftime(time())) - bvar: $(swapped)\n")
-            write(log,"$i - $(strftime(time())) - newcost: $(cc)\n")
-            write(log,"$i - $(strftime(time())) - cost var: $(cc-currentcost)\n")
-            write(log,"$i - $(strftime(time())) - minx*mrc: $(minx*mrc)\n")
+            write(log,"$i - $(strtime(time())) - mrc: $mrc\n")
+            write(log,"$i - $(strtime(time())) - nb: $(nb.label)\n")
+            write(log,"$i - $(strtime(time())) - minx: $(minx)\n")
+            write(log,"$i - $(strtime(time())) - bvar: $(swapped)\n")
+            write(log,"$i - $(strtime(time())) - newcost: $(cc)\n")
+            write(log,"$i - $(strtime(time())) - cost var: $(cc-currentcost)\n")
+            write(log,"$i - $(strtime(time())) - minx*mrc: $(minx*mrc)\n")
             write(log,"\n--------------------------------------------\n")
 
 
@@ -489,7 +495,7 @@ function iterate!{T<:Real}(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", m
 			end
             if cc>currentcost println("Cost increased at iteration $i") end
         end
-
+		
 
         close(log)
         #println(cost(lp))
@@ -541,13 +547,13 @@ end
 # excise the range
 
 
-filter(lp::LinearProgram{BigFloat},x::Real,criteria::LabelF)=(y=BigFloat(x); filter(lp,(BigFloat(-100),y),z->z==criteria))
-filter!(lp::LinearProgram{BigFloat},x::Real,criteria::LabelF)=(y=BigFloat(x); filter!(lp,(BigFloat(-100),y),z->z==criteria))
-filter!(lp::LinearProgram{BigFloat},x::Real,criteria::Function)=(y=BigFloat(x); filter!(lp,(BigFloat(-100),y),criteria) )
-filter(lp::LinearProgram{BigFloat},x::Real,criteria::Function)=(y=BigFloat(x); filter(lp,(BigFloat(-100),y),criteria) )
-filter(lp::LinearProgram{BigFloat},range::(BigFloat,BigFloat),criteria::Function)=(lp0=mcopy(lp); filter!(lp0,range,criteria))
+filter(lp::LinearProgram{BigFloat},x::Real,criteria::LabelF)=(y=BigFloat(x); filter(lp,[BigFloat(-100),y],z->z==criteria))
+filter!(lp::LinearProgram{BigFloat},x::Real,criteria::LabelF)=(y=BigFloat(x); filter!(lp,[BigFloat(-100),y],z->z==criteria))
+filter!(lp::LinearProgram{BigFloat},x::Real,criteria::Function)=(y=BigFloat(x); filter!(lp,[BigFloat(-100),y],criteria) )
+filter(lp::LinearProgram{BigFloat},x::Real,criteria::Function)=(y=BigFloat(x); filter(lp,[BigFloat(-100),y],criteria) )
+filter{T<:Real}(lp::LinearProgram{BigFloat},range::Array{T,1},criteria::Function)=(lp0=mcopy(lp); filter!(lp0,range,criteria))
 
-function filter!(lp::LinearProgram{BigFloat},range::(BigFloat,BigFloat),criteria::Function)
+function filter!{T<:Real}(lp::LinearProgram{BigFloat},range::Array{T,1},criteria::Function)
 
         lpfuncs=Array(LPVectorFunction{BigFloat},0)
         l=range[1]; u=range[2];
@@ -558,12 +564,12 @@ function filter!(lp::LinearProgram{BigFloat},range::(BigFloat,BigFloat),criteria
                 newfunc=vecfunc
                 vl=vecfunc.range[1]; vu=vecfunc.range[2]
 
-                if u>vl && u<vu && l<vl newfunc.range=(u,vu) end
+                if u>vl && u<vu && l<vl newfunc.range=[u,vu] end
                 if u>vu && l<vl continue end
-                if l>vl && l<vu && u>vu newfunc.range=(vl,l) end
+                if l>vl && l<vu && u>vu newfunc.range=[vl,l] end
                 if l>vl && u<vu
                     newfunc2=mcopy(newfunc);
-                    newfunc.range=(vl,l); newfunc2.range=(u,vu);
+                    newfunc.range=(vl,l); newfunc2.range=[u,vu];
                     push!(lpfuncs,mcopy(newfunc2))
                 end
 
@@ -615,7 +621,7 @@ function plotFunctional(lp::LinearProgram,i::Int64;nrpoints=100,range=(NaN,NaN),
         lpf=lp.lpFunctions[i]
         curve=dot(lp.functional,lpf.vecfunc)
 
-        (d0,df)= isequal(range,(NaN,NaN)) ? lpf.range::(BigFloat,BigFloat) : convert((BigFloat,BigFloat),range)
+        (d0,df) = isequal(range,(NaN,NaN)) ? lpf.range : convert(Tuple{BigFloat,BigFloat},range)
 
         xs=[x::Real for x in d0:((df-d0)/nrpoints):df]
 

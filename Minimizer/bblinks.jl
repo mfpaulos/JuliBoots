@@ -1,7 +1,7 @@
 
 #Hook up MinFunctions in bb to QFuncs
 import qfunc
-function MinFunction(range::(Real,Real),func::qfunc.Qpiece)
+function MinFunction(range::Array{Real,1},func::qfunc.Qpiece)
         dfunc=derivative(func,1)
         d2func=derivative(dfunc,1)
         d3func=derivative(d2func,1)

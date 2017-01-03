@@ -213,7 +213,7 @@ padR(p::Polynomial,n::Int64)=(q=deepcopy(p); q.coeffs=padR(q.coeffs,n); return q
 
 
 getindex(v::Polynomial,i::Int64)=v.coeffs[i]
-getindex(v::Polynomial,i::Range1)=getindex(v.coeffs,i)
+getindex(v::Polynomial,i::Range)=getindex(v.coeffs,i)
 setindex!(v::Polynomial,value::Real,i::Int64)=setindex!(v.coeffs,value,i)
 endof(x::Polynomial)=x.coeffs[end]
 length(p::Polynomial)=length(p.coeffs)
@@ -538,7 +538,7 @@ end
 mmult(a::QFunc{BigFloat},x::Real)=mmult(a,a,x)
 mmult(o::QFunc{BigFloat},a::QFunc{BigFloat},x::Real)=(mmult(o.poly,a.poly,x); mmult(o.poles,a.poles,x); return o)
 
-mmult(o::QFunc{BigFloat},a::QFunc{BigFloat},x::Real)=(mmult(o.poly,a.poly,x); mmult(o.poles,a.poles,x); return o)
+#mmult(o::QFunc{BigFloat},a::QFunc{BigFloat},x::Real)=(mmult(o.poly,a.poly,x); mmult(o.poles,a.poles,x); return o)
 
 
 mmult{T<:Real}(a::Array{QFunc{BigFloat},1},x::Array{T,1})=mmult(a,a,x)

@@ -71,7 +71,7 @@ function LUdata!(A::Array{BigFloat,2})
         n=stride(A,2)
 		
 
-        perm=[1:n]
+        perm=collect(1:n)
 		scales=[mcopy(maximum(map(abs,A[i,:])))::BigFloat for i=1:n]                                     
 		
 		for i=1:n

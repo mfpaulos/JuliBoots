@@ -10,10 +10,10 @@ using various, consts
 import qfunc, cb, bb, lu
 export LPFindMinimum, LPInverse, VecFunc, Func, CostFunction, Inverse
 
-CostFunction=Union(Function,qfunc.Qpiece,cb.CB)
-VecFunc=Union(Array{Function,1}, cb.ConvVec_Q, Array{qfunc.QFunc{BigFloat},1},Array{qfunc.QFunc{Float64},1})
-Func=Union(Function,cb.Conv_Q,qfunc.QFunc)
-Inverse=Union(lu.LUdata{BigFloat})
+CostFunction=Union{Function,qfunc.Qpiece,cb.CB}
+VecFunc=Union{Array{Function,1}, cb.ConvVec_Q, Array{qfunc.QFunc{BigFloat},1},Array{qfunc.QFunc{Float64},1}}
+Func=Union{Function,cb.Conv_Q,qfunc.QFunc}
+Inverse=Union{lu.LUdata{BigFloat}}
 
 #--------- Inverse matrix. Only Doolittle method so far
 
@@ -37,7 +37,7 @@ end
 
 
 
-function LPFindMinimum(range::(Real,Real),funcc::Func, cost::CostFunction; minMethod="bbGlobal")
+function LPFindMinimum{T<:Real}(range::Array{T,1},funcc::Func, cost::CostFunction; minMethod="bbGlobal")
 
 
 

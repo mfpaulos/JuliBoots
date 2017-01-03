@@ -22,9 +22,9 @@ push!(LOAD_PATH,"$(pwd())/Bootstrap")
 
 import consts
 import Base: deepcopy,dot
-export derivative, pochhammer, padL, padR, value, tofloat,msum,mplus,msub,mdiv,mpow,mmult,MPFR_clear, mcopy, onebf,zerobf,tofloat
+export derivative, pochhammer, padL, padR, value, tofloat,msum,mplus,msub,mdiv,mpow,mmult,MPFR_clear, mcopy, onebf,zerobf,strtime
 
-
+strtime=Libc.strftime
 
 const ROUNDING_MODE = [0]
 const DEFAULT_PRECISION = [consts.PRECISION]
@@ -162,24 +162,24 @@ end
 mcopy(b::BigFloat)=(a=BigFloat(1); mcopy(a,b))
 #mcopy(b::Array{BigFloat})=(a=Array(BigFloat,0); for i=1:length(b) push!(a,mcopy(b[i])) end; return reshape(a,size(b)))
 mcopy{T<:Any}(b::Array{T})=(a=Array(T,0); for i=1:length(b) push!(a,mcopy(b[i])) end; return reshape(a,size(b)))
-mcopy(o::(BigFloat,BigFloat),a::(BigFloat,BigFloat))=(mcopy(o[1],a[1]),mcopy(o[2],a[2]))::(BigFloat,BigFloat)
-mcopy(a::(BigFloat,BigFloat))=(mcopy(a[1]),mcopy(a[2]))::(BigFloat,BigFloat)
+mcopy(o::Tuple{BigFloat,BigFloat},a::Tuple{BigFloat,BigFloat})=(mcopy(o[1],a[1]),mcopy(o[2],a[2]))::Tuple{BigFloat,BigFloat}
+mcopy(a::Tuple{BigFloat,BigFloat})=(mcopy(a[1]),mcopy(a[2]))::Tuple{BigFloat,BigFloat}
 
 
 #----- Dotting
 
-function dot(a::Array{BigFloat,1},b::Array{BigFloat,1})
+#function dot(a::Array{BigFloat,1},b::Array{BigFloat,1})
 
-         if size(a)!=size(b) println("In various.dot: Different dimensions!") end
-         res=BigFloat(0)
-         tmp=BigFloat(1)
+#         if size(a)!=size(b) println("In various.dot: Different dimensions!") end
+#         res=BigFloat(0)
+#         tmp=BigFloat(1)
 
-         for i=1:length(a)
-             mmult(tmp,a[i],b[i])
-             mplus(res,tmp)
-         end
-         return res
-end
+#         for i=1:length(a)
+#             mmult(tmp,a[i],b[i])
+#             mplus(res,tmp)
+#         end
+#         return res
+#end
 
 #------
 

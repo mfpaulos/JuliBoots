@@ -18,7 +18,7 @@ type CBDerTable_Q{T<:cb.DerivativeVec}<:Table
         mmax::Int64
         Lmax::Int64
         OddL::Bool
-        ders::Array{(Int64,Int64)}
+        ders::Array{Tuple{Int64,Int64}}
 end
 
 function show(io::IO, t::CBDerTable_Q)
@@ -33,25 +33,25 @@ getindex(t::Table,i::Int64)=getindex(t.table,i)
 
 
 
-myread(file::IO) = BigFloat(chomp(readline(file)))
+myread(file::IO) = parse(BigFloat,chomp(readline(file)))
 
 
 function loadTable(file::String; label="Vanilla N=0")
 
     f=open(file)
 
-    eps=BigFloat(myread(f))
+    eps=myread(f)
     nmax=convert(Int64,myread(f))
     mmax=convert(Int64,myread(f))
 
     #dictionary telling me where the derivatives are located. Convention dependent!
-    dict=Dict{(Int64,Int64),Int64}();
+    dict=Dict{Tuple{Int64,Int64},Int64}();
     ct=1
 
     for n=0:nmax
 
             for m=0:mmax+2(nmax-n)
-            push!(dict::Dict,(m,n),ct)
+            dict[(m,n)]=ct #push!(dict::Dict,(m,n),ct)
             ct+=1
             end
     end

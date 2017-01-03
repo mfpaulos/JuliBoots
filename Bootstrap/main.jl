@@ -2,19 +2,39 @@ module main
 
 using various
 using consts
+using JLD
 
 import bb
 import qfunc
 import cb
+import Base: show
 using LP
 using table
-export chooseTable, setupLP, bissect, value, dropOdd!, changeTarget!,dropEven!,opemax, avgSpec
+export chooseTable, setupLP, bissect, bissect!,bissect_pair, value, dropOdd!, changeTarget!,dropEven!,opemax, avgSpec
 export filter,filter!,iterate!,status,cost,solution,makeVector # LP routines, this makes them accessible when 'using main'
 export saveresults
 
 
 bf=BigFloat
 #push!(LOAD_PATH,"C:\\Users\\Miguel_Paulos\\Google\ Drive\ N\\Julia\ Code")
+
+######## TYPES #############################
+
+type bissect_pair{T<:Real}
+	last_sol::LinearProgram{T}
+	last_func::LinearProgram{T}
+	upper::T
+	lower::T
+	criteria::LP.LabelF
+end
+	
+show(io::IO,bp::bissect_pair)=println(io,"Bissect Pair: $(bp.criteria), ($(tofloat(bp.upper)),$(tofloat(bp.lower))) - accuracy: $(tofloat(bp.upper-bp.lower))")
+
+	
+############################################
+
+
+
 
 function chooseTable()
     a=map(chomp,readlines(`ls ../Tables`))
@@ -118,13 +138,13 @@ function setupLP(tab::table.Table,sigma::BigFloat; ders="all")
         dim0(L::Int)= L==0 ? maximum([eps+FUDGE,zerobf]) : L+2*eps    # unitarity bound
         zerop=qfunc.Polynomial([bf(0)])     # This is the cost associated with the vectors: zero
 
-        spins= tab.OddL ? [0:1:Lmax] : [0:2:Lmax]
+        spins= tab.OddL ? collect(0:1:Lmax) : collect(0:2:Lmax)
 
         #let's create a linear program based on this data
         trgt=-value(vecfuncs[1].vec,bf(0))    # the target: identity vector
 
         lpVectorFuncs=[LP.LPVectorFunction(
-        (dim0(L),DELTAMAX),vecfuncs[i].vec,zerop,"L=$L")::LP.LPVectorFunction{BigFloat} for (i,L) in enumerate(spins)]
+        [dim0(L),DELTAMAX],vecfuncs[i].vec,zerop,"L=$L")::LP.LPVectorFunction{BigFloat} for (i,L) in enumerate(spins)]
 
 
         dim=convert(Float64,2*eps+2)
@@ -273,23 +293,25 @@ function saveresults(file::String,prob::LinearProgram)
 end
 
 
-bissect(lp::LinearProgram{BigFloat},top::Real, bot::Real, acc::Real,criteria::LP.LabelF; method="mcv",quiet=false)=bissect(lp,BigFloat(top),BigFloat(bot),BigFloat(acc),x->x==criteria, method=method,quiet=quiet)
-function bissect(lp::LinearProgram{BigFloat},top::BigFloat, bot::BigFloat, acc::BigFloat,criteria::Function; method="mcv", quiet=false)
+bissect(lp::LinearProgram{BigFloat},top::Real, bot::Real, acc::Real,criteria::LP.LabelF; method="mcv",quiet=false,bak_file="NoBak",bak_iters=100)=bissect(lp,BigFloat(top),BigFloat(bot),BigFloat(acc),criteria, method=method,quiet=quiet,bak_file=bak_file,bak_iters=bak_iters)
+# No longer allow generic functions for criteria
+function bissect(lp::LinearProgram{BigFloat},top::BigFloat, bot::BigFloat, acc::BigFloat,criteria::LP.LabelF; method="mcv", quiet=false,bak_file="NoBak",bak_iters=100)
 
         upper=maximum([bot,top])
         bottom=minimum([bot,top])
-
+		criteriaf=x->x==criteria
 
         lastfunctional=mcopy(lp)
         lastsol=mcopy(lp)
         lp1=mcopy(lp)
         tmp=mcopy(lp)
-
-        while (upper-bottom)>acc
+		bis_pair=bissect_pair(lastsol,lastfunctional,upper,bottom,criteria)
+        
+		while (upper-bottom)>acc
                 x=1/2*(upper+bottom)
                 if !quiet println("x= $x") end
                 tmp=mcopy(lp)
-                filter!(tmp,(-BigFloat(1),x),criteria)
+                filter!(tmp,[-BigFloat(1),x],criteriaf)
 
                 #----  Hotstart  ----
                 tmp.solVecs=lp1.solVecs
@@ -298,27 +320,105 @@ function bissect(lp::LinearProgram{BigFloat},top::BigFloat, bot::BigFloat, acc::
                 lp1=tmp
 
                 for v in lp1.solVecs
-                        if criteria(v.label[2])
+                        if criteriaf(v.label[2])
                                 mcopy(v.cost, v.label[1]<x ? onebf : zerobf)
                         end
                 end
                 updateFunctional!(lp1)
 
-                #------------
-
-                iterate!(lp1,LP_ITERMAX,method=method,quiet=quiet)
-
-
-                if cost(lp1)==zerobf
+                 #------------ iterations with backup
+					
+				if bak_file=="NoBak" 
+					iter_bak_file="NoBak"
+				else
+					iter_bak_file="$(bak_file[1:end-4])_lp1.jld";
+				end
+				iterate!(lp1,LP_ITERMAX,method=method,quiet=quiet,bak_file=iter_bak_file,bak_iters=bak_iters)			
+				#----- end iterations
+                
+				if cost(lp1)==zerobf
                         bottom=x; lastsol=mcopy(lp1)
                 else
                         upper=x;  lastfunctional=mcopy(lp1)
                 end
-
+				# backup bissection
+				if bak_file!="NoBak"
+					mcopy(bis_pair.last_sol,lastsol)
+					mcopy(bis_pair.last_func,lastfunctional)
+					mcopy(bis_pair.upper,upper)
+					mcopy(bis_pair.lower,bottom)
+					save(bak_file,"bis_pair",bis_pair)
+				end				
         end
 
-        return (lastsol,lastfunctional)
+        return bissect_pair(lastsol,lastfunctional,upper,bottom,criteria)
 end
+
+function bissect!(bis_pair::bissect_pair{BigFloat}, acc::Real; method="mcv", quiet=false, bak_file="NoBak",bak_iters=100)
+
+        upper=bis_pair.upper
+        bottom=bis_pair.lower
+
+		criteria=bis_pair.criteria
+		criteriaf=x->x==criteria
+        lastfunctional=mcopy(bis_pair.last_func)
+        lastsol=mcopy(bis_pair.last_sol)
+        lp1=mcopy(lastsol)
+        tmp=mcopy(lastsol)
+
+        while (upper-bottom)>acc
+                x=1/2*(upper+bottom)
+                if !quiet println("x= $x") end
+                tmp=mcopy(lastsol)
+                filter!(tmp,[-BigFloat(1),x],criteriaf)
+
+                #----  Hotstart  ----
+                tmp.solVecs=lp1.solVecs
+                tmp.invA=lp1.invA
+                tmp.coeffs=lp1.coeffs
+                lp1=tmp
+
+                for v in lp1.solVecs
+                        if criteriaf(v.label[2])
+                                mcopy(v.cost, v.label[1]<x ? onebf : zerobf)
+                        end
+                end
+                updateFunctional!(lp1)
+ #------------ iterations with backup
+					
+				if bak_file=="NoBak" 
+					iter_bak_file="NoBak"
+				else
+					iter_bak_file="$(bak_file[1:end-4])_lp1.jld";
+				end
+				iterate!(lp1,LP_ITERMAX,method=method,quiet=quiet,bak_file=iter_bak_file,bak_iters=bak_iters)			
+				#----- end iterations
+                
+				if cost(lp1)==zerobf
+                        bottom=x; lastsol=mcopy(lp1)
+                else
+                        upper=x;  lastfunctional=mcopy(lp1)
+                end
+				# backup bissection
+				if bak_file!="NoBak"
+					mcopy(bis_pair.last_sol,lastsol)
+					mcopy(bis_pair.last_func,lastfunctional)
+					mcopy(bis_pair.upper,upper)
+					mcopy(bis_pair.lower,bottom)
+					save(bak_file,"bis_pair",bis_pair)
+				end				
+        end
+
+		mcopy(bis_pair.last_sol,lastsol)
+		mcopy(bis_pair.last_func,lastfunctional)
+		mcopy(bis_pair.upper,upper)
+		mcopy(bis_pair.lower,bottom)
+		bis_pair.criteria=criteria
+        return bis_pair
+end
+
+
+
 
 function opemax{T<:Real}(lp::LinearProgram{T},confdim::Real,label::LP.LabelF;itermax=LP_ITERMAX)
 

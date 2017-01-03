@@ -2,6 +2,7 @@ module juliboots
 println("JuliBootS: a package for numerical bootstrap computations.")
 println("Version: 1.0")
 
+using JLD
 using various
 using main
 using cb
@@ -10,8 +11,7 @@ using bb
 using qfunc
 using table
 
-
-export chooseTable, setupLP, bissect, value, dropOdd!, changeTarget!,dropEven!,opemax, avgSpec #main functions
+export chooseTable, setupLP, bissect, bissect!,value, dropOdd!, changeTarget!,dropEven!,opemax, avgSpec #main functions
 export mcopy
 export filter,filter!,iterate!,status,cost,solution,makeVector # LP routines, this makes them accessible when 'using main'
 export QFunc, Polynomial, Pole
