@@ -293,9 +293,9 @@ function saveresults(file::String,prob::LinearProgram)
 end
 
 
-bissect(lp::LinearProgram{BigFloat},top::Real, bot::Real, acc::Real,criteria::LP.LabelF; method="mcv",quiet=false,bak_file="NoBak",bak_iters=100)=bissect(lp,BigFloat(top),BigFloat(bot),BigFloat(acc),criteria, method=method,quiet=quiet,bak_file=bak_file,bak_iters=bak_iters)
+bissect(lp::LinearProgram{BigFloat},top::Real, bot::Real, acc::Real,criteria::LP.LabelF; method="mcv",quiet=false,bak_file="NoBak",bak_iters=100,log_file=LP.LPFILE)=bissect(lp,BigFloat(top),BigFloat(bot),BigFloat(acc),criteria, method=method,quiet=quiet,bak_file=bak_file,bak_iters=bak_iters,log_file=log_file)
 # No longer allow generic functions for criteria
-function bissect(lp::LinearProgram{BigFloat},top::BigFloat, bot::BigFloat, acc::BigFloat,criteria::LP.LabelF; method="mcv", quiet=false,bak_file="NoBak",bak_iters=100)
+function bissect(lp::LinearProgram{BigFloat},top::BigFloat, bot::BigFloat, acc::BigFloat,criteria::LP.LabelF; method="mcv", quiet=false,bak_file="NoBak",bak_iters=100,log_file=LP.LPFILE)
 
         upper=maximum([bot,top])
         bottom=minimum([bot,top])
@@ -354,7 +354,7 @@ function bissect(lp::LinearProgram{BigFloat},top::BigFloat, bot::BigFloat, acc::
         return bissect_pair(lastsol,lastfunctional,upper,bottom,criteria)
 end
 
-function bissect!(bis_pair::bissect_pair{BigFloat}, acc::Real; method="mcv", quiet=false, bak_file="NoBak",bak_iters=100)
+function bissect!(bis_pair::bissect_pair{BigFloat}, acc::Real; method="mcv", quiet=false, bak_file="NoBak",bak_iters=100,log_file=LP.LPFILE)
 
         upper=bis_pair.upper
         bottom=bis_pair.lower
@@ -391,7 +391,7 @@ function bissect!(bis_pair::bissect_pair{BigFloat}, acc::Real; method="mcv", qui
 				else
 					iter_bak_file="$(bak_file[1:end-4])_lp1.jld";
 				end
-				iterate!(lp1,LP_ITERMAX,method=method,quiet=quiet,bak_file=iter_bak_file,bak_iters=bak_iters)			
+				iterate!(lp1,LP_ITERMAX,method=method,quiet=quiet,bak_file=iter_bak_file,bak_iters=bak_iters,log_file=log_file)			
 				#----- end iterations
                 
 				if cost(lp1)==zerobf
@@ -420,14 +420,14 @@ end
 
 
 
-function opemax{T<:Real}(lp::LinearProgram{T},confdim::Real,label::LP.LabelF;itermax=LP_ITERMAX,bak_file="NoBak",bak_iters=100)
+function opemax{T<:Real}(lp::LinearProgram{T},confdim::Real,label::LP.LabelF;itermax=LP_ITERMAX,bak_file="NoBak",bak_iters=100,log_file=LP.LPFILE)
 
         lp2=mcopy(lp)
         x=convert(T,confdim)
 		vector=makeVector(lp2.lpFunctions[label],x)
 		push!(lp2.lpVectors,vector)
 		
-        iterate!(lp2,itermax,bak_file=bak_file,bak_iters=bak_iters)
+        iterate!(lp2,itermax,bak_file=bak_file,bak_iters=bak_iters,log_file=log_file)
         if cost(lp2)!=0 println("Feasible solution not found!"); return lp2 end
         println("Feasible solution found, maximizing OPE...")
 
@@ -437,16 +437,16 @@ function opemax{T<:Real}(lp::LinearProgram{T},confdim::Real,label::LP.LabelF;ite
 		end
 		
         #push!(lp2.lpVectors,vector)
-        iterate!(lp2,itermax,bak_file=bak_file,bak_iters=bak_iters)
+        iterate!(lp2,itermax,bak_file=bak_file,bak_iters=bak_iters,log_file=log_file)
 
         return lp2
 end
 
-function resume_opemax{T<:Real}(lp::LinearProgram{T};itermax=LP_ITERMAX,bak_file="NoBak",bak_iters=100)
+function resume_opemax{T<:Real}(lp::LinearProgram{T};itermax=LP_ITERMAX,bak_file="NoBak",bak_iters=100,log_file=LP.LPFILE)
 		
 		lp2=mcopy(lp)
 		if cost(lp2)>0
-			iterate!(lp2,itermax,bak_file=bak_file,bak_iters=bak_iters)
+			iterate!(lp2,itermax,bak_file=bak_file,bak_iters=bak_iters,log_file=log_file)
 			if cost(lp2)!=0 println("Feasible solution not found!"); return lp2 end
 		    println("Feasible solution found, maximizing OPE...")
 			lp2.lpVectors[end].cost=-convert(T,1) #give negative cost to inserted vector
@@ -455,7 +455,7 @@ function resume_opemax{T<:Real}(lp::LinearProgram{T};itermax=LP_ITERMAX,bak_file
 			end
 		end
         #push!(lp2.lpVectors,vector)
-        iterate!(lp2,itermax,bak_file=bak_file,bak_iters=bak_iters)
+        iterate!(lp2,itermax,bak_file=bak_file,bak_iters=bak_iters,log_file=log_file)
 
         return lp2
 end
