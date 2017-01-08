@@ -11,7 +11,7 @@ import Base: show
 using LP
 using table
 export chooseTable, setupLP, bissect, bissect!,bissect_pair, value, dropOdd!, changeTarget!,dropEven!,opemax, avgSpec
-export filter,filter!,iterate!,status,cost,solution,makeVector # LP routines, this makes them accessible when 'using main'
+export filter,filter!,iterate!,status,cost,solution,makeVector,resume_opemax # LP routines, this makes them accessible when 'using main'
 export saveresults
 
 
@@ -102,9 +102,9 @@ end
 
 # Setup LP functions
 
-setupLP{T<:Real}(sig::T,file::String; ders="all")=(tab=table.loadTable(file); setupLP(tab,convert(BigFloat,sig),ders=ders))
-setupLP{T<:Real}(sigs::Array{T,1},file::String;ders="all")=setupLP(convert(Array{BigFloat,1},sigs),file,ders=ders)
-setupLP(sigs::Array{BigFloat,1},file::String;ders="all")=(tab=table.loadTable(file); [setupLP(tab,s,ders=ders)::LP.LinearProgram{BigFloat} for s in sigs])
+setupLP{T<:Real}(sig::T,file::String; ders="all")=(tab=table.loadTable(file); setupLP(tab,convert(BigFloat,sig),file=file,ders=ders))
+setupLP{T<:Real}(sigs::Array{T,1},file::String;ders="all")=setupLP(convert(Array{BigFloat,1},sigs),file=file,ders=ders)
+setupLP(sigs::Array{BigFloat,1},file::String;ders="all")=(tab=table.loadTable(file); [setupLP(tab,s,ders=ders,file=file)::LP.LinearProgram{BigFloat} for s in sigs])
 
 function setupLP()
 
@@ -121,7 +121,7 @@ function setupLP()
 
 end
 
-function setupLP(tab::table.Table,sigma::BigFloat; ders="all")
+function setupLP(tab::table.Table,sigma::BigFloat;file="N/A", ders="all")
 
         println("Setting up LP...")
         Lmax=tab.Lmax
@@ -148,7 +148,7 @@ function setupLP(tab::table.Table,sigma::BigFloat; ders="all")
 
 
         dim=convert(Float64,2*eps+2)
-        prob=LP.initLP(lpVectorFuncs,trgt,"Basic Bound\nD = $dim\tsigma=$(convert(Float64,sigma))\t(m,n) = $((tab.mmax,tab.nmax))\tLmax = $(tab.Lmax)\tOdd spins: $(tab.OddL)")        
+        prob=LP.initLP(lpVectorFuncs,trgt,"Basic Bound\nD = $dim\tsigma=$(convert(Float64,sigma))\t(m,n) = $((tab.mmax,tab.nmax))\tLmax = $(tab.Lmax)\tOdd spins: $(tab.OddL)",extra=(file,mcopy(sigma)))        
         tmp=cullpoles(prob,CULLPOLES)
 
         # The following normalizes the components by dividing by the scalar with \Delta=1
@@ -222,10 +222,10 @@ end
 
 setupLP{T<:Real}(sig::T,file::String,vectortypes)=(tab=table.loadTable(file); setupLP(tab,convert(BigFloat,sig),vectortypes))
 setupLP{T<:Real}(sigs::Array{T,1},file::String,vectortypes)=setupLP(convert(Array{BigFloat,1},sigs),file,vectortypes)
-setupLP(sigs::Array{BigFloat,1},file::String,vectortypes)=(tab=table.loadTable(file); [setupLP(tab,s,vectortypes)::LP.LinearProgram for s in sigs])
+setupLP(sigs::Array{BigFloat,1},file::String,vectortypes)=(tab=table.loadTable(file); [setupLP(tab,s,vectortypes,file=file)::LP.LinearProgram for s in sigs])
 
 
-function setupLP(tab::table.Table,sigma::BigFloat, vectortypes)
+function setupLP(tab::table.Table,sigma::BigFloat, vectortypes,file="N/A")
 
         println("Setting up LP...")
 
@@ -270,7 +270,7 @@ function setupLP(tab::table.Table,sigma::BigFloat, vectortypes)
                                                 # We must remember to disregard this vector in the final solution
 
         dim=convert(Float64,2*eps+2)
-        prob=LP.initLP(lpVectorFuncs,trgt,"Basic Bound\nD = $dim\tsigma=$(convert(Float64,sigma))\t(m,n) = $((tab.mmax,tab.nmax))\tLmax = $(tab.Lmax)\tOdd spins: $(tab.OddL)")
+        prob=LP.initLP(lpVectorFuncs,trgt,"Basic Bound\nD = $dim\tsigma=$(convert(Float64,sigma))\t(m,n) = $((tab.mmax,tab.nmax))\tLmax = $(tab.Lmax)\tOdd spins: $(tab.OddL)",extra=(file,mcopy(sigma)))
         tmp=cullpoles(prob,CULLPOLES)
         println("Done")
         return tmp
@@ -420,32 +420,45 @@ end
 
 
 
-function opemax{T<:Real}(lp::LinearProgram{T},confdim::Real,label::LP.LabelF;itermax=LP_ITERMAX)
+function opemax{T<:Real}(lp::LinearProgram{T},confdim::Real,label::LP.LabelF;itermax=LP_ITERMAX,bak_file="NoBak",bak_iters=100)
 
         lp2=mcopy(lp)
         x=convert(T,confdim)
-        iterate!(lp2,itermax)
+		vector=makeVector(lp2.lpFunctions[label],x)
+		push!(lp2.lpVectors,vector)
+		
+        iterate!(lp2,itermax,bak_file=bak_file,bak_iters=bak_iters)
         if cost(lp2)!=0 println("Feasible solution not found!"); return lp2 end
         println("Feasible solution found, maximizing OPE...")
 
-        local vector
-        for i=1:length(lp2.lpFunctions)
-                lpf=lp2.lpFunctions[i]
-                if lpf.label==label #&& x<= lpf.range[2] && x>=lpf.range[1]
-                        vector=makeVector(lpf,x); vector.cost=-convert(T,1);
-                end
-        end
+		lp2.lpVectors[end].cost=-convert(T,1) #give negative cost to inserted vector
 		for v in lp2.lpVectors
-			if v.label[2]=="AUX" mcopy(v.cost,BigFloat(1e10)) end
+			if v.label[2]=="AUX" mcopy(v.cost,BigFloat(1e10)) end #get rid of auxiliary vectors
 		end
-        push!(lp2.lpVectors,vector)
-        iterate!(lp2,itermax)
+		
+        #push!(lp2.lpVectors,vector)
+        iterate!(lp2,itermax,bak_file=bak_file,bak_iters=bak_iters)
 
         return lp2
 end
 
+function resume_opemax{T<:Real}(lp::LinearProgram{T};itermax=LP_ITERMAX,bak_file="NoBak",bak_iters=100)
+		
+		lp2=mcopy(lp)
+		if cost(lp2)>0
+			iterate!(lp2,itermax,bak_file=bak_file,bak_iters=bak_iters)
+			if cost(lp2)!=0 println("Feasible solution not found!"); return lp2 end
+		    println("Feasible solution found, maximizing OPE...")
+			lp2.lpVectors[end].cost=-convert(T,1) #give negative cost to inserted vector
+			for v in lp2.lpVectors
+				if v.label[2]=="AUX" mcopy(v.cost,BigFloat(1e10)) end #get rid of auxiliary vectors
+			end
+		end
+        #push!(lp2.lpVectors,vector)
+        iterate!(lp2,itermax,bak_file=bak_file,bak_iters=bak_iters)
 
-
+        return lp2
+end
 
 #############################
 #
@@ -525,7 +538,7 @@ function avgSpec(lp::LP.LinearProgram;cutoff=1e-6)
 	end
 
 	#get singles
-	singles=setdiff([1:length(avDs)],[fixed,doubled])
+	singles=setdiff(collect(1:length(avDs)),[fixed;doubled])
 	return (avDs,avCs,fixed,singles,doubled,labels)
 end
 

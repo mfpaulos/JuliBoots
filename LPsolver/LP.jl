@@ -125,16 +125,16 @@ type LinearProgram{T<:Real}
     label::String               # A description of this linear problem
     coeffs::Array{T,1}          # the coefficients in the current solution
     status::String
-
+	extra::Any					# Any extra useful information - for bootstrap this would be the table file used and the convolution parameter.
 end
 
 
 mcopy(lp::LinearProgram{BigFloat})=LinearProgram(mcopy(lp.lpFunctions),mcopy(lp.lpVectors),mcopy(lp.target),
-                                        mcopy(lp.solVecs),mcopy(lp.functional),mcopy(lp.invA),deepcopy(lp.label),mcopy(lp.coeffs),deepcopy(lp.status))
+                                        mcopy(lp.solVecs),mcopy(lp.functional),mcopy(lp.invA),deepcopy(lp.label),mcopy(lp.coeffs),deepcopy(lp.status),deepcopy(lp.extra))
 
 mcopy(o::LinearProgram{BigFloat},lp::LinearProgram{BigFloat})=(mcopy(o.lpFunctions,lp.lpFunctions); mcopy(o.lpVectors,lp.lpVectors);
                                                             mcopy(o.target,lp.target); mcopy(o.solVecs,lp.solVecs); mcopy(o.functional,lp.functional);
-                                                            mcopy(o.invA,lp.invA); o.label=deepcopy(lp.label); mcopy(o.coeffs,lp.coeffs); o.status=deepcopy(lp.status); o)
+                                                            mcopy(o.invA,lp.invA); o.label=deepcopy(lp.label); mcopy(o.coeffs,lp.coeffs); o.status=deepcopy(lp.status);o.extra=deepcopy(lp.extra); o)
 
 
 
@@ -515,7 +515,7 @@ auxLPVector{T<:Real}(i::Int64,n::Int64,cost::T)=LPVector([j==i ? one(cost) : zer
 auxLPMatrix{T<:Real}(n::Int64,cost::T)=[auxLPVector(i,n,cost)::LPVector{T} for i=1:n]
 
 
-function initLP{T<:Real}(lpf::Array{LPVectorFunction{T},1},t::Array{T,1},description::String)
+function initLP{T<:Real}(lpf::Array{LPVectorFunction{T},1},t::Array{T,1},description::String;extra="N/A")
 
         n=length(lpf[1])
         solVecs=auxLPMatrix(n,one(T))
@@ -535,7 +535,8 @@ function initLP{T<:Real}(lpf::Array{LPVectorFunction{T},1},t::Array{T,1},descrip
                         LPInverse(A),
                         description,
                         coeffs,
-                        "Initialized"
+                        "Initialized",
+						extra
                         )
 
         updateFunctional!(res)
