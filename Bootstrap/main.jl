@@ -390,7 +390,9 @@ function bissect(lp::LinearProgram{BigFloat},top::BigFloat, bot::BigFloat, acc::
 					pair_save(bak_file,bis_pair)
 				end				
         end
-
+		if bak_file!="NoBak"
+			pair_save(bak_file,bis_pair)
+		end
         return bissect_pair(lastsol,lastfunctional,upper,bottom,criteria)
 end
 
@@ -454,6 +456,9 @@ function bissect!(bis_pair::bissect_pair{BigFloat}, acc::Real; method="mcv", qui
 		mcopy(bis_pair.upper,upper)
 		mcopy(bis_pair.lower,bottom)
 		bis_pair.criteria=criteria
+		if bak_file!="NoBak"
+			pair_save(bak_file,bis_pair)
+		end
         return bis_pair
 end
 
@@ -478,8 +483,10 @@ function opemax{T<:Real}(lp::LinearProgram{T},confdim::Real,label::LP.LabelF;ite
 		
         #push!(lp2.lpVectors,vector)
         iterate!(lp2,itermax,bak_file=bak_file,bak_iters=bak_iters,log_file=log_file)
-
-        return lp2
+		if bak_file!="NoBak"
+			LPsave(bak_file,lp2)
+		end
+		return lp2
 end
 
 function resume_opemax{T<:Real}(lp::LinearProgram{T};itermax=LP_ITERMAX,bak_file="NoBak",bak_iters=100,log_file=LP.LPFILE)
@@ -496,7 +503,10 @@ function resume_opemax{T<:Real}(lp::LinearProgram{T};itermax=LP_ITERMAX,bak_file
 		end
         #push!(lp2.lpVectors,vector)
         iterate!(lp2,itermax,bak_file=bak_file,bak_iters=bak_iters,log_file=log_file)
-
+		if bak_file!="NoBak"
+			LPsave(bak_file,lp2)
+		end
+		
         return lp2
 end
 
