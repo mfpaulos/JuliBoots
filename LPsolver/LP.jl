@@ -125,7 +125,7 @@ type LinearProgram{T<:Real}
     label::String               # A description of this linear problem
     coeffs::Array{T,1}          # the coefficients in the current solution
     status::String
-	extra::Any					# Any extra useful information - for bootstrap this would be the table file used and the convolution parameter.
+	extra::Any					# Any extra useful information - for bootstrap this would be the table file used, the convolution parameter, and the derivatives used.
 end
 
 
@@ -146,7 +146,15 @@ function show(io::IO,lp::LinearProgram)
         #for v in lp.lpVectors show(io,v) end
 end
 
-LPsave(file::String,lp::LinearProgram)=save(file,"lp",lp) #assumes filename ends in JLD
+function LPsave{T<:Real}(file::String,lp::LinearProgram{T};reduced=true)
+
+	lp2=mcopy(lp)
+	for lpf in lp2.lpFunctions
+		lpf.vecfunc=LPlinks.qfunc.QFunc{BigFloat}[]  #Get rid of data
+	end
+	reduced ? save(file,"lp",lp2) : save(file,"lp",lp) 		#assumes filename ends in JLD
+end
+
 
 
 

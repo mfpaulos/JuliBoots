@@ -11,9 +11,9 @@ using bb
 using qfunc
 using table
 
-export chooseTable, setupLP, bissect, bissect!,value, dropOdd!, changeTarget!,dropEven!,opemax, avgSpec #main functions
+export chooseTable, setupLP, bissect, bissect!,value, dropOdd!, changeTarget!,dropEven!,opemax, avgSpec,LPload,pair_save,pair_load #main functions
 export mcopy
-export filter,filter!,iterate!,status,cost,solution,makeVector # LP routines, this makes them accessible when 'using main'
+export filter,filter!,iterate!,status,cost,solution,makeVector,LPsave # LP routines, this makes them accessible when 'using main'
 export QFunc, Polynomial, Pole
 export MinFunction, FindMinimum, FindLocalMinima
 export loadTable, convTable

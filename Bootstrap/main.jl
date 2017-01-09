@@ -11,8 +11,9 @@ import Base: show
 using LP
 using table
 export chooseTable, setupLP, bissect, bissect!,bissect_pair, value, dropOdd!, changeTarget!,dropEven!,opemax, avgSpec
-export filter,filter!,iterate!,status,cost,solution,makeVector,resume_opemax # LP routines, this makes them accessible when 'using main'
+export filter,filter!,iterate!,status,cost,solution,makeVector,resume_opemax,LPload # LP routines, this makes them accessible when 'using main'
 export saveresults
+export pair_save, pair_load
 
 
 bf=BigFloat
@@ -27,8 +28,47 @@ type bissect_pair{T<:Real}
 	lower::T
 	criteria::LP.LabelF
 end
+
 	
 show(io::IO,bp::bissect_pair)=println(io,"Bissect Pair: $(bp.criteria), ($(tofloat(bp.upper)),$(tofloat(bp.lower))) - accuracy: $(tofloat(bp.upper-bp.lower))")
+
+function pair_save{T<:Real}(file::String,bp::bissect_pair{T};reduced=true)
+	
+	if !reduced save(file,"bp",bp); return end
+	
+	ls=mcopy(bp.last_sol)
+	lf=mcopy(bp.last_func)
+	for lpf in ls.lpFunctions
+		lpf.vecfunc=LPlinks.qfunc.QFunc{T}[]  #Get rid of data
+	end
+	for lpf in lf.lpFunctions
+		lpf.vecfunc=LPlinks.qfunc.QFunc{T}[]  #Get rid of data
+	end
+	new_bp=bp(ls,lf,bp.upper,bp.lower,bp.criteria)
+	save(file,"bp",new_bp)
+end
+
+function pair_load{T<:Real}(file::String,bp::bissect_pair{T};reduced=true)
+
+	bp=load(file,"bp")
+	if !reduced return bp end
+
+	lp=bp.last_sol
+	tmp_sol=setupLP(lp.extra[2],lp.extra[1],ders=lp.extra[3]) #could add vectortypes too
+	for (i,lpf) in enumerate(lp.lpFunctions)
+		lpf.vecfunc=tmp_prob.lpFunctions[i].vecfunc
+	end
+	bp.last_sol=mcopy(lp)
+	
+	lp=bp.last_func
+	tmp_sol=setupLP(lp.extra[2],lp.extra[1],ders=lp.extra[3]) #could add vectortypes too
+	for (i,lpf) in enumerate(lp.lpFunctions)
+		lpf.vecfunc=tmp_prob.lpFunctions[i].vecfunc
+	end
+	bp.last_func=lp
+	
+	bp
+end
 
 	
 ############################################
@@ -148,7 +188,7 @@ function setupLP(tab::table.Table,sigma::BigFloat;file="N/A", ders="all")
 
 
         dim=convert(Float64,2*eps+2)
-        prob=LP.initLP(lpVectorFuncs,trgt,"Basic Bound\nD = $dim\tsigma=$(convert(Float64,sigma))\t(m,n) = $((tab.mmax,tab.nmax))\tLmax = $(tab.Lmax)\tOdd spins: $(tab.OddL)",extra=(file,mcopy(sigma)))        
+        prob=LP.initLP(lpVectorFuncs,trgt,"Basic Bound\nD = $dim\tsigma=$(convert(Float64,sigma))\t(m,n) = $((tab.mmax,tab.nmax))\tLmax = $(tab.Lmax)\tOdd spins: $(tab.OddL)",extra=(file,mcopy(sigma),ders))        
         tmp=cullpoles(prob,CULLPOLES)
 
         # The following normalizes the components by dividing by the scalar with \Delta=1
@@ -270,7 +310,7 @@ function setupLP(tab::table.Table,sigma::BigFloat, vectortypes,file="N/A")
                                                 # We must remember to disregard this vector in the final solution
 
         dim=convert(Float64,2*eps+2)
-        prob=LP.initLP(lpVectorFuncs,trgt,"Basic Bound\nD = $dim\tsigma=$(convert(Float64,sigma))\t(m,n) = $((tab.mmax,tab.nmax))\tLmax = $(tab.Lmax)\tOdd spins: $(tab.OddL)",extra=(file,mcopy(sigma)))
+        prob=LP.initLP(lpVectorFuncs,trgt,"Basic Bound\nD = $dim\tsigma=$(convert(Float64,sigma))\t(m,n) = $((tab.mmax,tab.nmax))\tLmax = $(tab.Lmax)\tOdd spins: $(tab.OddL)",extra=(file,mcopy(sigma),ders,vectortypes))
         tmp=cullpoles(prob,CULLPOLES)
         println("Done")
         return tmp
@@ -347,7 +387,7 @@ function bissect(lp::LinearProgram{BigFloat},top::BigFloat, bot::BigFloat, acc::
 					mcopy(bis_pair.last_func,lastfunctional)
 					mcopy(bis_pair.upper,upper)
 					mcopy(bis_pair.lower,bottom)
-					save(bak_file,"bis_pair",bis_pair)
+					pair_save(bak_file,bis_pair)
 				end				
         end
 
@@ -405,7 +445,7 @@ function bissect!(bis_pair::bissect_pair{BigFloat}, acc::Real; method="mcv", qui
 					mcopy(bis_pair.last_func,lastfunctional)
 					mcopy(bis_pair.upper,upper)
 					mcopy(bis_pair.lower,bottom)
-					save(bak_file,"bis_pair",bis_pair)
+					pair_save(bak_file,bis_pair)
 				end				
         end
 
@@ -542,6 +582,25 @@ function avgSpec(lp::LP.LinearProgram;cutoff=1e-6)
 	return (avDs,avCs,fixed,singles,doubled,labels)
 end
 
+###############################
+#
+#
+# Load
+#
+################################
+
+function LPload(file::String;reduced=true)
+
+	lp=load(file,"lp")
+	if !reduced return lp end
+
+	
+	tmp_prob=setupLP(lp.extra[2],lp.extra[1],ders=lp.extra[3]) #could add vectortypes too
+	for (i,lpf) in enumerate(lp.lpFunctions)
+		lpf.vecfunc=tmp_prob.lpFunctions[i].vecfunc
+	end
+	lp
+end
 
 
 
