@@ -343,7 +343,7 @@ function v_convCoeffs(sigma::Real,tup::Tuple{Int64,Int64}) #gives a dictionnary 
 
         #return [ (k,l)=> 1/(2^(k+2*l))*binomial(n,n-l)*binomial(m,m-k)*(4)^(-d)*pochhammer(-2d+2*(n-l),m-k)*pochhammer(-d, n-l) for k=0:m, l=0:n]
 		# Changed normalization, dividing by 4^(-d)
-		return [(k,l)=> 1/(bf(2)^(k+2*l))*binomial(n,n-l)*binomial(m,m-k)*pochhammer(-2d+2*(n-l),m-k)*pochhammer(-d, n-l) for k=0:m, l=0:n]
+		return Dict((k,l)=> 1/(bf(2)^(k+2*l))*binomial(n,n-l)*binomial(m,m-k)*pochhammer(-2d+2*(n-l),m-k)*pochhammer(-d, n-l) for k=0:m, l=0:n)
 		end
 
 function u_convCoeffs(sigma::Real,tup::Tuple{Int64,Int64}) #gives a dictionnary with the coefficients
@@ -357,7 +357,7 @@ function u_convCoeffs(sigma::Real,tup::Tuple{Int64,Int64}) #gives a dictionnary 
 
         #return [ (k,l)=> 1/(2^(k+2*l))*(-1)^(m-k)*binomial(n,n-l)*binomial(m,m-k)*(4)^(-d)*pochhammer(-2d+2*(n-l),m-k)*pochhammer(-d, n-l) for k=0:m, l=0:n]
 		# Changed normalization, dividing by 4^(-d)
-		return [ (k,l)=> 1/(bf(2)^(k+2*l))*(-1)^(m-k)*binomial(n,n-l)*binomial(m,m-k)*pochhammer(-2d+2*(n-l),m-k)*pochhammer(-d, n-l) for k=0:m, l=0:n]
+		return Dict((k,l)=> 1/(bf(2)^(k+2*l))*(-1)^(m-k)*binomial(n,n-l)*binomial(m,m-k)*pochhammer(-2d+2*(n-l),m-k)*pochhammer(-d, n-l) for k=0:m, l=0:n)
 		end
 
 function v_convCoeffs_ds(sigma::Real,tup::Tuple{Int64,Int64}) #gives a dictionary with the coefficients
@@ -373,9 +373,9 @@ function v_convCoeffs_ds(sigma::Real,tup::Tuple{Int64,Int64}) #gives a dictionar
 
         #return [ (k,l)=> 1/(2^(k+2*l))*binomial(n,n-l)*binomial(m,m-k)*(4)^(-d)*pochhammer(-2d+2*(n-l),m-k)*pochhammer(-d, n-l) for k=0:m, l=0:n]
 		# Changed normalization, dividing by 4^(-d)
-		return [ (k,l)=> 1/(bf(2)^(k+2*l))*binomial(n,n-l)*binomial(m,m-k)*
+		return Dict( (k,l)=> 1/(bf(2)^(k+2*l))*binomial(n,n-l)*binomial(m,m-k)*
 		pochhammer(-2d+2*(n-l),m-k)*pochhammer(-d, n-l)*
-		(digamma(-d)+2*digamma(-2d-2l+2n)-digamma(-d-l+n)-2*digamma(-2d-k-2l+m+2n)) for k=0:m, l=0:n]
+		(digamma(-d)+2*digamma(-2d-2l+2n)-digamma(-d-l+n)-2*digamma(-2d-k-2l+m+2n)) for k=0:m, l=0:n)
 		end
 
 function u_convCoeffs_ds(sigma::Real,tup::Tuple{Int64,Int64}) #gives a dictionary with the coefficients
@@ -389,8 +389,8 @@ function u_convCoeffs_ds(sigma::Real,tup::Tuple{Int64,Int64}) #gives a dictionar
 
         #return [ (k,l)=> 1/(2^(k+2*l))*(-1)^(m-k)*binomial(n,n-l)*binomial(m,m-k)*(4)^(-d)*pochhammer(-2d+2*(n-l),m-k)*pochhammer(-d, n-l) for k=0:m, l=0:n]
 		# Changed normalization, dividing by 4^(-d)
-		return [ (k,l)=> 1/(bf(2)^(k+2*l))*(-1)^(m-k)*binomial(n,n-l)*binomial(m,m-k)*pochhammer(-2d+2*(n-l),m-k)*pochhammer(-d, n-l)*
-		(digamma(-d)+2*digamma(-2d-2l+2n)-digamma(-d-l+n)-2*digamma(-2d-k-2l+m+2n)) for k=0:m, l=0:n]
+		return Dict( (k,l)=> 1/(bf(2)^(k+2*l))*(-1)^(m-k)*binomial(n,n-l)*binomial(m,m-k)*pochhammer(-2d+2*(n-l),m-k)*pochhammer(-d, n-l)*
+		(digamma(-d)+2*digamma(-2d-2l+2n)-digamma(-d-l+n)-2*digamma(-2d-k-2l+m+2n)) for k=0:m, l=0:n)
 		end		
 		
 		

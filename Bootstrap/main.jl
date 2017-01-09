@@ -522,7 +522,7 @@ function avgSpec(lp::LP.LinearProgram;cutoff=1e-6)
 	Ds=[s[1][1] for s in sol];
 	Ls=[s[1][2]::LP.LabelF for s in sol];
 	Cs=[s[2] for s in sol];
-	Ranges=Dict([lpf.label => lpf.range for lpf in lp.lpFunctions])
+	Ranges=Dict(lpf.label => lpf.range for lpf in lp.lpFunctions)
 
     distinct_Ls=[Ls[1]]
     for i=2:length(Ls)
@@ -539,7 +539,7 @@ function avgSpec(lp::LP.LinearProgram;cutoff=1e-6)
 	doubled=Array(Int64,0)
 	labels=Array(LP.LabelF,0)
 
-    Ranges=Dict([lpf.label => lpf.range for lpf in lp.lpFunctions])
+    Ranges=Dict(lpf.label => lpf.range for lpf in lp.lpFunctions)
     fixed=Array(Int,0);
 
 	ct=1;
