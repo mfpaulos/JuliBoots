@@ -400,13 +400,15 @@ function iterate!{T<:Real}(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", m
 
 
         #Initializations
-        log=open(log_file,"w")
+        log=open(log_file,"w")		
+		close(log)
         tmp=BigFloat(0)         #temporary variable
         stopiters=0
         starttime=time()
         if !quiet println("Started at: $(strtime(time()))\t\t Initial Cost: $(convert(Float64,cost(lp)))") end
 
-        for i=1:n            
+        for i=1:n
+			log=open(log_file,"a")		
             t0=time()
             currentcost=cost(lp)            
             write(log,"$i - $(strtime(time())) - Iteration: $i\n")
@@ -464,6 +466,11 @@ function iterate!{T<:Real}(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", m
 
                   costvars=[minx_bvar[i][1]*negrc[i] for i=1:length(minx_bvar)] # all cost variations
 				  write(log,"$i - $(strtime(time())) - Finished costvars\n")
+				  if length(costvars)==0
+						if !quiet println("Min cost achieved") end
+						lp.status="Minimized"
+						break
+				  end
                   (costvar,pos)=findmin(costvars)
 				  write(log,"$i - $(strtime(time())) - Finished findmin costvars\n")
                   if costvar==-typemax(BigFloat) println("Problem unbounded"); lp.status="Unbounded"; break end
@@ -514,10 +521,11 @@ function iterate!{T<:Real}(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", m
 				break
 			end
             if cc>currentcost println("Cost increased at iteration $i") end
+			close(log)
         end
 		
-
-        close(log)
+		close(log)
+        
         #println(cost(lp))
         return lp
 end
