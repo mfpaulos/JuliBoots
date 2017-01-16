@@ -555,7 +555,16 @@ function avgSpec(lp::LP.LinearProgram;cutoff=1e-6)
             dim=Ds_L[i]
 		    ope=Cs_L[i]
 		    push!(labels,L)
-            if i==length(Ds_L)
+			if dim==Ranges[L][1] || dim==Ranges[L][2]
+				push!(avDs,dim);
+			    push!(avCs,ope);
+				push!(fixed,ct)
+                ct+=1
+				i+=1
+				continue
+			end
+            
+			if i==length(Ds_L)
 
 			    push!(avDs,dim);
 			    push!(avCs,ope);
@@ -566,8 +575,9 @@ function avgSpec(lp::LP.LinearProgram;cutoff=1e-6)
 		    eps=Ds_L[i+1]-Ds_L[i]
 
 		    k=1
+			if abs(eps)<cutoff push!(doubled,ct) end
 		    while abs(eps)<cutoff
-        	    push!(doubled,ct)
+        	    
 			    dim=(ope*dim+Cs_L[i+k]*Ds_L[i+k])/(ope+Cs_L[i+k])
 			    ope=ope+Cs_L[i+k];
 			    k+=1
@@ -583,9 +593,9 @@ function avgSpec(lp::LP.LinearProgram;cutoff=1e-6)
 #get fixed guys
 
 
-	for (i,d) in enumerate(avDs)
-		if abs(d-Ranges[labels[i]][1])<=1e-10 || abs(d-Ranges[labels[i]][2])<=1e-10 push!(fixed,i) end
-	end
+#	for (i,d) in enumerate(avDs)
+#		if abs(d-Ranges[labels[i]][1])<=1e-10 || abs(d-Ranges[labels[i]][2])<=1e-10 push!(fixed,i) end
+#	end
 
 	#get singles
 	singles=setdiff(collect(1:length(avDs)),[fixed;doubled])
