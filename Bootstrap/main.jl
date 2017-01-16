@@ -472,7 +472,7 @@ function opemax{T<:Real}(lp::LinearProgram{T},confdim::Real,label::LP.LabelF;ite
 		vector=makeVector(lp2.lpFunctions[label],x)
 		push!(lp2.lpVectors,vector)
 		
-        iterate!(lp2,itermax,bak_file=bak_file,bak_iters=bak_iters,log_file=log_file,minMethod="bbLocal")
+        iterate!(lp2,itermax,bak_file=bak_file,bak_iters=bak_iters,log_file=log_file,minMethod=minMethod)
         if cost(lp2)!=0 println("Feasible solution not found!"); return lp2 end
         println("Feasible solution found, maximizing OPE...")
 
