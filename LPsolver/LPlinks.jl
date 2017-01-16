@@ -115,7 +115,7 @@ function LPFindMinimum{T<:Real}(range::Array{T,1},funcc::Func, cost::CostFunctio
 			# Otherwise refine it, essentially by calling Newton; only do it for negative guys
 			xs=convert(Array{BigFloat,1},[r[1] for r in res])
 			pos=find(x->x<0,[r[2] for r in res])
-			#xs=xs[pos]                #Do this later, after testing
+			xs=xs[pos]                #Do this later, after testing
 			
 			func=funcc
 		    dcost=derivative(cost,1)
