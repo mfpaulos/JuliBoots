@@ -482,7 +482,7 @@ function opemax{T<:Real}(lp::LinearProgram{T},confdim::Real,label::LP.LabelF;ite
 		end
 		
         #push!(lp2.lpVectors,vector)
-        iterate!(lp2,itermax,bak_file=bak_file,bak_iters=bak_iters,log_file=log_file,minMethod="bbLocal")
+        iterate!(lp2,itermax,bak_file=bak_file,bak_iters=bak_iters,log_file=log_file,minMethod=minMethod)
 		if bak_file!="NoBak"
 			LPsave(bak_file,lp2)
 		end
