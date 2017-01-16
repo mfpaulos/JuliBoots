@@ -186,7 +186,7 @@ length(lv::LPVectorFunction)=length(lv.vecfunc)
 
 value{T<:Real}(lv::LPVectorFunction{T},x::Real)=value(lv.vecfunc,convert(T,x))
 
-tofloat(lf::LPVectorFunction)=LPVectorFunction((tofloat(lf.range[1])::Float64,tofloat(lf.range[2])::Float64),tofloat(lf.vecfunc),tofloat(lf.cost),lf.label)
+tofloat(lf::LPVectorFunction)=LPVectorFunction([tofloat(lf.range[1])::Float64,tofloat(lf.range[2])::Float64],tofloat(lf.vecfunc),tofloat(lf.cost),lf.label)
 tofloat(lv::LPVector)=LPVector{Float64}(tofloat(lv.vector)::Array{Float64,1},tofloat(lv.cost)::Float64,(tofloat(lv.label[1]),lv.label[2]))
 
 
@@ -273,19 +273,20 @@ updateInverse!(lp::LinearProgram)=(lp.invA=LPInverse(lp.invA,getA(lp)); return)
 
 #--------- Find MRC --------------------------------------------
 
-function findAllRC{T<:Real}(lp::LinearProgram{T}; minMethod="bbGlobal")   #assumes functional has been computed. returns a tuple LPVector,mrc
+function findAllRC{T<:Real}(lp::LinearProgram{T}; minMethod="bbLocal")   #assumes functional has been computed. returns a tuple LPVector,mrc
 
 
         htime=0.
         mrcs=Array(Tuple{LPVector{T},T},0)
         for i=1:length(lp.lpFunctions)
-            t=@elapsed tmp=findMRC(lp.lpFunctions[i],lp.functional; minMethod=minMethod) #this returns a list of minima (eventually with a single element)
-            t+=@elapsed for min in tmp push!(mrcs,min) end    #populates mrcs with the minima (which take the form (LPVector, mrc) )
-            htime+=t
-            if VERBOSE println("In findAllRC: $t\n") end
+            t1=@elapsed tmp=findMRC(lp.lpFunctions[i],lp.functional; minMethod=minMethod) #this returns a list of minima (eventually with a single element)
+			if VERBOSE println("In findAllRC: findMRC took $t1\n") end
+            t2=@elapsed for min in tmp push!(mrcs,min) end    #populates mrcs with the minima (which take the form (LPVector, mrc) )
+			if VERBOSE println("In findAllRC: pushing took $t2\n") end
+            htime+=t1+t2
+            
         end
-
-        if VERBOSE println("Vec Funcs findMRC time: $(htime)") end
+        if VERBOSE println("Vec Funcs findMRC total time: $(htime)") end
         #---
         # to parallelize it's as simple as this:
         # tmp=[(@spawnat i findMRC(lp.lpFunctions[i],lp.functional)) for i=1:length(lp.lpFunctions)]
@@ -310,22 +311,23 @@ end
 
 findMRC{T<:Real}(lpvec::LPVector{T},functional::Array{T,1})=(lpvec,(lpvec.cost-dot(functional,lpvec.vector)))
 
-function findMRC{T<:Real}(lpf::LPVectorFunction{T},functional::Array{T,1}; minMethod ="bbGlobal")
+function findMRC{T<:Real}(lpf::LPVectorFunction{T},functional::Array{T,1}; minMethod ="bbGlobal",verbose=VERBOSE)
 
-       if VERBOSE println("Starting findMRC.") end
+       if verbose println("Starting findMRC.") end
        stfindmrc=time()
 
        t1=@elapsed dottedfunc=dot(functional, lpf.vecfunc);    #there have to be preexistent ways to dot; these are effectively loaded at LPlinks
                                                    #dottedfunc will have type Func            
 
-       minima=LPFindMinimum(lpf.range,dottedfunc,lpf.cost, minMethod=minMethod) #finds global or local minima over the range lpf.range.
+       t2=@elapsed minima=LPFindMinimum(lpf.range,dottedfunc,lpf.cost, minMethod=minMethod) #finds global or local minima over the range lpf.range.
                                                                      #LPFindMinimum function is defined at LPLinks
                                                                      #dottedfunc and cost are sent separately since they have different
                                                                   #types.
+	   
+	   negative_minima=minima[find(x->x[2]<0,minima)] #only keep negative mrcs
+       t3=@elapsed output=[(LPVector(lpf,x)::LPVector{T},mrc::T) for (x,mrc) in negative_minima]
 
-       t2=@elapsed output=[(LPVector(lpf,x)::LPVector{T},mrc::T) for (x,mrc) in minima]
-
-       if VERBOSE println("Inside findMRC: $(time()-stfindmrc); dotting took $t1 ; output took $t2 ;  ") end
+       if verbose println("Inside findMRC: $(time()-stfindmrc); dotting took $t1 ; minima took $t2 output took $t3 ;  ") end
        return output
 end
 
@@ -341,7 +343,7 @@ function findBVar{T<:Real}(lp::LinearProgram{T},nba::Array{LPVector{T},1})
         icol=[BigFloat(0) for i=1:length(ivec)]
 
         for nbv in nba
-            icol=dot(lp.invA,nbv.vector)
+            dot(icol,lp.invA,nbv.vector)
             xvals=[icol[i]> zero(T) ? ivec[i]/icol[i] : typemax(T) for i=1:length(ivec)]
 
             (minx,bvar)=findmin(xvals)
@@ -443,8 +445,15 @@ function iterate!{T<:Real}(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", m
             if method=="mcv"       # maximum cost variation: simplex brings in the vector leading to the greatest cost decrease
                   allnb=[nb_rc[i][1]::LPVector{T} for i=1:length(nb_rc)]     #all the LPVector candidates
                   write(log,"$i - $(strtime(time())) - Candidate minima: $(length(allnb))\n")
-                  minx_bvar=findBVar(lp,allnb)
-
+				  
+				  #only check those vectors whose reduced costs are negative
+				  pos_neg=find(x->x<0,allrc)
+				  negnb=allnb[find(x->x<0,allrc)]
+				  negrc=allrc[pos_neg]
+				  write(log,"$i - $(strtime(time())) - Negative minima: $(length(negrc))\n")
+				  
+                  minx_bvar=findBVar(lp,negnb)
+				  write(log,"$i - $(strtime(time())) - Finished findBVar\n")
 
                   # More efficient in principle, but less readable
                   #(costvar,pos)=(BigFloat(Inf),0)
@@ -453,11 +462,13 @@ function iterate!{T<:Real}(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", m
                   #      if tmp<costvar mcopy(costvar,tmp); pos=i; end
                   #end
 
-                  costvars=[minx_bvar[i][1]*nb_rc[i][2] for i=1:length(minx_bvar)] # all cost variations
+                  costvars=[minx_bvar[i][1]*negrc[i] for i=1:length(minx_bvar)] # all cost variations
+				  write(log,"$i - $(strtime(time())) - Finished costvars\n")
                   (costvar,pos)=findmin(costvars)
+				  write(log,"$i - $(strtime(time())) - Finished findmin costvars\n")
                   if costvar==-typemax(BigFloat) println("Problem unbounded"); lp.status="Unbounded"; break end
-                  nb=nb_rc[pos][1]
-                  mrc=nb_rc[pos][2]
+                  nb=negnb[pos]
+                  mrc=negrc[pos]
 				  if mrc>=zero(mrc) 
 				  	if !quiet println("Min cost achieved") end
 					lp.status="Minimized"
@@ -466,6 +477,7 @@ function iterate!{T<:Real}(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", m
                   minx=minx_bvar[pos][1]
                   bvar=minx_bvar[pos][2]
                   swapped=(mcopy(lp.solVecs[bvar].label[1]),deepcopy(lp.solVecs[bvar].label[2]));
+				  write(log,"$i - $(strtime(time())) - Finished mcopy.\n")
                   t=@elapsed swapBNB!(lp,nb,bvar)
                   write(log,"$i - $(strtime(time())) - Swapping done in $t \n")                  
             end

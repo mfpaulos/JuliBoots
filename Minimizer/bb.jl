@@ -259,7 +259,7 @@ function labelInt{T<:Real}(dfL::T,dfR::T)
 end
 
 # In practice, T is Float64
-function Newton{T<:Real}(mf::MinFunction{T},xl::T,xr::T)
+function Newton{T<:Real}(mf::MinFunction{T},xl::T,xr::T;verbose=false)
 
         
         x0=1/2*(xl+xr)  #initial guess
@@ -277,8 +277,10 @@ function Newton{T<:Real}(mf::MinFunction{T},xl::T,xr::T)
         else
             diff=-(sqrt(tmp)-mf.d2f(x0))/mf.d3f(x0)            
         end
-
-        while abs(diff)>BB_NEWTON_GOAL && iter<=BB_ITERMAX
+		
+        goal=max(BB_NEWTON_GOAL,1e-12) #HACK! No use going beyond machine precision
+		while abs(diff)>goal && iter<=BB_ITERMAX
+		
                 iter+=1
                 xnew=x-diff
                 
@@ -295,13 +297,13 @@ function Newton{T<:Real}(mf::MinFunction{T},xl::T,xr::T)
                 end
                 diff=mf.df(x)/mf.d2f(x)				
         end
-        if iter>=BB_ITERMAX println("Newton saturated") end
+        if iter>=BB_ITERMAX && verbose println("Newton saturated") end
 
         return (x,mf.f(x))
 end
 
 
-function Newton(mf::MinFunction{BigFloat},xl::BigFloat,xr::BigFloat)
+function Newton(mf::MinFunction{BigFloat},xl::BigFloat,xr::BigFloat;verbose=false)
 
         tmp1=BigFloat(0)
         tmp2=BigFloat(0)
@@ -386,21 +388,21 @@ include("bblinks.jl")
 ##### tests
 
 
-f=x->x+BigFloat(10)*sin(BigFloat(10)x)
-df=x->1+10*BigFloat(10)*cos(BigFloat(10)*x)
-ddf=x->-100*BigFloat(10)*sin(BigFloat(10)x)
-dddf=x->-1000*BigFloat(10)*cos(BigFloat(10)x)
+#f=x->x+BigFloat(10)*sin(BigFloat(10)x)
+#df=x->1+10*BigFloat(10)*cos(BigFloat(10)*x)
+#ddf=x->-100*BigFloat(10)*sin(BigFloat(10)x)
+#dddf=x->-1000*BigFloat(10)*cos(BigFloat(10)x)
 
 #f=x->0*x
 #df=x->0*x
 #ddf=x->0*x
 #dddf=x->0*x
-bf=BigFloat
-mf=MinFunction([bf(1),bf(15)],f,df,ddf,dddf)
+#bf=BigFloat
+#mf=MinFunction([bf(1),bf(15)],f,df,ddf,dddf)
 
 
-bbp=BBproblem(mf)
-tot=FindMinimum(mf)
+#bbp=BBproblem(mf)
+#tot=FindMinimum(mf)
 
 
 
