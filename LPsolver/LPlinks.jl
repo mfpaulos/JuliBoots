@@ -115,7 +115,7 @@ function LPFindMinimum{T<:Real}(range::Array{T,1},funcc::Func, cost::CostFunctio
 			# Otherwise refine it, essentially by calling Newton; only do it for negative guys
 			xs=convert(Array{BigFloat,1},[r[1] for r in res])
 			pos=find(x->x<0,[r[2] for r in res])
-			xs=xs[pos]                #Do this later, after testing
+			#xs=xs[pos]                #Do this later, after testing
 			
 			func=funcc
 		    dcost=derivative(cost,1)
@@ -131,15 +131,15 @@ function LPFindMinimum{T<:Real}(range::Array{T,1},funcc::Func, cost::CostFunctio
 			
 			bf_res=Array(Tuple{BigFloat,BigFloat},0)
 			eps=parse(BigFloat,"1e-3")   #HACK! This should be a tunable parameter
-			eps2=parse(BigFloat,"1e-9")   #HACK! This should be a tunable parameter
+			eps2=parse(BigFloat,"1e-15")   #HACK! This should be a tunable parameter
 			for x in xs
 				
 				xl=x-eps;xr=x+eps;
 				xl=max(xl,range[1]); xr=min(xr,range[2])
 				mf=bb.MinFunction([xl,xr],nf,ndf,nd2f,nd3f)
-				if abs(x-range[1])<parse(BigFloat,"1e-9")
+				if abs(x-range[1])<eps2
 					push!(bf_res,(range[1],nf(range[1])))
-				elseif abs(x-range[2])<parse(BigFloat,"1e-9")
+				elseif abs(x-range[2])<eps2
 					push!(bf_res,(range[2],nf(range[2])))
 				else				
 					push!(bf_res,bb.Newton(mf,xl,xr))
