@@ -445,7 +445,7 @@ end
 # This function assumes that at least part of the lp is known for each worker if initWorkers is false.
 
 function find_swaps{T<:Real}(lp::LinearProgram{T};minMethod="bbLocal",initWorkers=false,useWorkers="all")
-	np = nprocs()  # determine the number of processes available
+	
 	func=lp.functional
 	invA=lp.invA
 	lpfs=lp.lpFunctions
@@ -459,9 +459,11 @@ function find_swaps{T<:Real}(lp::LinearProgram{T};minMethod="bbLocal",initWorker
 			sendto(i,lpfs=lpfs,lpvs=lp.lpVectors)
 		end
 	end
+	t=0.
 	for i in whichWorkers
-		sendto(i,func=func,invA=invA,coeffs=coeffs)
+		t+=@elapsed sendto(i,func=func,invA=invA,coeffs=coeffs)
 	end
+	#println(t)
 	
 	#otherwise, all workers should already have lpfs, func and invA (with these exact names) defined locally.
 	
@@ -480,21 +482,24 @@ function find_swaps{T<:Real}(lp::LinearProgram{T};minMethod="bbLocal",initWorker
     nextidx() = (idx=i; i+=1; idx)
     @sync begin
         for p in whichWorkers
-            #if p != myid() || np == 1
-                @async begin
+            @async begin
                     while true
                         idx = nextidx()
                         if idx > n
                             break
                         end
 						cmd=:(res=LP.find_swap(lpfs[$idx],func,invA,coeffs,minMethod=$minMethod); res_lpf=[res_lpf;res])
-						doat(p,cmd)					
+						fetch(doat(p,cmd))
+						println("$idx done at $p")
+						#fetch(doat(p,:(sleep(2))))
+						#println("done sleeping")
                     end
                 end
             #end
         end
     end
 	
+			
 	# Go through lpvectors (unfinished)
     
 	i = 1
@@ -518,9 +523,9 @@ function find_swaps{T<:Real}(lp::LinearProgram{T};minMethod="bbLocal",initWorker
     
 	#collect results
 	
-	p=whichWorkers[1]
-	res_lpf=getfrom(p,:res_lpf)
-	res_lpv=getfrom(p,:res_lpv)
+	mm=whichWorkers[1]
+	res_lpf=getfrom(mm,:res_lpf)
+	res_lpv=getfrom(mm,:res_lpv)
 	for p in whichWorkers[2:end]
 		res_lpf=[res_lpf;getfrom(p,:res_lpf)]
 		res_lpv=[res_lpv;getfrom(p,:res_lpv)]
@@ -528,7 +533,7 @@ function find_swaps{T<:Real}(lp::LinearProgram{T};minMethod="bbLocal",initWorker
 	
 	return total_res=[res_lpf;res_lpv]
 end
-		
+
 
 
 #-------- Swap basic with non-basic ------------------------------------------------------------
