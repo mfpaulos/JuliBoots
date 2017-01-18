@@ -490,7 +490,7 @@ function find_swaps{T<:Real}(lp::LinearProgram{T};minMethod="bbLocal",initWorker
                         end
 						cmd=:(res=LP.find_swap(lpfs[$idx],func,invA,coeffs,minMethod=$minMethod); res_lpf=[res_lpf;res])
 						fetch(doat(p,cmd))
-						println("$idx done at $p")
+						#println("$idx done at $p")
 						#fetch(doat(p,:(sleep(2))))
 						#println("done sleeping")
                     end
