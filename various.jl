@@ -23,7 +23,7 @@ push!(LOAD_PATH,"$(pwd())/Bootstrap")
 import consts
 import Base: deepcopy,dot
 export derivative, pochhammer, padL, padR, value, tofloat,msum,mplus,msub,mdiv,mpow,mmult,MPFR_clear, mcopy, onebf,zerobf,strtime
-
+export sendto, getfrom, passobj,doat
 strtime=Libc.strftime
 
 const ROUNDING_MODE = [0]
@@ -181,6 +181,58 @@ mcopy(a::Tuple{BigFloat,BigFloat})=(mcopy(a[1]),mcopy(a[2]))::Tuple{BigFloat,Big
 #         return res
 #end
 
-#------
+#------ PARALLEL DATA TRANSFER --- Taken from ParallelDataTransfer Package, see also
+# http://stackoverflow.com/questions/27677399/julia-how-to-copy-data-to-another-processor-in-julia
+#
+
+function doat(p::Int,expr) #this one is mine
+	@spawnat(p,eval(Main,expr))
+end
+
+function sendto(p::Int; args...)
+    for (nm, val) in args
+        @spawnat(p, eval(Main, Expr(:(=), nm, val)))
+    end
+end
+
+
+function sendto(ps::Vector{Int}; args...)
+    for p in ps
+        sendto(p; args...)
+    end
+end
+
+getfrom(p::Int, nm::Symbol; mod=Main) = fetch(@spawnat(p, getfield(mod, nm)))
+
+function passobj(src::Int, target::Vector{Int}, nm::Symbol;
+                 from_mod=Main, to_mod=Main)
+    r = RemoteRef(src)
+    @spawnat(src, put!(r, getfield(from_mod, nm)))
+    for to in target
+        @spawnat(to, eval(to_mod, Expr(:(=), nm, fetch(r))))
+    end
+    nothing
+end
+
+
+function passobj(src::Int, target::Int, nm::Symbol; from_mod=Main, to_mod=Main)
+    passobj(src, [target], nm; from_mod=from_mod, to_mod=to_mod)
+end
+
+
+function passobj(src::Int, target, nms::Vector{Symbol};
+                 from_mod=Main, to_mod=Main)
+    for nm in nms
+        passobj(src, target, nm; from_mod=from_mod, to_mod=to_mod)
+    end
+end
+
+
+
+
+
+
+
+
 
 end
