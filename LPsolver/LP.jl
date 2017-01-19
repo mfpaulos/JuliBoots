@@ -548,7 +548,7 @@ end
 
 #-------- Basic iteration of simplex method
 
-function iterate!{T<:Real}(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", method="mcv", quiet=false,bak_file="NoBak",bak_iters=100,log_file=LPFILE)
+function iterate!{T<:Real}(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", method="mcv", quiet=false,bak_file="NoBak",bak_iters=100,log_file=LPFILE,log_iters=500)
 
 
         #Initializations
@@ -560,7 +560,7 @@ function iterate!{T<:Real}(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", m
         if !quiet println("Started at: $(strtime(time()))\t\t Initial Cost: $(convert(Float64,cost(lp)))") end
 
         for i=1:n
-			log=open(log_file,"a")		
+			i%log_iters==0 ? log=open(log_file,"w") : log=open(log_file,"a")		
             t0=time()
             currentcost=cost(lp)            
             write(log,"$i - $(strtime(time())) - Iteration: $i\n")
