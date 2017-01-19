@@ -283,7 +283,7 @@ function findAllRC{T<:Real}(lp::LinearProgram{T}; minMethod="bbLocal")   #assume
             t1=@elapsed tmp=findMRC(lp.lpFunctions[i],lp.functional; minMethod=minMethod) #this returns a list of minima (eventually with a single element)
 			if VERBOSE println("In findAllRC: findMRC took $t1\n") end
             for min in tmp push!(mrcs,min) end    #populates mrcs with the minima (which take the form (LPVector, mrc) )
-			htime+=t1+t2
+			htime+=t1
             
         end
         if VERBOSE println("Vec Funcs findMRC total time: $(htime)") end
