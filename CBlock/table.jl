@@ -39,7 +39,7 @@ myread(file::IO) = parse(BigFloat,chomp(readline(file)))
 function loadTable(file::String; label="Vanilla N=0")
 
     f=open(file)
-
+    #label=chomp(readline(file))
     eps=myread(f)
     nmax=convert(Int64,myread(f))
     mmax=convert(Int64,myread(f))

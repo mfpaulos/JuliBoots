@@ -190,7 +190,9 @@ function setupLP(tab::table.Table,sigma::BigFloat;file="N/A", ders="all")
         dim=convert(Float64,2*eps+2)
         prob=LP.initLP(lpVectorFuncs,trgt,"Basic Bound\nD = $dim\tsigma=$(convert(Float64,sigma))\t(m,n) = $((tab.mmax,tab.nmax))\tLmax = $(tab.Lmax)\tOdd spins: $(tab.OddL)",extra=(file,mcopy(sigma),ders))        
         tmp=cullpoles(prob,CULLPOLES)
-
+        #After cull poles, the target is no longer correct!
+		prob.target=-value(prob.lpFunctions[1],bf(0))    # the target: identity vector
+		
         # The following normalizes the components by dividing by the scalar with \Delta=1
         #----------
 #        val=main.value(tmp.lpFunctions[1].vecfunc,BigFloat(1))
@@ -538,24 +540,38 @@ function avgSpec(lp::LP.LinearProgram;cutoff=1e-6)
 	avCs=Array(BigFloat,0)
 	doubled=Array(Int64,0)
 	labels=Array(LP.LabelF,0)
-
+	
     Ranges=Dict(lpf.label => lpf.range for lpf in lp.lpFunctions)
     fixed=Array(Int,0);
-
+	continuous_labels=[lpf.label for lpf in lp.lpFunctions];
 	ct=1;
     
     for (m,L) in enumerate(distinct_Ls)
         
-        if L=="AUX" continue end      
-        Ds_L=Ds[Ls_pos[m]]
+        if L=="AUX" continue end
+		
+		
+		Ds_L=Ds[Ls_pos[m]]
         Cs_L=Cs[Ls_pos[m]]
         
+		
         i=1
         while i<=length(Ds_L)
             dim=Ds_L[i]
 		    ope=Cs_L[i]
 		    push!(labels,L)
-			if dim==Ranges[L][1] || dim==Ranges[L][2]
+			#added 4/10/2017 to allow for `
+			if findfirst(continuous_labels,L)==0
+				push!(avDs,dim);
+			    push!(avCs,ope);
+				push!(fixed,ct)
+				ct+=1
+				i+=1
+				continue
+			end
+		
+			
+			if dim<=Ranges[L][1] || dim>=Ranges[L][2]
 				push!(avDs,dim);
 			    push!(avCs,ope);
 				push!(fixed,ct)
