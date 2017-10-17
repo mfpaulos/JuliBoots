@@ -32,7 +32,13 @@ const DEFAULT_PRECISION = [consts.PRECISION]
 # Methods
 
 #---- Seem to remember there was a problem with using gamma function ratios in Julia for bigfloats..
-pochhammer(x::Number,n::Integer)= n>0 ? (x+n-1)*pochhammer(x,n-1) : 1
+function pochhammer(x::Number,n::Integer)
+	if n>0 
+	 return (x+n-1)*pochhammer(x,n-1) 
+	elseif n==0 return 1 
+	else return pochhammer(x,n+1)/(x+n)
+	end
+end
 #pochhammer(x::Number,y::Number)=gamma(x+y)/gamma(x)
 #------------------
 
