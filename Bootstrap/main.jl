@@ -262,19 +262,19 @@ end
 
 
 
-setupLP{T<:Real}(sig::T,file::String,vectortypes)=(tab=table.loadTable(file); setupLP(tab,convert(BigFloat,sig),vectortypes))
-setupLP{T<:Real}(sigs::Array{T,1},file::String,vectortypes)=setupLP(convert(Array{BigFloat,1},sigs),file,vectortypes)
-setupLP(sigs::Array{BigFloat,1},file::String,vectortypes)=(tab=table.loadTable(file); [setupLP(tab,s,vectortypes,file=file)::LP.LinearProgram for s in sigs])
+setupLP{T<:Real}(sig::T,file::String,vectortypes;ders="all")=(tab=table.loadTable(file); setupLP(tab,convert(BigFloat,sig),vectortypes,ders=ders))
+setupLP{T<:Real}(sigs::Array{T,1},file::String,vectortypes;ders="all")=setupLP(convert(Array{BigFloat,1},sigs),file,vectortypes,ders=ders)
+setupLP(sigs::Array{BigFloat,1},file::String,vectortypes;ders="all")=(tab=table.loadTable(file); [setupLP(tab,s,vectortypes,file=file,ders=ders)::LP.LinearProgram for s in sigs])
 
 
-function setupLP(tab::table.Table,sigma::BigFloat, vectortypes,file="N/A")
+function setupLP(tab::table.Table,sigma::BigFloat, vectortypes;file="N/A",ders="all")
 
         println("Setting up LP...")
 
         # General data
         Lmax=tab.Lmax        
         zerop=qfunc.Polynomial([bf(0)])     # This is the cost associated with the vectors: zero
-        spins= tab.OddL ? [0:1:Lmax] : [0:2:Lmax]
+        spins= tab.OddL ? collect(0:1:Lmax) : collect(0:2:Lmax)
         eps=tab.eps
         dim0(L::Int)= L==0 ? maximum([eps+FUDGE,zerobf]) : L+2*eps    # unitarity bound
 
@@ -282,6 +282,16 @@ function setupLP(tab::table.Table,sigma::BigFloat, vectortypes,file="N/A")
         Fvecs=cb.convTable(sigma,tab.table,-1)
         Hvecs=cb.convTable(sigma,tab.table,1)
         Zvecs=[(i*BigFloat(0))::cb.ConvVec_Q{BigFloat} for i in Fvecs]
+		 #----- allows one to choose which derivatives to work with
+        #
+        if ders!="all" 
+			Fvecs=[vf[ders] for vf in Fvecs]
+			Hvecs=[vf[ders] for vf in Hvecs]
+			Zvecs=[vf[ders] for vf in Zvecs]
+		end
+        #
+        #---------------------------------------------------------
+		
 
 
         #Fill out vector functions..
@@ -292,25 +302,26 @@ function setupLP(tab::table.Table,sigma::BigFloat, vectortypes,file="N/A")
                     if vtype[end-1]=="even" && mod(L,2)==0
                             v=buildVector(vtype,Zvecs[i].vec,Fvecs[i].vec,Hvecs[i].vec)
                             push!(lpVectorFuncs,LP.LPVectorFunction(
-                                    (dim0(L),DELTAMAX),v,zerop,"L=$L - $(vtype[end])")
+                                    [dim0(L),DELTAMAX],v,zerop,"L=$L - $(vtype[end])")
                             )
                     elseif vtype[end-1]=="odd" && mod(L,2)==1
                             v=buildVector(vtype,Zvecs[i].vec,Fvecs[i].vec,Hvecs[i].vec)
                             push!(lpVectorFuncs,LP.LPVectorFunction(
-                                    (dim0(L),DELTAMAX),v,zerop,"L=$L - $(vtype[end])")
+                                    [dim0(L),DELTAMAX],v,zerop,"L=$L - $(vtype[end])")
                             )
                     elseif vtype[end-1]=="all"
                             v=buildVector(vtype,Zvecs[i].vec,Fvecs[i].vec,Hvecs[i].vec)
                             push!(lpVectorFuncs,LP.LPVectorFunction(
-                                    (dim0(L),DELTAMAX),v,zerop,"L=$L - $(vtype[end])")
+                                    [dim0(L),DELTAMAX],v,zerop,"L=$L - $(vtype[end])")
                             )
                     end
             end
         end
 
+		
+		
         trgt=-value(lpVectorFuncs[1],bf(0))   # the target: identity vector. We add an extra bit because the identity vector has a bunch of zeros otherwise.
-                                                # We must remember to disregard this vector in the final solution
-
+                                                
         dim=convert(Float64,2*eps+2)
         prob=LP.initLP(lpVectorFuncs,trgt,"Basic Bound\nD = $dim\tsigma=$(convert(Float64,sigma))\t(m,n) = $((tab.mmax,tab.nmax))\tLmax = $(tab.Lmax)\tOdd spins: $(tab.OddL)",extra=(file,mcopy(sigma),ders,vectortypes))
         tmp=cullpoles(prob,CULLPOLES)

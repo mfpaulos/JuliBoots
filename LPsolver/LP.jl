@@ -762,6 +762,7 @@ function initLP{T<:Real}(lpf::Array{LPVectorFunction{T},1},t::Array{T,1},descrip
 end
 
 
+
 # excise the range
 
 

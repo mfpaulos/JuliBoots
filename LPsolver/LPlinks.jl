@@ -10,7 +10,7 @@ using various, consts
 import qfunc, cb, bb, lu
 export LPFindMinimum, LPInverse, VecFunc, Func, CostFunction, Inverse
 
-CostFunction=Union{Function,qfunc.Qpiece,cb.CB}
+CostFunction=Union{Function,qfunc.Qpiece,cb.CB,qfunc.Power}
 VecFunc=Union{Array{Function,1}, cb.ConvVec_Q, Array{qfunc.QFunc{BigFloat},1},Array{qfunc.QFunc{Float64},1}}
 Func=Union{Function,cb.Conv_Q,qfunc.QFunc}
 Inverse=Union{lu.LUdata{BigFloat}}

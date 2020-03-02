@@ -12,7 +12,7 @@ import various: derivative, padL, padR, value, tofloat, msum, msub,mmult, mdiv,m
                                         # to do this, Julia requires explicit import
 
 import Base: convert, promote_rule, promote, isequal, getindex, setindex!, length, +, -, *, /,==, show, dot, endof
-export Polynomial, QFunc, Qpiece, pochhammer, value, fastvalue, trim!,Pole,residue, Qpiece, invert, shift_arg, derivative
+export Polynomial, QFunc, Qpiece, pochhammer, value, fastvalue, trim!,Pole,residue, Qpiece, invert, shift_arg, derivative, Power
 
 
 bf=BigFloat
@@ -658,6 +658,27 @@ derivative(qf::QFunc,i::Int64)=QFunc(derivative(qf.poly,i),[derivative(qf.poles[
 
 tofloat(q::QFunc)=QFunc(tofloat(q.poly),tofloat(q.poles))
 tofloat{T<:Real}(q::Array{QFunc{T},1})=[tofloat(i)::QFunc{Float64} for i in q]
+
+
+#------- Powers ---------- 8/12/19
+
+
+type Power{T<:Real}
+	base::T
+	coeff::Polynomial{T}
+end
+
+value{T}(p::Power{T},x::T)=value(p.coeff,x)*p.base^x
+
+
+
+function derivative{T}(p::Power{T},i::Int64)
+	if i==1
+		return Power(p.base,log(p.base)*p.coeff)
+	else 
+		return Power(p.base,derivative(p.coeff,i-1)+log(p.base)*p.coeff)
+	end
+end
 
 
 
