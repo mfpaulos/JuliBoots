@@ -11,7 +11,8 @@ using various                          #with this, can use functions in various 
 import various: derivative, padL, padR, value, tofloat, msum, msub,mmult, mdiv,mplus,mcopy   #we will extend the definitions of derivative, padL, padR;
                                         # to do this, Julia requires explicit import
 
-import Base: convert, promote_rule, promote, isequal, getindex, setindex!, length, +, -, *, /,==, show, dot, endof
+import Base: convert, promote_rule, promote, isequal, getindex, setindex!, length, +, -, *, /,==, show, lastindex
+import LinearAlgebra: dot
 export Polynomial, QFunc, Qpiece, pochhammer, value, fastvalue, trim!,Pole,residue, Qpiece, invert, shift_arg, derivative, Power
 
 
@@ -27,7 +28,7 @@ bf=BigFloat
 
 #--------------- General types
 
-abstract Qpiece  #a piece of a rational function
+abstract type Qpiece end  #a piece of a rational function
 
 ########################################################################
 #
@@ -38,7 +39,7 @@ abstract Qpiece  #a piece of a rational function
 
 # Types and constructors  ----------------------------------------------------------------
 
-type Polynomial{T<:Real} <:Qpiece
+struct Polynomial{T<:Real} <:Qpiece
 
     coeffs::Array{T,1}   # the polynomial coefficients
 
@@ -185,9 +186,9 @@ function /(n::Polynomial, d::Polynomial) #returns the quotient and remainder
 
         (q,r)=(Polynomial([zero(n[1])]),n)
 
-        while length(r) >= length(d) && endof(d) != 0
+        while length(r) >= length(d) && lastindex(d) != 0
 
-                t=endof(r)/endof(d)
+                t=lastindex(r)/lastindex(d)
                 pt=padL(Polynomial([t]),length(r)-length(d))                
                 (q,r)= (q+pt, r-(pt*d))                
                 trim!(q)                               
@@ -213,9 +214,9 @@ padR(p::Polynomial,n::Int64)=(q=deepcopy(p); q.coeffs=padR(q.coeffs,n); return q
 
 
 getindex(v::Polynomial,i::Int64)=v.coeffs[i]
-getindex(v::Polynomial,i::Range)=getindex(v.coeffs,i)
+getindex(v::Polynomial,i::UnitRange)=getindex(v.coeffs,i)
 setindex!(v::Polynomial,value::Real,i::Int64)=setindex!(v.coeffs,value,i)
-endof(x::Polynomial)=x.coeffs[end]
+lastindex(x::Polynomial)=x.coeffs[end]
 length(p::Polynomial)=length(p.coeffs)
 
 
@@ -269,7 +270,7 @@ tofloat(p::Polynomial)=Polynomial(tofloat(p.coeffs))
 
 #----------- Types
 
-type Pole{T<:Real} <: Qpiece
+struct Pole{T<:Real} <: Qpiece
 
         order::Int64
         pole::T
@@ -299,8 +300,8 @@ end
 mmult(p::Pole,x::Real)=mmult(p,p,x)
 mmult(o::Pole,p::Pole,x::Real)=(mmult(o.coeff,p.coeff,x); mcopy(o.pole,p.pole); o.order=copy(p.order); o)
 
-*{T<:Real}(x::Real,p::Array{Pole{T},1})=[(i*x)::Pole for i in p]
-*{T<:Real}(p::Array{Pole{T},1},x::Real)=x*p
+*(x::Real,p::Array{Pole{T},1}) where {T<:Real} =[(i*x)::Pole for i in p]
+*(p::Array{Pole{T},1},x::Real)  where {T<:Real} =x*p
 
 mmult(p::Array{Pole{bf},1},x::Real)=mmult(p,p,x)
 function mmult(o::Array{Pole{bf},1},p::Array{Pole{bf},1},x::Real)
@@ -329,7 +330,7 @@ isequal(p1::Pole, p2::Pole)= (p1.order==p2.order && p1.pole-p2.pole==zero(p1.pol
 invert(p1::Pole)= 1/(p1.coeff) * Polynomial([(binomial(p1.order,i)*(-1*p1.pole)^(p1.order-i))::typeof(p1.coeff) for i=0:p1.order])
 
 
-value{T<:Real}(p::Pole{T},x::Real)=p.coeff/((x-p.pole)^(p.order))
+value(p::Pole{T},x::Real) where {T<:Real}=p.coeff/((x-p.pole)^(p.order))
 value(p::Pole{BigFloat},x::Real)=(res=BigFloat(1); value(p,BigFloat(x),res))
 value(p::Pole{BigFloat},x::Real,res::BigFloat)=(msub(res,x,p.pole);mpow(res,p.order); mdiv(res,p.coeff,res))
 
@@ -338,7 +339,7 @@ shift_arg(q::Pole, x::Real)=Pole(q.order,q.pole-x,q.coeff)
 shift_arg(q::Array{Pole,1}, x::Real)=[shift_arg(q[i],x)::Pole for i=1:length(q)]
 
 tofloat(p::Pole)=Pole(p.order,tofloat(p.pole),tofloat(p.coeff))
-tofloat{T<:Real}(p::Array{Pole{T},1})=[tofloat(i)::Pole for i in p]
+tofloat(p::Array{Pole{T},1}) where {T<:Real} =[tofloat(i)::Pole for i in p]
 
 
 
@@ -348,7 +349,7 @@ tofloat{T<:Real}(p::Array{Pole{T},1})=[tofloat(i)::Pole for i in p]
 #
 #########################################################################
 
-type QFunc{T<:Real} <: Qpiece
+struct QFunc{T<:Real} <: Qpiece
 
     poly::Polynomial{T}
     poles::Array{Pole{T},1}
@@ -384,28 +385,28 @@ show(io::IO,qf::Array{QFunc{BigFloat},1})=print(io,typeof(qf))
 
 #------ promotion and conversion
 
-promote_rule{T<:Real,S<:Real}(::Type{QFunc{T}},::Type{Polynomial{S}})= QFunc{promote_type(T,S)}
-promote_rule{T<:Real,S<:Real}(::Type{QFunc{T}},::Type{Pole{S}})= QFunc{promote_type(T,S)}
-promote_rule{T<:Real,S<:Real}(::Type{Polynomial{T}},::Type{Pole{S}})= QFunc{promote_type(T,S)}
-promote_rule{T<:Real,S<:Real}(::Type{Polynomial{S}},::Type{T})=Polynomial{promote_type(T,S)}
-promote_rule{T<:Real,S<:Real}(::Type{Pole{T}},::Type{S})= QFunc{promote_type(T,S)}
-promote_rule{T<:Real,S<:Real}(::Type{QFunc{T}},::Type{S})= QFunc{promote_type(T,S)}
+promote_rule(::Type{QFunc{T}},::Type{Polynomial{S}}) where {T<:Real,S<:Real}= QFunc{promote_type(T,S)}
+promote_rule(::Type{QFunc{T}},::Type{Pole{S}})  where {T<:Real,S<:Real}= QFunc{promote_type(T,S)}
+promote_rule(::Type{Polynomial{T}},::Type{Pole{S}})  where {T<:Real,S<:Real}= QFunc{promote_type(T,S)}
+promote_rule(::Type{Polynomial{S}},::Type{T}) where {T<:Real,S<:Real}=Polynomial{promote_type(T,S)}
+promote_rule(::Type{Pole{T}},::Type{S}) where {T<:Real,S<:Real}= QFunc{promote_type(T,S)}
+promote_rule(::Type{QFunc{T}},::Type{S})  where {T<:Real,S<:Real}= QFunc{promote_type(T,S)}
 
 
-convert{T<:Real}(::Type{QFunc{T}},x::Polynomial{T})=QFunc(x,Array(Pole{T},0))
-convert{T<:Real}(::Type{QFunc},x::Polynomial{T})=QFunc(x,Array(Pole{T},0))
-convert{T<:Real}(::Type{QFunc{T}},x::Pole{T})=QFunc(Polynomial([zero(x.coeff)]),[x::Pole])
-convert{T<:Real}(::Type{QFunc},x::Pole{T})=QFunc(Polynomial([zero(x.coeff)]),[x::Pole])
-convert{T<:Real,S<:Real}(::Type{Polynomial{S}},x::T) = Polynomial([x])
-convert{T<:Real}(::Type{Polynomial},x::T) = Polynomial([x])
-convert{S<:Real,T<:Real}(::Type{QFunc{S}},x::T) = convert(QFunc{T},convert(Polynomial,x))
-convert{T<:Real}(::Type{QFunc},x::T) = convert(QFunc{T},convert(Polynomial{T},x))
+convert(::Type{QFunc{T}},x::Polynomial{T}) where {T<:Real}=QFunc(x,Array(Pole{T},0))
+convert(::Type{QFunc},x::Polynomial{T}) where {T<:Real}=QFunc(x,Array(Pole{T},0))
+convert(::Type{QFunc{T}},x::Pole{T}) where {T<:Real}=QFunc(Polynomial([zero(x.coeff)]),[x::Pole])
+convert(::Type{QFunc},x::Pole{T}) where {T<:Real} =QFunc(Polynomial([zero(x.coeff)]),[x::Pole])
+convert(::Type{Polynomial{S}},x::T) where {T<:Real,S<:Real} = Polynomial([x])
+convert(::Type{Polynomial},x::T) where {T<:Real}= Polynomial([x])
+convert(::Type{QFunc{S}},x::T) where {T<:Real,S<:Real} = convert(QFunc{T},convert(Polynomial,x))
+convert(::Type{QFunc},x::T) where {T<:Real}= convert(QFunc{T},convert(Polynomial{T},x))
 
 
 #----- sum -----------------------------------
 
 
-function +{T<:Real,S<:Real}(a::QFunc{T},b::QFunc{S})
+function +(a::QFunc{T},b::QFunc{S}) where {T<:Real,S<:Real}
 
     polelist1=a.poles
     polelist2=b.poles
@@ -446,8 +447,8 @@ end
 
 +(x::Qpiece,y::Qpiece)= +(promote(x,y)...)
 -(x::Qpiece,y::Qpiece)= -(promote(x,y)...)
-+{T<:Real}(x::Qpiece,y::T)= +(promote(x,y)...)
-+{T<:Real}(y::T,x::Qpiece)= x+y
++(x::Qpiece,y::T) where {T<:Real}= +(promote(x,y)...)
++(y::T,x::Qpiece) where {T<:Real}= x+y
 +(x::Pole, y::Pole)= +(convert(QFunc,x),convert(QFunc,y))
 
 #---- In place -----
@@ -541,28 +542,28 @@ mmult(o::QFunc{BigFloat},a::QFunc{BigFloat},x::Real)=(mmult(o.poly,a.poly,x); mm
 #mmult(o::QFunc{BigFloat},a::QFunc{BigFloat},x::Real)=(mmult(o.poly,a.poly,x); mmult(o.poles,a.poles,x); return o)
 
 
-mmult{T<:Real}(a::Array{QFunc{BigFloat},1},x::Array{T,1})=mmult(a,a,x)
-mmult{T<:Real}(o::Array{QFunc{BigFloat},1},a::Array{QFunc{BigFloat},1},x::Array{T,1})=(for i=1:length(o) mmult(o[i],a[i],x[i]) end; return o)
+mmult(a::Array{QFunc{BigFloat},1},x::Array{T,1}) where {T<:Real}=mmult(a,a,x)
+mmult(o::Array{QFunc{BigFloat},1},a::Array{QFunc{BigFloat},1},x::Array{T,1})  where {T<:Real}=(for i=1:length(o) mmult(o[i],a[i],x[i]) end; return o)
 
 
 -(a::QFunc)=-1*a
 -(a::QFunc,b::QFunc)=a+(-1)*b
 *(a::Qpiece,b::Qpiece)=*(promote(a,b)...)
 
-+{T<:Real}(a::Array{QFunc{T},1},b::Array{QFunc{T},1})=[(a[i]+b[i])::QFunc{T} for i=1:length(a)]
--{T<:Real}(a::Array{QFunc{T},1},b::Array{QFunc{T},1})=[(a[i]-b[i])::QFunc{T} for i=1:length(a)]
-*{T<:Real}(a::Array{QFunc{T},1},x::Real)=[(x*qf)::QFunc{T} for qf in a]
-*{T<:Real}(x::Real,a::Array{QFunc{T},1})=a*x
-*{T<:Real,S<:Real}(x::Array{T,1},a::Array{QFunc{S},1})=[(a[i]*x[i])::QFunc{S} for i=1:length(a)]
-*{T<:Real,S<:Real}(a::Array{QFunc{S},1},x::Array{T,1})=x*a
++(a::Array{QFunc{T},1},b::Array{QFunc{T},1})  where {T<:Real}=[(a[i]+b[i])::QFunc{T} for i=1:length(a)]
+-(a::Array{QFunc{T},1},b::Array{QFunc{T},1}) where {T<:Real}=[(a[i]-b[i])::QFunc{T} for i=1:length(a)]
+*(a::Array{QFunc{T},1},x::Real) where {T<:Real}=[(x*qf)::QFunc{T} for qf in a]
+*(x::Real,a::Array{QFunc{T},1}) where {T<:Real}=a*x
+*(x::Array{T,1},a::Array{QFunc{S},1}) where {T<:Real,S<:Real}=[(a[i]*x[i])::QFunc{S} for i=1:length(a)]
+*(a::Array{QFunc{S},1},x::Array{T,1}) where {T<:Real,S<:Real}=x*a
 
 
-dot{T<:Real}(a::Array{T,1},b::Array{QFunc{T},1})=sum([(a[i]*b[i])::QFunc for i=1:length(b)])
-dot{T<:Real}(b::Array{QFunc{T},1},a::Array{T,1})=dot(a,b)
+dot(a::Array{T,1},b::Array{QFunc{T},1}) where {T<:Real}=sum([(a[i]*b[i])::QFunc for i=1:length(b)])
+dot(b::Array{QFunc{T},1},a::Array{T,1}) where {T<:Real}=dot(a,b)
 
-dot{T<:Real}(b::Array{QFunc{bf},1},a::Array{T,1})=(o=mcopy(b[1]); dot(o,a,b))
-dot{T<:Real}(a::Array{T,1},b::Array{QFunc{bf},1})=dot(b,a)
-function dot{T<:Real}(o::QFunc{bf},a::Array{T,1},b::Array{QFunc{bf},1})
+dot(b::Array{QFunc{bf},1},a::Array{T,1}) where {T<:Real}=(o=mcopy(b[1]); dot(o,a,b))
+dot(a::Array{T,1},b::Array{QFunc{bf},1}) where {T<:Real}=dot(b,a)
+function dot(o::QFunc{bf},a::Array{T,1},b::Array{QFunc{bf},1})  where {T<:Real}
         tmp=mcopy(o)
         mmult(o,b[1],a[1])
         for i=2:length(b)
@@ -597,7 +598,7 @@ end
 
 
 
-value{T<:Real}(fvec::Array{QFunc{T},1},x::T)=[value(fi,x)::T for fi in fvec]
+value(fvec::Array{QFunc{T},1},x::T) where {T<:Real}=[value(fi,x)::T for fi in fvec]
 
 #This is supposed to be faster; gives values quicker when we have an array of QFuncs which share the same poles.
 #NOTE: Actually it doesn't seem to lead to any particular improvement. Not currently used.
@@ -626,7 +627,7 @@ end
 
 shift_arg(qf::QFunc,x::Real)=QFunc(shift_arg(qf.poly,x),shift_arg(qf.poles,x))
 
-function trim{T<:Real}(qff::QFunc{T},cutoff::T)
+function trim(qff::QFunc{T},cutoff::T) where {T<:Real}
 
         qf=deepcopy(qff)
         ples=find(x->abs(x)>=cutoff, [p.coeff::T for p in qf.poles])
@@ -635,7 +636,7 @@ function trim{T<:Real}(qff::QFunc{T},cutoff::T)
         return qf
 end
 
-function trim{T<:Real}(qff::QFunc{BigFloat},cutoff::T)
+function trim(qff::QFunc{BigFloat},cutoff::T) where {T<:Real}
 
         qf=mcopy(qff)
         ples=find(x->abs(x)>=cutoff, [p.coeff::T for p in qf.poles])
@@ -647,7 +648,7 @@ end
 
 
 
-trim{T<:Real}(qf::Array{QFunc{T},1},cutoff::T)=[trim(i,cutoff)::QFunc{T} for i in qf]
+trim(qf::Array{QFunc{T},1},cutoff::T)  where {T<:Real}=[trim(i,cutoff)::QFunc{T} for i in qf] 
 
 #----- Derivative
 
@@ -657,22 +658,22 @@ derivative(qf::QFunc,i::Int64)=QFunc(derivative(qf.poly,i),[derivative(qf.poles[
 #----- To Float --- not currently used
 
 tofloat(q::QFunc)=QFunc(tofloat(q.poly),tofloat(q.poles))
-tofloat{T<:Real}(q::Array{QFunc{T},1})=[tofloat(i)::QFunc{Float64} for i in q]
+tofloat(q::Array{QFunc{T},1}) where {T<:Real}=[tofloat(i)::QFunc{Float64} for i in q]
 
 
 #------- Powers ---------- 8/12/19
 
 
-type Power{T<:Real}
+struct Power{T<:Real}
 	base::T
 	coeff::Polynomial{T}
 end
 
-value{T}(p::Power{T},x::T)=value(p.coeff,x)*p.base^x
+value(p::Power{T},x::T) where{T} =value(p.coeff,x)*p.base^x
 
 
 
-function derivative{T}(p::Power{T},i::Int64)
+function derivative(p::Power{T},i::Int64)  where {T<:Real}
 	if i==1
 		return Power(p.base,log(p.base)*p.coeff)
 	else 

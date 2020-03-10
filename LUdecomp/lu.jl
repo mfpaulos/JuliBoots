@@ -1,12 +1,13 @@
 module lu
 
-import Base: dot, deepcopy
+import Base: deepcopy
+import LinearAlgebra: dot
 using consts
 using various
 import various: tofloat, deepcopy, mcopy
 export LUdata
 
-type LUdata{T<:Real}
+struct LUdata{T<:Real}
 
 luMat::Array{T,2}
 perm::Array{Int64,1}
@@ -16,7 +17,7 @@ end
 mcopy(lu::LUdata)=LUdata(mcopy(lu.luMat),deepcopy(lu.perm),mcopy(lu.scales))
 mcopy(o::LUdata,lu::LUdata)=(mcopy(o.luMat,lu.luMat); o.perm=deepcopy(lu.perm); mcopy(o.scales,lu.scales); o)
 tofloat(lu::LUdata)=LUdata{Float64}(convert(Array{Float64,2},lu.luMat),lu.perm,convert(Array{Float64,1},lu.scales))
-LUdata{T<:Real}(A::Array{T,2})=LUdata!(mcopy(A))
+LUdata(A::Array{T,2}) where {T<:Real}=LUdata!(mcopy(A))
 LUdata(O::Array{BigFloat,2},A::Array{BigFloat,2})=LUdata!(mcopy(O,A))
 
 function LUdataBACKUP!(A::Array{BigFloat,2})
@@ -131,7 +132,7 @@ end
 # A.x=b => LU x=P b; solve L y= P.b first for y; then Ux=y for x
 
 
-function dot{T,S}(lu::LUdata{T},b::Array{S,1})  # this should be understood as (A^-1).v !
+function dot(lu::LUdata{T},b::Array{S,1}) where {T,S} # this should be understood as (A^-1).v !
 
         A=lu.luMat
         n=stride(A,2)

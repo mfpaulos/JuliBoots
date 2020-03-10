@@ -13,7 +13,7 @@ using various
 #bf=BigFloat
 
 
-type MinFunction{T<:Real}
+struct MinFunction{T<:Real}
 
         range::Array{T,1}
         f::Function
@@ -22,7 +22,7 @@ type MinFunction{T<:Real}
         d3f::Function
 end
 
-type Interval{T<:Real}
+struct Interval{T<:Real}
 
         xL::T
         xR::T
@@ -43,7 +43,7 @@ mcopy(i::Interval{BigFloat},j::Interval{BigFloat})=(mcopy(i.xL,j.xL);mcopy(i.xR,
                                                     mcopy(i.d3fL,j.d3fL);mcopy(i.d3fR,j.d3fR);
                                                     i.label=copy(j.label); i)
 
-type GoodInterval{T<:Real}
+struct GoodInterval{T<:Real}
 
         xL::T
         xR::T
@@ -51,7 +51,7 @@ type GoodInterval{T<:Real}
 
 end
 
-function Interval{T<:Real}(mf::MinFunction{T},label::String)
+function Interval(mf::MinFunction{T},label::String) where {T<:Real}
 
         xL=mf.range[1]; xR=mf.range[2];
         #fL=mf.f(xL); fR=mf.f(xR);
@@ -62,7 +62,7 @@ function Interval{T<:Real}(mf::MinFunction{T},label::String)
 end
 
 
-type BBproblem{T<:Real}
+struct BBproblem{T<:Real}
 
         mf::MinFunction{T}
         range::Array{T,1}
@@ -70,7 +70,7 @@ type BBproblem{T<:Real}
         goodList::Array{GoodInterval{T},1}
 end
 
-BBproblem{T<:Real}(mf::MinFunction{T})=BBproblem(mf,mf.range,[Interval(mf,"Bad")],Array(GoodInterval{T},0))
+BBproblem(mf::MinFunction{T}) where {T<:Real}=BBproblem(mf,mf.range,[Interval(mf,"Bad")],Array(GoodInterval{T},0))
 
 
 ########################################################################################################
@@ -80,7 +80,7 @@ BBproblem{T<:Real}(mf::MinFunction{T})=BBproblem(mf,mf.range,[Interval(mf,"Bad")
 #########################################################################################################
 
 # For reals
-function divide!{T<:Real}(bb::BBproblem{T})
+function divide!(bb::BBproblem{T}) where {T<:Real}
 
        ct=0
        htime=0.
@@ -248,7 +248,7 @@ end
 
 
 #auxiliary function
-function labelInt{T<:Real}(dfL::T,dfR::T)
+function labelInt(dfL::T,dfR::T) where {T<:Real}
 
         if dfL==zero(T) && dfR==zero(T) return "const" end
         if dfL<=zero(T) && dfR<=zero(T) return "down" end
@@ -259,7 +259,7 @@ function labelInt{T<:Real}(dfL::T,dfR::T)
 end
 
 # In practice, T is Float64
-function Newton{T<:Real}(mf::MinFunction{T},xl::T,xr::T;verbose=false)
+function Newton(mf::MinFunction{T},xl::T,xr::T;verbose=false) where {T<:Real}
 
         
         x0=1/2*(xl+xr)  #initial guess
@@ -352,11 +352,11 @@ function Newton(mf::MinFunction{BigFloat},xl::BigFloat,xr::BigFloat;verbose=fals
         return (x,mf.f(x))
 end
 
-FindMinimum{T<:Real}(mf::MinFunction{T})=(
+FindMinimum(mf::MinFunction{T}) where {T<:Real}=(
                             minList=FindLocalMinima(mf); (min,pos)=findmin([m[2]::T for m in minList]);
                             return minList[pos])
 
-function FindLocalMinima{T<:Real}(mf::MinFunction{T})
+function FindLocalMinima(mf::MinFunction{T}) where {T<:Real}
 
         bb=BBproblem(mf)
         t0=time()

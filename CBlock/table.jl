@@ -7,9 +7,9 @@ import cb
 import Base: show, getindex
 export Table, loadTable, convTable
 
-abstract Table
+abstract type Table end
 
-type CBDerTable_Q{T<:cb.DerivativeVec}<:Table
+struct CBDerTable_Q{T<:cb.DerivativeVec}<:Table
         table::Array{T}
         sigma::BigFloat
         eps::BigFloat

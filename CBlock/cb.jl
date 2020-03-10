@@ -18,7 +18,8 @@ using various, qfunc
 import various: derivative, value, tofloat, mcopy, mplus,mmult,msub                          #we will change all these
 import qfunc: shift_arg                                             #
 import Base: convert, promote_rule, promote,isequal, getindex,      #
-        setindex!, length, dot, +, *, -, /, show, merge
+        setindex!, length, +, *, -, /, show, merge
+import LinearAlgebra: dot
 
 export CB_Q, CBVec_Q, Conv_Q, ConvVec_Q, DerivativeVec
 export convBlock
@@ -31,25 +32,25 @@ bf=BigFloat
 #
 ######################################################################################
 
-abstract Comp    # means we're dealing with a component
-abstract Vec     # means we're dealign with a vector type
+abstract type Comp end    # means we're dealing with a component
+abstract type Vec end     # means we're dealign with a vector type
 
 
-abstract CB <: Comp       # abstract type for conformal blocks
+abstract type CB <: Comp end       # abstract type for conformal blocks
                   # all conformal block types should have methods for adding, multiplying by rational functions
                   # a value method that gives the value of CB at a given conf dimension
 
-abstract CBVec <: Vec   # Same thing, but now for a vector of CB's. It is convenient to use a separate type
+abstract type CBVec <: Vec end   # Same thing, but now for a vector of CB's. It is convenient to use a separate type
                   # instead of Array{CB,1}
 
-abstract Convolved <: Comp       # abstract type for convolved conformal blocks
-abstract ConvolvedVec <: Vec
+abstract type Convolved <: Comp end      # abstract type for convolved conformal blocks
+abstract type ConvolvedVec <: Vec end
 
 
 #----- Methods
 
 length(v::Vec)=length(v.vec)
-value{T<:Real}(v::Vec,x::T)=[value(v[i],x)::T for i=1:length(v)]
+value(v::Vec,x::T) where {T<:Real}=[value(v[i],x)::T for i=1:length(v)]
 
 
 
@@ -69,7 +70,7 @@ value{T<:Real}(v::Vec,x::T)=[value(v[i],x)::T for i=1:length(v)]
 # Vanilla CB's - equal outside scalars, N=0 SUSY
 
 
-type CB_Q{T<:Real} <: CB    # stands for some component of a CB with a rational (Q) representation
+struct CB_Q{T<:Real} <: CB    # stands for some component of a CB with a rational (Q) representation
 
     rho::T     #the value of a CB is the value of the rational function times 4^delta rho^delta
     func::QFunc{T}
@@ -88,7 +89,7 @@ mcopy(cbo::CB_Q{BigFloat},cb::CB_Q{BigFloat})=(mcopy(cbo.rho,cb.rho); mcopy(cbo.
 
 
 
-type CBVec_Q{T<:Real} <:CBVec
+struct CBVec_Q{T<:Real} <:CBVec
 
         rho::T
         vec::Array{QFunc{T},1}  # a set of CB's representing different derivatives
@@ -104,7 +105,7 @@ mcopy(cbo::CBVec_Q{BigFloat},cb::CBVec_Q{BigFloat})=(mcopy(cbo.rho,cb.rho); mcop
 
 #---- Convolved types
 
-type Conv_Q{T<:Real} <: Convolved
+struct Conv_Q{T<:Real} <: Convolved
 
         rho::T
         sigma::T
@@ -119,7 +120,7 @@ mcopy(cbo::Conv_Q{BigFloat},cb::Conv_Q{BigFloat})=
         (mcopy(cbo.rho,cb.rho); mcopy(cbo.sigma,cb.sigma); mcopy(cbo.func,cb.func); cbo.spin=copy(cb.spin); cbo.label=deepcopy(cb.label); cbo)
 
 
-type ConvVec_Q{T<:Real} <: ConvolvedVec
+struct ConvVec_Q{T<:Real} <: ConvolvedVec
 
         rho::T
         sigma::T
@@ -135,7 +136,7 @@ mcopy(cbo::ConvVec_Q{BigFloat},cb::ConvVec_Q{BigFloat})=
 
 #constructor
 
-ConvVec_Q{T<:Real}(cbvec::CBVec_Q{T},sigma::Real,label::String)=ConvVec_Q(cbvec.rho,sigma,Array(QFunc{T},0),cbvec.spin,Dict{Tuple{Int64,Int64},Int64}(),label)
+ConvVec_Q(cbvec::CBVec_Q{T},sigma::Real,label::String) where {T<:Real}=ConvVec_Q(cbvec.rho,sigma,Array(QFunc{T},0),cbvec.spin,Dict{Tuple{Int64,Int64},Int64}(),label)
 
 
 # convenient to define derivative vec type
@@ -226,7 +227,7 @@ function getindex(v::CBVec_Q,i::Int64)
 end
 
 #-------- testing, 19-07-14
-function getindex{T<:Real}(v::ConvVec_Q{T},is::Array{Int64,1})
+function getindex(v::ConvVec_Q{T},is::Array{Int64,1}) where {T<:Real}
 
         # To construct new dictionary
         derspos=[findfirst([j for j in values(v.dict)],i) for i in is]
@@ -239,7 +240,7 @@ function getindex{T<:Real}(v::ConvVec_Q{T},is::Array{Int64,1})
         ConvVec_Q{T}(v.rho,v.sigma,newvec,v.spin,newdict,v.label)
 end
 
-getindex{T<:Real}(v::ConvVec_Q{T},ders::Array{Tuple{Int64,Int64},1})=getindex(v,[v.dict[d]::Int64 for d in ders])
+getindex(v::ConvVec_Q{T},ders::Array{Tuple{Int64,Int64},1}) where {T<:Real}=getindex(v,[v.dict[d]::Int64 for d in ders])
 
 #------- end testing
 
@@ -247,9 +248,9 @@ getindex{T<:Real}(v::ConvVec_Q{T},ders::Array{Tuple{Int64,Int64},1})=getindex(v,
 
 # Dotting up
 
-dot{T}(a::Array{T,1},b::ConvVec_Q)=(c=getindex(b,1); c.func=dot(a,b.vec); c)
-dot{T}(b::ConvVec_Q,a::Array{T,1})=dot(a,b)
-dot{T}(a::Array{T,1},b::CBVec_Q)=(c=getindex(b,1); c.func=dot(a,b.vec); c)
+dot(a::Array{T,1},b::ConvVec_Q) where {T}=(c=getindex(b,1); c.func=dot(a,b.vec); c)
+dot(b::ConvVec_Q,a::Array{T,1}) where {T}=dot(a,b)
+dot(a::Array{T,1},b::CBVec_Q) where {T}=(c=getindex(b,1); c.func=dot(a,b.vec); c)
 
 
 # Valuations -- vector valuations have already been defined in terms of those of components
@@ -400,7 +401,7 @@ convBlockAS(sigma::Real,cbvec::CBVec_Q)=convBlock(sigma,cbvec,-1)
 convBlockS(sigma::Real,cbvec::CBVec_Q)=convBlock(sigma,cbvec,1)
 
 
-function convBlock{T<:Real}(sigma::T,cbvec::CBVec_Q{T},sign::Int64;delsigma=false)
+function convBlock(sigma::T,cbvec::CBVec_Q{T},sign::Int64;delsigma=false) where {T<:Real}
 
         dict=cbvec.dict
         ders=sort(collect(keys(dict)))
@@ -426,7 +427,7 @@ function convBlock{T<:Real}(sigma::T,cbvec::CBVec_Q{T},sign::Int64;delsigma=fals
 
                 push!(convblock.dict,(m,n),ct); ct+=1
 
-                vCoeffs=vCoeffs= !delsigma ? v_convCoeffs(sigma,(m,n)):v_convCoeffs_ds(sigma,(m,n))
+                vCoeffs=vCoeffs= !delsigma ? v_convCoeffs(sigma,(m,n)) : v_convCoeffs_ds(sigma,(m,n))
                 comps=[(k,l) for k=0:m, l=0:n]
 
                 for (i,der) in enumerate(comps)
@@ -474,7 +475,7 @@ function convTable(sigma::BigFloat,tab::Array{CBVec_Q{BigFloat},1},sign::Int64;d
                 end
                 ct+=1
 
-                vCoeffs= !delsigma ? v_convCoeffs(sigma,(m,n)):v_convCoeffs_ds(sigma,(m,n))
+                vCoeffs= !delsigma ? v_convCoeffs(sigma,(m,n)) : v_convCoeffs_ds(sigma,(m,n))
                 comps=[(k,l) for k=0:m, l=0:n]
 
                 for i=1:length(tab)
