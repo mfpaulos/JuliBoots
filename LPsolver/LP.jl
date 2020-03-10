@@ -36,13 +36,13 @@ bf=BigFloat
 
 
 
-#-- own types
+#-- own structs
 
-typealias LabelF Any   # how to label functions
-typealias LabelV Tuple{Real,LabelF}   # how to label vectors (conf dimension, other labels)
+const LabelF= Any   # how to label functions
+const LabelV= Tuple{Real,LabelF}   # how to label vectors (conf dimension, other labels)
 
 
-type LPVectorFunction{T<:Real}
+struct LPVectorFunction{T<:Real}
     range::Array{T,1}
     vecfunc::VecFunc
     cost::CostFunction
@@ -73,7 +73,7 @@ end
 
 
 
-type LPVector{T<:Real}
+struct LPVector{T<:Real}
     vector::Array{T,1}
     cost::T
     label::Tuple{T,LabelF}
@@ -104,15 +104,15 @@ show(io::IO, z::LPVector)=println(io,"LPVector - ",z.label,", cost - ", z.cost)
 show(io::IO, z::LPVectorFunction)=println(io,"LPVectorFunc - ",z.label,", range - ",z.range)
 
 
-LPVector{T<:Real}(lpf::LPVectorFunction{T},xx::Real)=(x=convert(T,xx);
+LPVector(lpf::LPVectorFunction{T},xx::Real) where {T<:Real}=(x=convert(T,xx);
                     LPVector(value(lpf,x),value(lpf.cost,x),(x,lpf.label)))  #constructing a vector by evaluating
                                                                    #a function at a particular point
 #shorthand:
 
-makeVector{T<:Real}(lpf::LPVectorFunction{T},xx::Real)=LPVector(lpf,xx)
+makeVector(lpf::LPVectorFunction{T},xx::Real) where {T<:Real}=LPVector(lpf,xx)
 
 
-type LinearProgram{T<:Real}
+struct LinearProgram{T<:Real}
 
     lpFunctions::Array{LPVectorFunction{T},1}  # vector functions
     lpVectors::Array{LPVector{T},1}      # discrete vectors
@@ -147,7 +147,7 @@ function show(io::IO,lp::LinearProgram)
         #for v in lp.lpVectors show(io,v) end
 end
 
-function LPsave{T<:Real}(file::String,lp::LinearProgram{T};reduced=true)
+function LPsave(file::String,lp::LinearProgram{T};reduced=true) where {T<:Real}
 
 	lp2=mcopy(lp)
 	for lpf in lp2.lpFunctions
@@ -180,12 +180,12 @@ end
  	
 derivative(lv::LPVectorFunction,i::Int64)=LPVectorFunction(lv.range,derivative(lv.vecfunc,i),lv.cost,lv.label)
 
-getindex{T<:Real}(lpa::Array{LPVectorFunction{T},1},label::String)=(lpa[find(x->x.label==label,lpa)[1]])
+getindex(lpa::Array{LPVectorFunction{T},1},label::String) where {T<:Real}=(lpa[find(x->x.label==label,lpa)[1]])
 getindex(lv::LPVector,i::Int64)=lv.vector[i]
 length(lv::LPVector)=length(lv.vector)
 length(lv::LPVectorFunction)=length(lv.vecfunc)
 
-value{T<:Real}(lv::LPVectorFunction{T},x::Real)=value(lv.vecfunc,convert(T,x))
+value(lv::LPVectorFunction{T},x::Real) where {T<:Real}=value(lv.vecfunc,convert(T,x))
 
 tofloat(lf::LPVectorFunction)=LPVectorFunction([tofloat(lf.range[1])::Float64,tofloat(lf.range[2])::Float64],tofloat(lf.vecfunc),tofloat(lf.cost),lf.label)
 tofloat(lv::LPVector)=LPVector{Float64}(tofloat(lv.vector)::Array{Float64,1},tofloat(lv.cost)::Float64,(tofloat(lv.label[1]),lv.label[2]))
@@ -251,13 +251,13 @@ getA(lp::LinearProgram)=(n=length(lp.solVecs[1]); [lp.solVecs[j][i] for i=1:n, j
 solution(lp::LinearProgram)=[(lp.solVecs[i].label,lp.coeffs[i]) for i=1:length(lp.coeffs)]
 
 
-function updateFunctional!{T<:Real}(lp::LinearProgram{T})
+function updateFunctional!(lp::LinearProgram{T}) where {T<:Real}
 
         costvec=[v.cost::T for v in lp.solVecs]
         dot(lp.functional,costvec,lp.invA)
 end
 
-updateCoeffs!{T<:Real}(lp::LinearProgram{T})=dot(lp.coeffs,lp.invA,lp.target)
+updateCoeffs!(lp::LinearProgram{T}) where {T<:Real}=dot(lp.coeffs,lp.invA,lp.target) 
 
 
 updateInverse!(lp::LinearProgram)=(lp.invA=LPInverse(lp.invA,getA(lp)); return)
@@ -274,7 +274,7 @@ updateInverse!(lp::LinearProgram)=(lp.invA=LPInverse(lp.invA,getA(lp)); return)
 
 #--------- Find MRC --------------------------------------------
 
-function findAllRC{T<:Real}(lp::LinearProgram{T}; minMethod="bbLocal")   #assumes functional has been computed. returns a tuple LPVector,mrc
+function findAllRC(lp::LinearProgram{T}; minMethod="bbLocal") where {T<:Real}  #assumes functional has been computed. returns a tuple LPVector,mrc
 
 
         htime=0.
@@ -312,20 +312,20 @@ function findMRC(lp::LinearProgram)
         return min
 end
 
-findMRC{T<:Real}(lpvec::LPVector{T},functional::Array{T,1})=(lpvec,(lpvec.cost-dot(functional,lpvec.vector)))
+findMRC(lpvec::LPVector{T},functional::Array{T,1}) where {T<:Real}=(lpvec,(lpvec.cost-dot(functional,lpvec.vector)))
 
-function findMRC{T<:Real}(lpf::LPVectorFunction{T},functional::Array{T,1}; minMethod ="bbGlobal",verbose=VERBOSE)
+function findMRC(lpf::LPVectorFunction{T},functional::Array{T,1}; minMethod ="bbGlobal",verbose=VERBOSE) where {T<:Real}
 
        if verbose println("Starting findMRC.") end
        stfindmrc=time()
 
        t1=@elapsed dottedfunc=dot(functional, lpf.vecfunc);    #there have to be preexistent ways to dot; these are effectively loaded at LPlinks
-                                                   #dottedfunc will have type Func            
+                                                   #dottedfunc will have struct Func            
 
        t2=@elapsed minima=LPFindMinimum(lpf.range,dottedfunc,lpf.cost, minMethod=minMethod) #finds global or local minima over the range lpf.range.
                                                                      #LPFindMinimum function is defined at LPLinks
                                                                      #dottedfunc and cost are sent separately since they have different
-                                                                  #types.
+                                                                  #structs.
 	   
 	   negative_minima=minima[find(x->x[2]<0,minima)] #only keep negative mrcs
        t3=@elapsed output=[(LPVector(lpf,x)::LPVector{T},mrc::T) for (x,mrc) in negative_minima]
@@ -337,9 +337,9 @@ end
 
 #--------- Find basic variable  --------------------------------------------
 
-findBVar{T<:Real}(lp::LinearProgram{T},nb::LPVector{T})=(l=findBVar(lp,[nb]); l[1])
+findBVar(lp::LinearProgram{T},nb::LPVector{T}) where {T<:Real}=(l=findBVar(lp,[nb]); l[1])
 
-function findBVar{T<:Real}(lp::LinearProgram{T},nba::Array{LPVector{T},1})
+function findBVar(lp::LinearProgram{T},nba::Array{LPVector{T},1}) where {T<:Real}
 
         ivec=dot(lp.invA,lp.target)
         minx_bvar=Array((T,Int64),0)
@@ -347,7 +347,7 @@ function findBVar{T<:Real}(lp::LinearProgram{T},nba::Array{LPVector{T},1})
 
         for nbv in nba
             dot(icol,lp.invA,nbv.vector)
-            xvals=[icol[i]> zero(T) ? ivec[i]/icol[i] : typemax(T) for i=1:length(ivec)]
+            xvals=[icol[i]> zero(T) ? ivec[i]/icol[i] : structmax(T) for i=1:length(ivec)]
 
             (minx,bvar)=findmin(xvals)
             #if minx==inf(T) println("Problem unbounded"); return "unbounded" end
@@ -356,7 +356,7 @@ function findBVar{T<:Real}(lp::LinearProgram{T},nba::Array{LPVector{T},1})
         return minx_bvar
 end
 
-function findBVar{T<:Real}(invA::Inverse,coeffs::Array{T,1},nba::Array{LPVector{T},1})
+function findBVar(invA::Inverse,coeffs::Array{T,1},nba::Array{LPVector{T},1}) where {T<:Real}
 
         ivec=coeffs
         minx_bvar=Array((T,Int64),0)
@@ -364,7 +364,7 @@ function findBVar{T<:Real}(invA::Inverse,coeffs::Array{T,1},nba::Array{LPVector{
 
         for nbv in nba
             icol=invA*nbv.vector
-            xvals=[icol[i]> zero(T) ? ivec[i]/icol[i] : typemax(T) for i=1:length(ivec)]
+            xvals=[icol[i]> zero(T) ? ivec[i]/icol[i] : structmax(T) for i=1:length(ivec)]
 
             (minx,bvar)=findmin(xvals)
             #if minx==inf(T) println("Problem unbounded"); return "unbounded" end
@@ -428,13 +428,13 @@ end
 ########## Do find_AllRC and findBVar together in one go. This is useful for paralellization
 
 
-function find_swap{T<:Real}(lpf::LPVectorFunction{T},functional::Array{T,1},invA::Inverse,coeffs::Array{T,1};minMethod="bbLocal")
+function find_swap(lpf::LPVectorFunction{T},functional::Array{T,1},invA::Inverse,coeffs::Array{T,1};minMethod="bbLocal") where {T<:Real}
 		nb_rc=findMRC(lpf,functional,minMethod=minMethod)
 		allrc=[nb_rc[i][2] for i=1:length(nb_rc)]
 		pos_neg=find(x->x<0,allrc)
 		
 		neg_nb_rc=nb_rc[find(x->x<0,allrc)]
-		neg_nb=[_[1]::LPVector{T} for _ in neg_nb_rc]     #all the LPVector candidates
+		neg_nb=[x[1]::LPVector{T} for x in neg_nb_rc]     #all the LPVector candidates
     
 		minx_bvar=findBVar(invA,coeffs,neg_nb)	
 			
@@ -444,7 +444,7 @@ end
 
 # This function assumes that at least part of the lp is known for each worker if initWorkers is false.
 
-function find_swaps{T<:Real}(lp::LinearProgram{T};minMethod="bbLocal",initWorkers=false,useWorkers="all")
+function find_swaps(lp::LinearProgram{T};minMethod="bbLocal",initWorkers=false,useWorkers="all") where {T<:Real}
 	
 	func=lp.functional
 	invA=lp.invA
@@ -548,7 +548,7 @@ end
 
 #-------- Basic iteration of simplex method
 
-function iterate!{T<:Real}(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", method="mcv", quiet=false,bak_file="NoBak",bak_iters=100,log_file=LPFILE,log_iters=500)
+function iterate!(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", method="mcv", quiet=false,bak_file="NoBak",bak_iters=100,log_file=LPFILE,log_iters=500) where {T<:Real}
 
 
         #Initializations
@@ -619,7 +619,7 @@ function iterate!{T<:Real}(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", m
 				end
                 (costvar,pos)=findmin(costvars)
 				write(log,"$i - $(strtime(time())) - Finished findmin costvars\n")
-                if costvar==-typemax(BigFloat) println("Problem unbounded"); lp.status="Unbounded"; break end
+                if costvar==-structmax(BigFloat) println("Problem unbounded"); lp.status="Unbounded"; break end
                 nb=negnb[pos]
                 mrc=negrc[pos]
 				if mrc>=zero(mrc) 
@@ -662,7 +662,7 @@ function iterate!{T<:Real}(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", m
 				
                 (costvar,pos)=findmin(costvars)
 				write(log,"$i - $(strtime(time())) - Finished findmin costvars\n")
-                if costvar==-typemax(BigFloat) println("Problem unbounded"); lp.status="Unbounded"; break end
+                if costvar==-structmax(BigFloat) println("Problem unbounded"); lp.status="Unbounded"; break end
                 nb=negnb[pos]
                 mrc=negrc[pos]
 				if mrc>=zero(mrc) 
@@ -728,11 +728,11 @@ end
 
 #Returns a linear problem object based on a target and an array of LPvector functions; initial solution is obtained using auxiliary vectors
 
-auxLPVector{T<:Real}(i::Int64,n::Int64,cost::T)=LPVector([j==i ? one(cost) : zero(cost) for j=1:n],cost,(i*one(cost),"AUX"))
-auxLPMatrix{T<:Real}(n::Int64,cost::T)=[auxLPVector(i,n,cost)::LPVector{T} for i=1:n]
+auxLPVector(i::Int64,n::Int64,cost::T) where {T<:Real}=LPVector([j==i ? one(cost) : zero(cost) for j=1:n],cost,(i*one(cost),"AUX"))
+auxLPMatrix(n::Int64,cost::T) where {T<:Real}=[auxLPVector(i,n,cost)::LPVector{T} for i=1:n]
 
 
-function initLP{T<:Real}(lpf::Array{LPVectorFunction{T},1},t::Array{T,1},description::String;extra="N/A")
+function initLP(lpf::Array{LPVectorFunction{T},1},t::Array{T,1},description::String;extra="N/A")  where {T<:Real}
 
         n=length(lpf[1])
         solVecs=auxLPMatrix(n,one(T))
@@ -770,9 +770,9 @@ filter(lp::LinearProgram{BigFloat},x::Real,criteria::LabelF)=(y=BigFloat(x); fil
 filter!(lp::LinearProgram{BigFloat},x::Real,criteria::LabelF)=(y=BigFloat(x); filter!(lp,[BigFloat(-100),y],z->z==criteria))
 filter!(lp::LinearProgram{BigFloat},x::Real,criteria::Function)=(y=BigFloat(x); filter!(lp,[BigFloat(-100),y],criteria) )
 filter(lp::LinearProgram{BigFloat},x::Real,criteria::Function)=(y=BigFloat(x); filter(lp,[BigFloat(-100),y],criteria) )
-filter{T<:Real}(lp::LinearProgram{BigFloat},range::Array{T,1},criteria::Function)=(lp0=mcopy(lp); filter!(lp0,range,criteria))
+filter(lp::LinearProgram{BigFloat},range::Array{T,1},criteria::Function) where {T<:Real}=(lp0=mcopy(lp); filter!(lp0,range,criteria))
 
-function filter!{T<:Real}(lp::LinearProgram{BigFloat},range::Array{T,1},criteria::Function)
+function filter!(lp::LinearProgram{BigFloat},range::Array{T,1},criteria::Function)  where {T<:Real}
 
         lpfuncs=Array(LPVectorFunction{BigFloat},0)
         l=range[1]; u=range[2];

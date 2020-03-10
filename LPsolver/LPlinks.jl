@@ -17,14 +17,14 @@ Inverse=Union{lu.LUdata{BigFloat}}
 
 #--------- Inverse matrix. Only Doolittle method so far
 
-function LPInverse{T<:Real}(mat::Array{T,2}; method="doolittle")
+function LPInverse(mat::Array{T,2}; method="doolittle")  where {T<:Real}
 
         if method=="doolittle"
                 return lu.LUdata(mat)
         end
 end
 
-function LPInverse{T<:Real}(out::Inverse,mat::Array{T,2}; method="doolittle")
+function LPInverse(out::Inverse,mat::Array{T,2}; method="doolittle")  where {T<:Real}
 
         if method=="doolittle"
                 return lu.LUdata(out.luMat,mat)
@@ -37,7 +37,7 @@ end
 
 
 
-function LPFindMinimum{T<:Real}(range::Array{T,1},funcc::Func, cost::CostFunction; minMethod="bbGlobal")
+function LPFindMinimum(range::Array{T,1},funcc::Func, cost::CostFunction; minMethod="bbGlobal")  where {T<:Real}
 
 
 

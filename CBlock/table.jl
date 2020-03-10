@@ -60,7 +60,7 @@ function loadTable(file::String; label="Vanilla N=0")
 
     Lmax=convert(Int64,myread(f))
 
-    oddL = myread(f)==1 ? true:false
+    oddL = myread(f)==1 ? true : false
 
     binprec=convert(Int64,myread(f))
     plen=convert(Int64,myread(f))         # nr of components

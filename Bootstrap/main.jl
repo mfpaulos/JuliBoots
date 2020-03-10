@@ -21,7 +21,7 @@ bf=BigFloat
 
 ######## TYPES #############################
 
-type bissect_pair{T<:Real}
+struct bissect_pair{T<:Real}
 	last_sol::LinearProgram{T}
 	last_func::LinearProgram{T}
 	upper::T
@@ -32,7 +32,7 @@ end
 	
 show(io::IO,bp::bissect_pair)=println(io,"Bissect Pair: $(bp.criteria), ($(tofloat(bp.upper)),$(tofloat(bp.lower))) - accuracy: $(tofloat(bp.upper-bp.lower))")
 
-function pair_save{T<:Real}(file::String,bp::bissect_pair{T};reduced=true)
+function pair_save(file::String,bp::bissect_pair{T};reduced=true) where {T<:Real}
 	
 	if !reduced save(file,"bp",bp); return end
 	
@@ -48,7 +48,7 @@ function pair_save{T<:Real}(file::String,bp::bissect_pair{T};reduced=true)
 	save(file,"bp",new_bp)
 end
 
-function pair_load{T<:Real}(file::String,bp::bissect_pair{T};reduced=true)
+function pair_load(file::String,bp::bissect_pair{T};reduced=true) where {T<:Real}
 
 	bp=load(file,"bp")
 	if !reduced return bp end
@@ -89,13 +89,13 @@ end
 
 
 
-function cullpoles{T<:Real}(lp0::LP.LinearProgram{T},cutoff::T)
+function cullpoles(lp0::LP.LinearProgram{T},cutoff::T) where {T<:Real}
 	lp=mcopy(lp0)
 	cullpoles(lp.lpFunctions,cutoff)
 	return lp
 end
 
-function cullpoles{T<:Real}(lpfs::Array{LP.LPVectorFunction{T},1},cutoff::T) #Absolute cutoff, would be nice to implement relative
+function cullpoles(lpfs::Array{LP.LPVectorFunction{T},1},cutoff::T) where {T<:Real}#Absolute cutoff, would be nice to implement relative
 
     
     for lpf in lpfs
@@ -142,8 +142,8 @@ end
 
 # Setup LP functions
 
-setupLP{T<:Real}(sig::T,file::String; ders="all")=(tab=table.loadTable(file); setupLP(tab,convert(BigFloat,sig),file=file,ders=ders))
-setupLP{T<:Real}(sigs::Array{T,1},file::String;ders="all")=setupLP(convert(Array{BigFloat,1},sigs),file=file,ders=ders)
+setupLP(sig::T,file::String; ders="all") where {T<:Real}=(tab=table.loadTable(file); setupLP(tab,convert(BigFloat,sig),file=file,ders=ders))
+setupLP(sigs::Array{T,1},file::String;ders="all") where {T<:Real}=setupLP(convert(Array{BigFloat,1},sigs),file=file,ders=ders)
 setupLP(sigs::Array{BigFloat,1},file::String;ders="all")=(tab=table.loadTable(file); [setupLP(tab,s,ders=ders,file=file)::LP.LinearProgram{BigFloat} for s in sigs])
 
 function setupLP()
@@ -220,8 +220,8 @@ end
 
 #------ Routine for updating the target of a Linear Program (has to be done when solution has only auxiliary vectors)
 
-changeTarget!{T<:Real}(lp::LinearProgram{T},targetvec::LP.LPVector{T})=changeTarget!(lp,targetvec.vector)
-function changeTarget!{T<:Real}(lp::LinearProgram{T},targetvec::Array{T,1})
+changeTarget!(lp::LinearProgram{T},targetvec::LP.LPVector{T}) where {T<:Real}=changeTarget!(lp,targetvec.vector)
+function changeTarget!(lp::LinearProgram{T},targetvec::Array{T,1}) where {T<:Real}
 
         labels=[v.label[2] for v in lp.solVecs]
         for l in labels
@@ -262,8 +262,8 @@ end
 
 
 
-setupLP{T<:Real}(sig::T,file::String,vectortypes;ders="all")=(tab=table.loadTable(file); setupLP(tab,convert(BigFloat,sig),vectortypes,ders=ders))
-setupLP{T<:Real}(sigs::Array{T,1},file::String,vectortypes;ders="all")=setupLP(convert(Array{BigFloat,1},sigs),file,vectortypes,ders=ders)
+setupLP(sig::T,file::String,vectortypes;ders="all") where {T<:Real}=(tab=table.loadTable(file); setupLP(tab,convert(BigFloat,sig),vectortypes,ders=ders))
+setupLP(sigs::Array{T,1},file::String,vectortypes;ders="all") where {T<:Real}=setupLP(convert(Array{BigFloat,1},sigs),file,vectortypes,ders=ders)
 setupLP(sigs::Array{BigFloat,1},file::String,vectortypes;ders="all")=(tab=table.loadTable(file); [setupLP(tab,s,vectortypes,file=file,ders=ders)::LP.LinearProgram for s in sigs])
 
 
@@ -478,7 +478,7 @@ end
 
 
 
-function opemax{T<:Real}(lp::LinearProgram{T},confdim::Real,label::LP.LabelF;itermax=LP_ITERMAX,bak_file="NoBak",bak_iters=100,log_file=LP.LPFILE,minMethod="bbLocal")
+function opemax(lp::LinearProgram{T},confdim::Real,label::LP.LabelF;itermax=LP_ITERMAX,bak_file="NoBak",bak_iters=100,log_file=LP.LPFILE,minMethod="bbLocal")  where {T<:Real}
 
         lp2=mcopy(lp)
         x=convert(T,confdim)
@@ -502,7 +502,7 @@ function opemax{T<:Real}(lp::LinearProgram{T},confdim::Real,label::LP.LabelF;ite
 		return lp2
 end
 
-function resume_opemax{T<:Real}(lp::LinearProgram{T};itermax=LP_ITERMAX,bak_file="NoBak",bak_iters=100,log_file=LP.LPFILE,minMethod="bbLocal")
+function resume_opemax(lp::LinearProgram{T};itermax=LP_ITERMAX,bak_file="NoBak",bak_iters=100,log_file=LP.LPFILE,minMethod="bbLocal")  where {T<:Real}
 		
 		lp2=mcopy(lp)
 		if cost(lp2)>0
