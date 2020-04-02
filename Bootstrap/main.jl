@@ -21,7 +21,7 @@ bf=BigFloat
 
 ######## TYPES #############################
 
-struct bissect_pair{T<:Real}
+mutable struct bissect_pair{T<:Real}
 	last_sol::LinearProgram{T}
 	last_func::LinearProgram{T}
 	upper::T
@@ -99,9 +99,9 @@ function cullpoles(lpfs::Array{LP.LPVectorFunction{T},1},cutoff::T) where {T<:Re
 
     
     for lpf in lpfs
-        smallguys=Array(Array{Int64,1},0)
+        smallguys=Array{Array{Int64,1}}(undef,0)
             for qf in lpf.vecfunc
-                push!(smallguys,find(x->abs(x.coeff)<cutoff,qf.poles))
+                push!(smallguys,findall(x->abs(x.coeff)<cutoff,qf.poles))
             end
 
         common=reduce(intersect,smallguys)
@@ -248,7 +248,7 @@ end
 
 function buildVector(vtype,ZVec,FVec,HVec)
 
-        funcarray=Array(qfunc.QFunc{BigFloat},0)
+        funcarray=Array{qfunc.QFunc{BigFloat}}(undef,0)
         for i=1:length(vtype)-2
             if vtype[i][2]=="Z" v=ZVec
             elseif vtype[i][2]=="F" v=FVec
@@ -295,7 +295,7 @@ function setupLP(tab::table.Table,sigma::BigFloat, vectortypes;file="N/A",ders="
 
 
         #Fill out vector functions..
-        lpVectorFuncs=Array(LP.LPVectorFunction{BigFloat},0)
+        lpVectorFuncs=Array{LP.LPVectorFunction{BigFloat}}(undef,0)
         for (i,L) in enumerate(spins)  #... for every spin                
             for vtype in vectortypes   #... and for every vector type
 
@@ -542,7 +542,7 @@ function avgSpec(lp::LP.LinearProgram;cutoff=1e-6)
         if findfirst(distinct_Ls,Ls[i])>0 continue end
         push!(distinct_Ls,Ls[i])
     end
-    Ls_pos=[find(x->x==l,Ls) for l in distinct_Ls]
+    Ls_pos=[findall(x->x==l,Ls) for l in distinct_Ls]
 
 	# Need to average
 

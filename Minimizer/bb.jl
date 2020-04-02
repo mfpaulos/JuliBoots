@@ -13,7 +13,7 @@ using various
 #bf=BigFloat
 
 
-struct MinFunction{T<:Real}
+mutable struct MinFunction{T<:Real}
 
         range::Array{T,1}
         f::Function
@@ -22,7 +22,7 @@ struct MinFunction{T<:Real}
         d3f::Function
 end
 
-struct Interval{T<:Real}
+mutable struct Interval{T<:Real}
 
         xL::T
         xR::T
@@ -43,7 +43,7 @@ mcopy(i::Interval{BigFloat},j::Interval{BigFloat})=(mcopy(i.xL,j.xL);mcopy(i.xR,
                                                     mcopy(i.d3fL,j.d3fL);mcopy(i.d3fR,j.d3fR);
                                                     i.label=copy(j.label); i)
 
-struct GoodInterval{T<:Real}
+mutable struct GoodInterval{T<:Real}
 
         xL::T
         xR::T
@@ -62,7 +62,7 @@ function Interval(mf::MinFunction{T},label::String) where {T<:Real}
 end
 
 
-struct BBproblem{T<:Real}
+mutable struct BBproblem{T<:Real}
 
         mf::MinFunction{T}
         range::Array{T,1}
@@ -70,7 +70,7 @@ struct BBproblem{T<:Real}
         goodList::Array{GoodInterval{T},1}
 end
 
-BBproblem(mf::MinFunction{T}) where {T<:Real}=BBproblem(mf,mf.range,[Interval(mf,"Bad")],Array(GoodInterval{T},0))
+BBproblem(mf::MinFunction{T}) where {T<:Real}=BBproblem(mf,mf.range,[Interval(mf,"Bad")],Array{GoodInterval{T}}(undef,0))
 
 
 ########################################################################################################
@@ -161,7 +161,7 @@ function divide!(bb::BBproblem{BigFloat})
 
 
        while length(bb.badList)!=0 && ct<=5000
-                i=splice!(bb.badList,endof(bb.badList)) #last interval on the list
+                i=pop!(bb.badList) #last interval on the list
 
                 xl=i.xL; xr=i.xR;
                 msub(tmp1,xr,xl) #dx=xr-xl
@@ -363,7 +363,7 @@ function FindLocalMinima(mf::MinFunction{T}) where {T<:Real}
         divide!(bb)
 
         if VERBOSE println("Overall time spent on divide: $(time()-t0)") end
-        minList=Array(Tuple{T,T},0)    # xmin, min
+        minList=Array{Tuple{T,T}}(undef,0)    # xmin, min
         t0=time()
 
         for i in bb.goodList

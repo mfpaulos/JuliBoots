@@ -39,7 +39,7 @@ abstract type Qpiece end  #a piece of a rational function
 
 # Types and constructors  ----------------------------------------------------------------
 
-struct Polynomial{T<:Real} <:Qpiece
+mutable struct Polynomial{T<:Real} <:Qpiece
 
     coeffs::Array{T,1}   # the polynomial coefficients
 
@@ -58,7 +58,7 @@ function show(io::IO, r::Polynomial)
    pm(x,i)= i==0 ? "$x" : (x < 0 ? " - $(-x) X^$i" :  " + $x X^$i")
 
    zz=convert(Array{Float64,1},r.coeffs)
-   nonzeropos=find(x->x!=0,zz)
+   nonzeropos=findall(x->x!=0,zz)
    z=[zz[i] for i in nonzeropos]
    ppm(i)=(if i!=1 return pm(z[i],nonzeropos[i]-1) end;
            return (nonzeropos[1]-1)==0 ? "$(z[1])" : "$(z[1]) X^$(nonzeropos[i]-1)"
@@ -138,7 +138,7 @@ end
 
 function trim!(p::Polynomial) #remove trailing zeros
 
-        nz=find(x->x!=0,p.coeffs)
+        nz=findall(x->x!=0,p.coeffs)
 		
        # println("at trim, ",nz)
        # return
@@ -270,7 +270,7 @@ tofloat(p::Polynomial)=Polynomial(tofloat(p.coeffs))
 
 #----------- Types
 
-struct Pole{T<:Real} <: Qpiece
+mutable struct Pole{T<:Real} <: Qpiece
 
         order::Int64
         pole::T
@@ -349,7 +349,7 @@ tofloat(p::Array{Pole{T},1}) where {T<:Real} =[tofloat(i)::Pole for i in p]
 #
 #########################################################################
 
-struct QFunc{T<:Real} <: Qpiece
+mutable struct QFunc{T<:Real} <: Qpiece
 
     poly::Polynomial{T}
     poles::Array{Pole{T},1}
@@ -428,7 +428,7 @@ function +(a::QFunc{T},b::QFunc{S}) where {T<:Real,S<:Real}
     for i=1:length(polelist2)
 
             tmp=polelist2[i]
-            pos=find(x->isequal(x,tmp),polelist1)
+            pos=findall(x->isequal(x,tmp),polelist1)
 
             if length(pos)==0
                     push!(polelist_res,Pole(tmp.order,tmp.pole,tmp.coeff)); continue
@@ -630,7 +630,7 @@ shift_arg(qf::QFunc,x::Real)=QFunc(shift_arg(qf.poly,x),shift_arg(qf.poles,x))
 function trim(qff::QFunc{T},cutoff::T) where {T<:Real}
 
         qf=deepcopy(qff)
-        ples=find(x->abs(x)>=cutoff, [p.coeff::T for p in qf.poles])
+        ples=findall(x->abs(x)>=cutoff, [p.coeff::T for p in qf.poles])
         newples=[qf.poles[i]::Pole{T} for i in ples]
         qf.poles=newples
         return qf
@@ -639,7 +639,7 @@ end
 function trim(qff::QFunc{BigFloat},cutoff::T) where {T<:Real}
 
         qf=mcopy(qff)
-        ples=find(x->abs(x)>=cutoff, [p.coeff::T for p in qf.poles])
+        ples=findall(x->abs(x)>=cutoff, [p.coeff::T for p in qf.poles])
         newples=[qf.poles[i]::Pole{T} for i in ples]
         qf.poles=newples
         return qf
@@ -664,7 +664,7 @@ tofloat(q::Array{QFunc{T},1}) where {T<:Real}=[tofloat(i)::QFunc{Float64} for i 
 #------- Powers ---------- 8/12/19
 
 
-struct Power{T<:Real}
+mutable struct Power{T<:Real}
 	base::T
 	coeff::Polynomial{T}
 end

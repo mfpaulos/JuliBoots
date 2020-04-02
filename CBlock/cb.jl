@@ -70,7 +70,7 @@ value(v::Vec,x::T) where {T<:Real}=[value(v[i],x)::T for i=1:length(v)]
 # Vanilla CB's - equal outside scalars, N=0 SUSY
 
 
-struct CB_Q{T<:Real} <: CB    # stands for some component of a CB with a rational (Q) representation
+mutable struct CB_Q{T<:Real} <: CB    # stands for some component of a CB with a rational (Q) representation
 
     rho::T     #the value of a CB is the value of the rational function times 4^delta rho^delta
     func::QFunc{T}
@@ -105,7 +105,7 @@ mcopy(cbo::CBVec_Q{BigFloat},cb::CBVec_Q{BigFloat})=(mcopy(cbo.rho,cb.rho); mcop
 
 #---- Convolved types
 
-struct Conv_Q{T<:Real} <: Convolved
+mutable struct Conv_Q{T<:Real} <: Convolved
 
         rho::T
         sigma::T
@@ -120,7 +120,7 @@ mcopy(cbo::Conv_Q{BigFloat},cb::Conv_Q{BigFloat})=
         (mcopy(cbo.rho,cb.rho); mcopy(cbo.sigma,cb.sigma); mcopy(cbo.func,cb.func); cbo.spin=copy(cb.spin); cbo.label=deepcopy(cb.label); cbo)
 
 
-struct ConvVec_Q{T<:Real} <: ConvolvedVec
+mutable struct ConvVec_Q{T<:Real} <: ConvolvedVec
 
         rho::T
         sigma::T
@@ -136,7 +136,7 @@ mcopy(cbo::ConvVec_Q{BigFloat},cb::ConvVec_Q{BigFloat})=
 
 #constructor
 
-ConvVec_Q(cbvec::CBVec_Q{T},sigma::Real,label::String) where {T<:Real}=ConvVec_Q(cbvec.rho,sigma,Array(QFunc{T},0),cbvec.spin,Dict{Tuple{Int64,Int64},Int64}(),label)
+ConvVec_Q(cbvec::CBVec_Q{T},sigma::Real,label::String) where {T<:Real}=ConvVec_Q(cbvec.rho,sigma,Array{QFunc{T}}(undef,0),cbvec.spin,Dict{Tuple{Int64,Int64},Int64}(),label)
 
 
 # convenient to define derivative vec type
@@ -180,9 +180,9 @@ end
 
 #utility
 function orderedkeys(dic::Dict{Tuple{Int64,Int64},Int64})
-        o=Array(Tuple{Int64,Int64},0)
+        o=Array{Tuple{Int64,Int64}}(undef,0)
         for i=1:length(dic)
-            derpos=findfirst([j for j in values(dic)],i)
+            derpos=findfirst(x->x==i,[j for j in values(dic)])
             push!(o,getindex([k for k in keys(dic)],derpos))
         end
         o
@@ -209,7 +209,7 @@ end
 #
 function getindex(o::CB_Q,v::CBVec_Q,i::Int64)
 
-        derpos=findfirst([j for j in values(v.dict)],i)
+        derpos=findfirst(x->x==i,[j for j in values(v.dict)])
         der=getindex([i for i in keys(v.dict)],derpos)
         label=(der[1],der[2],v.label)
         mcopy(o.rho,v.rho);mcopy(o.func,v.vec[i]);
@@ -220,7 +220,7 @@ end
 function getindex(v::CBVec_Q,i::Int64)
 
 
-        derpos=findfirst([j for j in values(v.dict)],i)
+        derpos=findfirst(x->x==i,[j for j in values(v.dict)])
         der=getindex([i for i in keys(v.dict)],derpos)
         label=(der[1],der[2],v.label)        
         CB_Q(mcopy(v.rho),mcopy(v.vec[i]),v.spin,label)

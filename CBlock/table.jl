@@ -9,7 +9,7 @@ export Table, loadTable, convTable
 
 abstract type Table end
 
-struct CBDerTable_Q{T<:cb.DerivativeVec}<:Table
+mutable struct CBDerTable_Q{T<:cb.DerivativeVec}<:Table
         table::Array{T}
         sigma::BigFloat
         eps::BigFloat
@@ -70,7 +70,7 @@ function loadTable(file::String; label="Vanilla N=0")
     rho=BigFloat(3-2*sqrt(BigFloat(2)))       # set rho; this corresponds to z=zb=1/2
 
     nrspins=oddL ? 1+Lmax : div(Lmax,2)+1
-    table=Array(CBVec_Q{BigFloat},nrspins);
+    table=Array{CBVec_Q{BigFloat}}(undef,nrspins);
     
 
     for lct=1:nrspins
@@ -79,9 +79,9 @@ function loadTable(file::String; label="Vanilla N=0")
 
         maxPlength=convert(Int64,myread(f))     # the maximum degree of the polynomial piece, across components
 
-        polycoeffs=Array(BigFloat,plen,maxPlength)
+        polycoeffs=Array{BigFloat}(undef,plen,maxPlength)
 
-        singleSpin=CBVec_Q(rho, Array(QFunc{BigFloat},plen), spin,dict,label)  #create CBVec object. dictionary tells us what contents are
+        singleSpin=CBVec_Q(rho, Array{QFunc{BigFloat}}(undef,plen), spin,dict,label)  #create CBVec object. dictionary tells us what contents are
 
         # read polynomials
 		
@@ -93,8 +93,8 @@ function loadTable(file::String; label="Vanilla N=0")
 
         # read single poles
         nrpoles1=convert(Int,myread(f))
-        polelist1=Array(BigFloat,nrpoles1)
-        polecoeffs1=Array(BigFloat,plen,nrpoles1)
+        polelist1=Array{BigFloat}(undef,nrpoles1)
+        polecoeffs1=Array{BigFloat}(undef,plen,nrpoles1)
 
         for ct=1:nrpoles1
                 polelist1[ct]=myread(f)
@@ -111,8 +111,8 @@ function loadTable(file::String; label="Vanilla N=0")
         #nrpoles2=convert(Int,myread(f))
         nrpoles2=convert(Int,tmp)
 
-        polelist2=Array(BigFloat,nrpoles2)
-        polecoeffs2=Array(BigFloat,plen,nrpoles2)
+        polelist2=Array{BigFloat}(undef,nrpoles2)
+        polecoeffs2=Array{BigFloat}(undef,plen,nrpoles2)
         for ct=1:nrpoles2
                 polelist2[ct]=myread(f)
         end
@@ -127,7 +127,7 @@ function loadTable(file::String; label="Vanilla N=0")
 
 		
         for i=1:plen
-            polearray=Array(Pole{BigFloat},0)
+            polearray=Array{Pole{BigFloat}}(undef,0)
             for j=1:length(polelist1) push!(polearray,Pole(1,polelist1[j],polecoeffs1[i,j])) end
             for j=1:length(polelist2) push!(polearray,Pole(2,polelist2[j],polecoeffs2[i,j])) end
             qf=QFunc(trim!(Polynomial(polycoeffs[i,:][1:end])),polearray)

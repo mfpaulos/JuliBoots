@@ -9,6 +9,7 @@ module LP
 using JLD
 #using ParallelDataTransfer
 using various
+using LinearAlgebra
 import various: value, tofloat, mcopy, mmult, mplus,mdiv, derivative
 
 using consts
@@ -42,7 +43,7 @@ const LabelF= Any   # how to label functions
 const LabelV= Tuple{Real,LabelF}   # how to label vectors (conf dimension, other labels)
 
 
-struct LPVectorFunction{T<:Real}
+mutable struct LPVectorFunction{T<:Real}
     range::Array{T,1}
     vecfunc::VecFunc
     cost::CostFunction
@@ -52,7 +53,7 @@ end
 mcopy(v::LPVectorFunction{BigFloat})=LPVectorFunction(mcopy(v.range),mcopy(v.vecfunc),mcopy(v.cost),deepcopy(v.label))
 mcopy(o::LPVectorFunction{BigFloat},v::LPVectorFunction{BigFloat})=(mcopy(o.range,v.range); mcopy(o.vecfunc,v.vecfunc);
                                                                    mcopy(o.cost,v.cost); o.label=deepcopy(v.label); o)
-mcopy(v::Array{LPVectorFunction{BigFloat},1})=(o=Array(LPVectorFunction{BigFloat},0); for vf in v push!(o,mcopy(vf)) end; o)
+mcopy(v::Array{LPVectorFunction{BigFloat},1})=(o=Array{LPVectorFunction{BigFloat}}(undef,0); for vf in v push!(o,mcopy(vf)) end; o)
 mcopy(lv::LabelV)=(mcopy(lv[1]),deepcopy(lv[2]))
 
 function mcopy(o::Array{LPVectorFunction{BigFloat},1},v::Array{LPVectorFunction{BigFloat},1})
@@ -73,7 +74,7 @@ end
 
 
 
-struct LPVector{T<:Real}
+mutable struct LPVector{T<:Real}
     vector::Array{T,1}
     cost::T
     label::Tuple{T,LabelF}
@@ -81,7 +82,7 @@ end
 
 mcopy(v::LPVector{BigFloat})=LPVector(mcopy(v.vector),mcopy(v.cost),(mcopy(v.label[1]),deepcopy(v.label[2])))
 mcopy(o::LPVector{BigFloat},v::LPVector{BigFloat})=(mcopy(o.vector,v.vector); mcopy(o.cost,v.cost); mcopy(o.label[1],v.label[1]); o.label=(o.label[1],deepcopy(v.label[2])); o)
-mcopy(v::Array{LPVector{BigFloat},1})=(o=Array(LPVector{BigFloat},0); for vf in v push!(o,mcopy(vf)) end; o)
+mcopy(v::Array{LPVector{BigFloat},1})=(o=Array{LPVector{BigFloat}}(undef,0); for vf in v push!(o,mcopy(vf)) end; o)
 
 function mcopy(o::Array{LPVector{BigFloat},1},v::Array{LPVector{BigFloat},1})
 
@@ -112,7 +113,7 @@ LPVector(lpf::LPVectorFunction{T},xx::Real) where {T<:Real}=(x=convert(T,xx);
 makeVector(lpf::LPVectorFunction{T},xx::Real) where {T<:Real}=LPVector(lpf,xx)
 
 
-struct LinearProgram{T<:Real}
+mutable struct LinearProgram{T<:Real}
 
     lpFunctions::Array{LPVectorFunction{T},1}  # vector functions
     lpVectors::Array{LPVector{T},1}      # discrete vectors
@@ -180,7 +181,7 @@ end
  	
 derivative(lv::LPVectorFunction,i::Int64)=LPVectorFunction(lv.range,derivative(lv.vecfunc,i),lv.cost,lv.label)
 
-getindex(lpa::Array{LPVectorFunction{T},1},label::String) where {T<:Real}=(lpa[find(x->x.label==label,lpa)[1]])
+getindex(lpa::Array{LPVectorFunction{T},1},label::String) where {T<:Real}=(lpa[findall(x->x.label==label,lpa)[1]])
 getindex(lv::LPVector,i::Int64)=lv.vector[i]
 length(lv::LPVector)=length(lv.vector)
 length(lv::LPVectorFunction)=length(lv.vecfunc)
@@ -278,7 +279,7 @@ function findAllRC(lp::LinearProgram{T}; minMethod="bbLocal") where {T<:Real}  #
 
 
         htime=0.
-        mrcs=Array(Tuple{LPVector{T},T},0)
+        mrcs=Array{Tuple{LPVector{T},T}}(undef,0)
         for i=1:length(lp.lpFunctions)
             t1=@elapsed tmp=findMRC(lp.lpFunctions[i],lp.functional; minMethod=minMethod) #this returns a list of minima (eventually with a single element)
 			if VERBOSE println("In findAllRC: findMRC took $t1\n") end
@@ -327,7 +328,7 @@ function findMRC(lpf::LPVectorFunction{T},functional::Array{T,1}; minMethod ="bb
                                                                      #dottedfunc and cost are sent separately since they have different
                                                                   #structs.
 	   
-	   negative_minima=minima[find(x->x[2]<0,minima)] #only keep negative mrcs
+	   negative_minima=minima[findall(x->x[2]<0,minima)] #only keep negative mrcs
        t3=@elapsed output=[(LPVector(lpf,x)::LPVector{T},mrc::T) for (x,mrc) in negative_minima]
 
        if verbose println("Inside findMRC: $(time()-stfindmrc); dotting took $t1 ; minima took $t2 output took $t3 ;  ") end
@@ -342,12 +343,12 @@ findBVar(lp::LinearProgram{T},nb::LPVector{T}) where {T<:Real}=(l=findBVar(lp,[n
 function findBVar(lp::LinearProgram{T},nba::Array{LPVector{T},1}) where {T<:Real}
 
         ivec=dot(lp.invA,lp.target)
-        minx_bvar=Array((T,Int64),0)
+        minx_bvar=Array{(T,Int64)}(undef,0)
         icol=[BigFloat(0) for i=1:length(ivec)]
 
         for nbv in nba
             dot(icol,lp.invA,nbv.vector)
-            xvals=[icol[i]> zero(T) ? ivec[i]/icol[i] : structmax(T) for i=1:length(ivec)]
+            xvals=[icol[i]> zero(T) ? ivec[i]/icol[i] : typemax(T) for i=1:length(ivec)]
 
             (minx,bvar)=findmin(xvals)
             #if minx==inf(T) println("Problem unbounded"); return "unbounded" end
@@ -359,12 +360,12 @@ end
 function findBVar(invA::Inverse,coeffs::Array{T,1},nba::Array{LPVector{T},1}) where {T<:Real}
 
         ivec=coeffs
-        minx_bvar=Array((T,Int64),0)
+        minx_bvar=Array{(T,Int64)}(undef,0)
         icol=[BigFloat(0) for i=1:length(ivec)]
 
         for nbv in nba
             icol=invA*nbv.vector
-            xvals=[icol[i]> zero(T) ? ivec[i]/icol[i] : structmax(T) for i=1:length(ivec)]
+            xvals=[icol[i]> zero(T) ? ivec[i]/icol[i] : typemax(T) for i=1:length(ivec)]
 
             (minx,bvar)=findmin(xvals)
             #if minx==inf(T) println("Problem unbounded"); return "unbounded" end
@@ -380,7 +381,7 @@ findBVar(lp::LinearProgram{BigFloat},nb::LPVector{BigFloat})=(l=findBVar(lp,[nb]
 function findBVar(invA::Inverse,coeffs::Array{BigFloat,1},nba::Array{LPVector{BigFloat},1})
 
         ivec=coeffs
-        minx_bvar=Array(Tuple{BigFloat,Int64},0)
+        minx_bvar=Array{Tuple{BigFloat,Int64}}(undef,0)
         icol=[BigFloat(0) for i=1:length(ivec)]
         infs=[BigFloat(Inf) for i=1:length(ivec)]
         xvals=mcopy(infs)
@@ -404,7 +405,7 @@ end
 function findBVar(lp::LinearProgram{BigFloat},nba::Array{LPVector{BigFloat},1})
 
         ivec=lp.coeffs
-        minx_bvar=Array(Tuple{BigFloat,Int64},0)
+        minx_bvar=Array{Tuple{BigFloat,Int64}}(undef,0)
         icol=[BigFloat(0) for i=1:length(ivec)]
         infs=[BigFloat(Inf) for i=1:length(ivec)]
         xvals=mcopy(infs)
@@ -431,9 +432,9 @@ end
 function find_swap(lpf::LPVectorFunction{T},functional::Array{T,1},invA::Inverse,coeffs::Array{T,1};minMethod="bbLocal") where {T<:Real}
 		nb_rc=findMRC(lpf,functional,minMethod=minMethod)
 		allrc=[nb_rc[i][2] for i=1:length(nb_rc)]
-		pos_neg=find(x->x<0,allrc)
+		pos_neg=findall(x->x<0,allrc)
 		
-		neg_nb_rc=nb_rc[find(x->x<0,allrc)]
+		neg_nb_rc=nb_rc[findall(x->x<0,allrc)]
 		neg_nb=[x[1]::LPVector{T} for x in neg_nb_rc]     #all the LPVector candidates
     
 		minx_bvar=findBVar(invA,coeffs,neg_nb)	
@@ -602,8 +603,8 @@ function iterate!(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", method="mc
 				allnb=[nb_rc[i][1]::LPVector{T} for i=1:length(nb_rc)]     #all the LPVector candidates
                 write(log,"$i - $(strtime(time())) - Candidate minima: $(length(allnb))\n")
 				#only check those vectors whose reduced costs are negative
-				pos_neg=find(x->x<0,allrc)
-				negnb=allnb[find(x->x<0,allrc)]
+				pos_neg=findall(x->x<0,allrc)
+				negnb=allnb[findall(x->x<0,allrc)]
 				negrc=allrc[pos_neg]
 				write(log,"$i - $(strtime(time())) - Negative minima: $(length(negrc))\n")
 				minx_bvar=findBVar(lp,negnb)
@@ -619,7 +620,7 @@ function iterate!(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", method="mc
 				end
                 (costvar,pos)=findmin(costvars)
 				write(log,"$i - $(strtime(time())) - Finished findmin costvars\n")
-                if costvar==-structmax(BigFloat) println("Problem unbounded"); lp.status="Unbounded"; break end
+                if costvar==-typemax(BigFloat) println("Problem unbounded"); lp.status="Unbounded"; break end
                 nb=negnb[pos]
                 mrc=negrc[pos]
 				if mrc>=zero(mrc) 
@@ -642,8 +643,8 @@ function iterate!(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", method="mc
 				#allnb=[nb_rc[i][1]::LPVector{T} for i=1:length(nb_rc)]     #all the LPVector candidates
     
 				
-				#pos_neg=find(x->x<0,allrc)
-				#negnb=allnb[find(x->x<0,allrc)]
+				#pos_neg=findall(x->x<0,allrc)
+				#negnb=allnb[findall(x->x<0,allrc)]
 				#negrc=allrc[pos_neg]
 	
 				#minx_bvar=findBVar(lp,negnb)
@@ -662,7 +663,7 @@ function iterate!(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", method="mc
 				
                 (costvar,pos)=findmin(costvars)
 				write(log,"$i - $(strtime(time())) - Finished findmin costvars\n")
-                if costvar==-structmax(BigFloat) println("Problem unbounded"); lp.status="Unbounded"; break end
+                if costvar==-typemax(BigFloat) println("Problem unbounded"); lp.status="Unbounded"; break end
                 nb=negnb[pos]
                 mrc=negrc[pos]
 				if mrc>=zero(mrc) 
@@ -774,7 +775,7 @@ filter(lp::LinearProgram{BigFloat},range::Array{T,1},criteria::Function) where {
 
 function filter!(lp::LinearProgram{BigFloat},range::Array{T,1},criteria::Function)  where {T<:Real}
 
-        lpfuncs=Array(LPVectorFunction{BigFloat},0)
+        lpfuncs=Array{LPVectorFunction{BigFloat}}(undef,0)
         l=range[1]; u=range[2];
 
         for vecfunc in lp.lpFunctions
@@ -796,7 +797,7 @@ function filter!(lp::LinearProgram{BigFloat},range::Array{T,1},criteria::Functio
 
         end
 
-        lpvecs=Array(LPVector{BigFloat},0)
+        lpvecs=Array{LPVector{BigFloat}}(undef,0)
         for vector in lp.lpVectors
                 if !(criteria(vector.label[2])) push!(lpvecs,mcopy(vector)); continue end #check if criterium is satisfied
 
@@ -852,10 +853,10 @@ function plotFunctional(lp::LinearProgram,i::Int64;nrpoints=100,range=(NaN,NaN),
                 return (xs,values)
         else
             signs=map(sign,values)
-            xs1=Array(Float64,0)
-            values1=Array(Float64,0)
-            xs2=Array(Float64,0)
-            values2=Array(Float64,0)
+            xs1=Array{Float64}(undef,0)
+            values1=Array{Float64}(undef,0)
+            xs2=Array{Float64}(undef,0)
+            values2=Array{Float64}(undef,0)
             for i=1:length(signs)
                 if signs[i]>0
                         push!(values1,log(abs(values[i])))

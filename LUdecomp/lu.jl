@@ -4,10 +4,11 @@ import Base: deepcopy
 import LinearAlgebra: dot
 using consts
 using various
+using AbstractAlgebra
 import various: tofloat, deepcopy, mcopy
 export LUdata
 
-struct LUdata{T<:Real}
+mutable struct LUdata{T<:Real}
 
 luMat::Array{T,2}
 perm::Array{Int64,1}
@@ -26,7 +27,7 @@ function LUdataBACKUP!(A::Array{BigFloat,2})
         n=stride(A,2)
 
 
-        perm=[1:n]
+        perm=collect([1:n])
 
 
         for k=1:n-1
@@ -246,7 +247,7 @@ function dot(o::Array{BigFloat,1},b::Array{BigFloat,1},lu::LUdata{BigFloat})  # 
                     msub(o[i],tmp2)
                 end
 
-                ipermute!(o,lu.perm)    #inverse permutation
+                invpermute!(o,lu.perm)    #inverse permutation
 				for i=1:n
 				mdiv(o[i],lu.scales[i])
 				end
