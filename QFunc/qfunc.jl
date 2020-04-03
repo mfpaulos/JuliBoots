@@ -666,7 +666,7 @@ tofloat(q::Array{QFunc{T},1}) where {T<:Real}=[tofloat(i)::QFunc{Float64} for i 
 
 mutable struct Power{T<:Real}
 	base::T
-	coeff::Polynomial{T}
+	coeff::Qpiece
 end
 
 value(p::Power{T},x::T) where{T} =value(p.coeff,x)*p.base^x
@@ -675,9 +675,9 @@ value(p::Power{T},x::T) where{T} =value(p.coeff,x)*p.base^x
 
 function derivative(p::Power{T},i::Int64)  where {T<:Real}
 	if i==1
-		return Power(p.base,log(p.base)*p.coeff)
+		return Power(p.base,log(p.base)*p.coeff+derivative(p.coeff,1))
 	else 
-		return Power(p.base,derivative(p.coeff,i-1)+log(p.base)*p.coeff)
+		return derivative(derivative(p,i-1),1)
 	end
 end
 
