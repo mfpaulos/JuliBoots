@@ -89,7 +89,7 @@ mcopy(cbo::CB_Q{BigFloat},cb::CB_Q{BigFloat})=(mcopy(cbo.rho,cb.rho); mcopy(cbo.
 
 
 
-struct CBVec_Q{T<:Real} <:CBVec
+mutable struct CBVec_Q{T<:Real} <:CBVec
 
         rho::T
         vec::Array{QFunc{T},1}  # a set of CB's representing different derivatives
@@ -130,7 +130,7 @@ mutable struct ConvVec_Q{T<:Real} <: ConvolvedVec
         label::String
 end
 
-mcopy(cb::ConvVec_Q{BigFloat})=ConvVec_Q(mcopy(cb.rho),mcopy(cb.sigma),mcopy(cb.vec),copy(cb.spin),deepcopy(cb.dict),copy(cb.label))
+mcopy(cb::ConvVec_Q{BigFloat})=ConvVec_Q(mcopy(cb.rho),mcopy(cb.sigma),mcopy(cb.vec),copy(cb.spin),copy(cb.dict),deepcopy(cb.label))
 mcopy(cbo::ConvVec_Q{BigFloat},cb::ConvVec_Q{BigFloat})=
         (mcopy(cbo.rho,cb.rho); mcopy(cbo.sigma,cb.sigma); mcopy(cbo.vec,cb.vec); cbo.spin=copy(cb.spin); cbo.dict=deepcopy(cb.dict); cbo.label=copy(cb.label); cbo)
 
@@ -230,7 +230,7 @@ end
 function getindex(v::ConvVec_Q{T},is::Array{Int64,1}) where {T<:Real}
 
         # To construct new dictionary
-        derspos=[findfirst([j for j in values(v.dict)],i) for i in is]
+        derspos=[findfirst(x->x==i,[j for j in values(v.dict)]) for i in is]
         ders=[getindex([i for i in keys(v.dict)],dp) for dp in derspos]
         #
         newvec=[v.vec[i]::QFunc{T} for i in is]

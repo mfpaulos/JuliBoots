@@ -123,8 +123,7 @@ function loadTable(file::String; label="Vanilla N=0")
         end
 
         #the hack a[i,:][1:end] picks out column i. Couldn't figure out better way to do it
-        # I'm assuming all poles are degree 1. But this can (and will) be changed in the future.
-
+        
 		
         for i=1:plen
             polearray=Array{Pole{BigFloat}}(undef,0)
@@ -137,12 +136,7 @@ function loadTable(file::String; label="Vanilla N=0")
     end
     #return table
     tab=CBDerTable_Q(table,BigFloat(NaN),eps,binprec,nmax,mmax,Lmax,oddL,cb.orderedkeys(dict))
-    #PYTHON STUFF - TEMPORARY
-     #for (i,cbb) in enumerate(tab.table)
-     #       for k=1:length(cbb)
-     #               cbb.vec[k].poly=qfunc.shift_arg(cbb.vec[k].poly,-BigFloat(2*0.00001+(i-1)))
-     #       end
-    #end
+
     return tab
 end
 

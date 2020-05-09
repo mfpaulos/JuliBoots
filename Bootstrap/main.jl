@@ -320,7 +320,7 @@ function setupLP(tab::table.Table,sigma::BigFloat, vectortypes;file="N/A",ders="
 
 		
 		
-        trgt=-value(lpVectorFuncs[1],bf(0))   # the target: identity vector. We add an extra bit because the identity vector has a bunch of zeros otherwise.
+        trgt=-value(lpVectorFuncs[1],bf(0))   # the target: identity vector.
                                                 
         dim=convert(Float64,2*eps+2)
         prob=LP.initLP(lpVectorFuncs,trgt,"Basic Bound\nD = $dim\tsigma=$(convert(Float64,sigma))\t(m,n) = $((tab.mmax,tab.nmax))\tLmax = $(tab.Lmax)\tOdd spins: $(tab.OddL)",extra=(file,mcopy(sigma),ders,vectortypes))
@@ -539,7 +539,7 @@ function avgSpec(lp::LP.LinearProgram;cutoff=1e-6)
 
     distinct_Ls=[Ls[1]]
     for i=2:length(Ls)
-        if findfirst(distinct_Ls,Ls[i])>0 continue end
+        if findfirst(x->x==Ls[i],distinct_Ls)!=nothing continue end
         push!(distinct_Ls,Ls[i])
     end
     Ls_pos=[findall(x->x==l,Ls) for l in distinct_Ls]
@@ -547,13 +547,13 @@ function avgSpec(lp::LP.LinearProgram;cutoff=1e-6)
 	# Need to average
 
 	i=1;
-	avDs=Array(BigFloat,0)
-	avCs=Array(BigFloat,0)
-	doubled=Array(Int64,0)
-	labels=Array(LP.LabelF,0)
+	avDs=Array{BigFloat}(undef,0)
+	avCs=Array{BigFloat}(undef,0)
+	doubled=Array{Int64}(undef,0)
+	labels=Array{LP.LabelF}(undef,0)
 	
     Ranges=Dict(lpf.label => lpf.range for lpf in lp.lpFunctions)
-    fixed=Array(Int,0);
+    fixed=Array{Int}(undef,0);
 	continuous_labels=[lpf.label for lpf in lp.lpFunctions];
 	ct=1;
     
@@ -572,7 +572,7 @@ function avgSpec(lp::LP.LinearProgram;cutoff=1e-6)
 		    ope=Cs_L[i]
 		    push!(labels,L)
 			#added 4/10/2017 to allow for `
-			if findfirst(continuous_labels,L)==0
+			if findfirst(x->x==L,continuous_labels)==nothing
 				push!(avDs,dim);
 			    push!(avCs,ope);
 				push!(fixed,ct)

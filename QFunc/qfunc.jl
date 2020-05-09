@@ -681,7 +681,7 @@ function derivative(p::Power{T},i::Int64)  where {T<:Real}
 	end
 end
 
-
+mcopy(p::Power{BigFloat})=Power(mcopy(p.base),mcopy(p.coeff))
 
 
 end
