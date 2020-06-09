@@ -163,7 +163,7 @@ function *(pp::Polynomial, qq::Polynomial)
 
         #divide and conquer algorithm
         n=length(p)
-        m=iceil(n/2)
+        m=cld(n,2)
 
 
         if n==1 return Polynomial([p[1]*q[1]]) end
@@ -393,8 +393,8 @@ promote_rule(::Type{Pole{T}},::Type{S}) where {T<:Real,S<:Real}= QFunc{promote_t
 promote_rule(::Type{QFunc{T}},::Type{S})  where {T<:Real,S<:Real}= QFunc{promote_type(T,S)}
 
 
-convert(::Type{QFunc{T}},x::Polynomial{T}) where {T<:Real}=QFunc(x,Array(Pole{T},0))
-convert(::Type{QFunc},x::Polynomial{T}) where {T<:Real}=QFunc(x,Array(Pole{T},0))
+convert(::Type{QFunc{T}},x::Polynomial{T}) where {T<:Real}=QFunc(x,Array{Pole{T}}(undef,0))
+convert(::Type{QFunc},x::Polynomial{T}) where {T<:Real}=QFunc(x,Array{Pole{T}}(undef,0))
 convert(::Type{QFunc{T}},x::Pole{T}) where {T<:Real}=QFunc(Polynomial([zero(x.coeff)]),[x::Pole])
 convert(::Type{QFunc},x::Pole{T}) where {T<:Real} =QFunc(Polynomial([zero(x.coeff)]),[x::Pole])
 convert(::Type{Polynomial{S}},x::T) where {T<:Real,S<:Real} = Polynomial([x])
@@ -682,6 +682,24 @@ function derivative(p::Power{T},i::Int64)  where {T<:Real}
 end
 
 mcopy(p::Power{BigFloat})=Power(mcopy(p.base),mcopy(p.coeff))
+
+-(a::Power)=-1*a
+-(a::Power,b::Power)=a+(-1)*b
+#*(a::Qpiece,b::Qpiece)=*(promote(a,b)...)
+
+#+(a::Array{QFunc{T},1},b::Array{QFunc{T},1})  where {T<:Real}=[(a[i]+b[i])::QFunc{T} for i=1:length(a)]
+#-(a::Array{QFunc{T},1},b::Array{QFunc{T},1}) where {T<:Real}=[(a[i]-b[i])::QFunc{T} for i=1:length(a)]
+
+*(x::Real,p::Power{T}) where {T<:Real}=Power(p.base,x*p.coeff)
+*(p::Power{T},x::Real) where {T<:Real}=x*p
+*(x::Real,a::Array{Power{T},1}) where {T<:Real}=a*x
+*(a::Array{Power{T},1},x::Real) where {T<:Real}=[(x*qf)::QFunc{T} for qf in a]
+
+
+#*(x::Array{T,1},a::Array{QFunc{S},1}) where {T<:Real,S<:Real}=[(a[i]*x[i])::QFunc{S} for i=1:length(a)]
+#*(a::Array{QFunc{S},1},x::Array{T,1}) where {T<:Real,S<:Real}=x*a
+
+
 
 
 end
