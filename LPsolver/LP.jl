@@ -559,7 +559,9 @@ function iterate!(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", method="mc
         stopiters=0
         starttime=time()
         if !quiet println("Started at: $(strtime(time()))\t\t Initial Cost: $(convert(Float64,cost(lp)))") end
-
+		
+		emptycol=[BigFloat(0) for i=1:length(lp.coeffs)] #use as a buffer
+		
         for i=1:n
 			i%log_iters==0 ? log=open(log_file,"w") : log=open(log_file,"a")		
             t0=time()
@@ -680,7 +682,35 @@ function iterate!(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", method="mc
             end	
 			
 			
-			
+			if method=="steepedge"                #in this case simplex uses the vector with smallest minimum reduced cost
+					t=@elapsed nb_rc=findAllRC(lp,minMethod=minMethod)     #this is a list of LPVectors and associated reduced costs
+					write(log,"$i - $(strtime(time())) - mrc done in $t\n")
+					
+					
+					#norms of vectors written in current basis
+					norms=Array{T}(undef,0)
+					for nbrc in nb_rc
+						dot(emptycol,lp.invA,nbrc[1].vector)
+						push!(norms,norm(emptycol))
+					end
+					allrcnorm=[nb_rc[i][2]/norms[i] for i=1:length(nb_rc)]       #all reduced costs: one per vector, and a set of local minima for each lpFunction
+					
+					
+					(mrc,posmin)=findmin(allrcnorm)
+					if mrc>=zero(mrc)
+						if !quiet println("Min cost achieved"); lp.status="Minimized" end
+						break
+					end
+                  nb=nb_rc[posmin][1]
+	
+                  #---- Swapping ---------------
+                  t=@elapsed minx, bvar=findBVar(lp,nb)
+                  swapped=lp.solVecs[bvar].label
+                  write(log,"$i - $(strtime(time())) - BVar done in $t\n")
+                  t=@elapsed swapBNB!(lp,nb,bvar)
+                  write(log,"$i - $(strtime(time())) - Swapping done in $t \n")
+                  #-----------------------------
+            end
 
 
             #updateInverse
