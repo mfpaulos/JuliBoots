@@ -25,6 +25,7 @@ export LinearProgram, iterate!,cost,updateFunctional!,
 		LPsave
 export findMRC
 export findBVar
+export mcopy # Julia REPL didn't recognize LP.mcopy without this line
 
 
 #export LPFunction, LPVector, LPVectorFunction
@@ -178,7 +179,7 @@ end
 
 
 #---- Various
- 	
+
 derivative(lv::LPVectorFunction,i::Int64)=LPVectorFunction(lv.range,derivative(lv.vecfunc,i),lv.cost,lv.label)
 
 getindex(lpa::Array{LPVectorFunction{T},1},label::String) where {T<:Real}=(lpa[findall(x->x.label==label,lpa)[1]])
@@ -258,7 +259,7 @@ function updateFunctional!(lp::LinearProgram{T}) where {T<:Real}
         dot(lp.functional,costvec,lp.invA)
 end
 
-updateCoeffs!(lp::LinearProgram{T}) where {T<:Real}=dot(lp.coeffs,lp.invA,lp.target) 
+updateCoeffs!(lp::LinearProgram{T}) where {T<:Real}=dot(lp.coeffs,lp.invA,lp.target)
 
 
 updateInverse!(lp::LinearProgram)=(lp.invA=LPInverse(lp.invA,getA(lp)); return)
@@ -285,7 +286,7 @@ function findAllRC(lp::LinearProgram{T}; minMethod="bbLocal") where {T<:Real}  #
 			if VERBOSE println("In findAllRC: findMRC took $t1\n") end
             for min in tmp push!(mrcs,min) end    #populates mrcs with the minima (which take the form (LPVector, mrc) )
 			htime+=t1
-            
+
         end
         if VERBOSE println("Vec Funcs findMRC total time: $(htime)") end
 
@@ -321,13 +322,13 @@ function findMRC(lpf::LPVectorFunction{T},functional::Array{T,1}; minMethod ="bb
        stfindmrc=time()
 
        t1=@elapsed dottedfunc=dot(functional, lpf.vecfunc);    #there have to be preexistent ways to dot; these are effectively loaded at LPlinks
-                                                   #dottedfunc will have struct Func            
+                                                   #dottedfunc will have struct Func
 
        t2=@elapsed minima=LPFindMinimum(lpf.range,dottedfunc,lpf.cost, minMethod=minMethod) #finds global or local minima over the range lpf.range.
                                                                      #LPFindMinimum function is defined at LPLinks
                                                                      #dottedfunc and cost are sent separately since they have different
                                                                   #structs.
-	   
+
 	   negative_minima=minima[findall(x->x[2]<0,minima)] #only keep negative mrcs
        t3=@elapsed output=[(LPVector(lpf,x)::LPVector{T},mrc::T) for (x,mrc) in negative_minima]
 
@@ -433,12 +434,12 @@ function find_swap(lpf::LPVectorFunction{T},functional::Array{T,1},invA::Inverse
 		nb_rc=findMRC(lpf,functional,minMethod=minMethod)
 		allrc=[nb_rc[i][2] for i=1:length(nb_rc)]
 		pos_neg=findall(x->x<0,allrc)
-		
+
 		neg_nb_rc=nb_rc[findall(x->x<0,allrc)]
 		neg_nb=[x[1]::LPVector{T} for x in neg_nb_rc]     #all the LPVector candidates
-    
-		minx_bvar=findBVar(invA,coeffs,neg_nb)	
-			
+
+		minx_bvar=findBVar(invA,coeffs,neg_nb)
+
 		#return: minx, bvar,vector,reduced cost
 		return [(minx_bvar[i][1],minx_bvar[i][2],neg_nb_rc[i][1],neg_nb_rc[i][2]) for i=1:length(neg_nb_rc)]
 end
@@ -446,15 +447,15 @@ end
 # This function assumes that at least part of the lp is known for each worker if initWorkers is false.
 
 function find_swaps(lp::LinearProgram{T};minMethod="bbLocal",initWorkers=false,useWorkers="all") where {T<:Real}
-	
+
 	func=lp.functional
 	invA=lp.invA
 	lpfs=lp.lpFunctions
 	lpvs=lp.lpVectors
 	coeffs=lp.coeffs
-	
+
 	if useWorkers=="all" whichWorkers=workers() else whichWorkers=useWorkers end
-	
+
 	if initWorkers
 		for i in whichWorkers
 			sendto(i,lpfs=lpfs,lpvs=lp.lpVectors)
@@ -465,18 +466,18 @@ function find_swaps(lp::LinearProgram{T};minMethod="bbLocal",initWorkers=false,u
 		t+=@elapsed sendto(i,func=func,invA=invA,coeffs=coeffs)
 	end
 	#println(t)
-	
+
 	#otherwise, all workers should already have lpfs, func and invA (with these exact names) defined locally.
-	
-	#Create some containers for the results, namely triplets of minx,bvar,and 
-		
+
+	#Create some containers for the results, namely triplets of minx,bvar,and
+
 	#getfrom(1,:func)
-	
+
 	for p in whichWorkers
 			doat(p,:(res_lpf=Tuple{$T,Int64,LP.LPVector{$T},$T}[]))
 			doat(p,:(res_lpv=Tuple{$T,Int64,LP.LPVector{$T},$T}[]))
 	end
-	
+
 	# Go through lpfunctions
     i = 1
 	n=length(lpfs)
@@ -499,10 +500,10 @@ function find_swaps(lp::LinearProgram{T};minMethod="bbLocal",initWorkers=false,u
             #end
         end
     end
-	
-			
+
+
 	# Go through lpvectors (unfinished)
-    
+
 	i = 1
 	n=length(lpvs)
     @sync begin
@@ -513,17 +514,17 @@ function find_swaps(lp::LinearProgram{T};minMethod="bbLocal",initWorkers=false,u
                         idx = nextidx()
                         if idx > n
                             break
-                        end 
+                        end
 						cmd=:(res=LP.find_swap(lpvs[$idx],func,invA,coeffs,minMethod=$minMethod); res_lpv=[res_lpv;res]);
-						doat(p,cmd)					
+						doat(p,cmd)
                     end
                 end
            # end
         end
 	end
-    
+
 	#collect results
-	
+
 	mm=whichWorkers[1]
 	res_lpf=getfrom(mm,:res_lpf)
 	res_lpv=getfrom(mm,:res_lpv)
@@ -531,7 +532,7 @@ function find_swaps(lp::LinearProgram{T};minMethod="bbLocal",initWorkers=false,u
 		res_lpf=[res_lpf;getfrom(p,:res_lpf)]
 		res_lpv=[res_lpv;getfrom(p,:res_lpv)]
 	end
-	
+
 	return total_res=[res_lpf;res_lpv]
 end
 
@@ -553,35 +554,35 @@ function iterate!(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", method="mc
 
 
         #Initializations
-        log=open(log_file,"w")		
+        log=open(log_file,"w")
 		close(log)
         tmp=BigFloat(0)         #temporary variable
         stopiters=0
         starttime=time()
         if !quiet println("Started at: $(strtime(time()))\t\t Initial Cost: $(convert(Float64,cost(lp)))") end
-		
+
 		emptycol=[BigFloat(0) for i=1:length(lp.coeffs)] #use as a buffer
-		
+
         for i=1:n
-			i%log_iters==0 ? log=open(log_file,"w") : log=open(log_file,"a")		
+			i%log_iters==0 ? log=open(log_file,"w") : log=open(log_file,"a")
             t0=time()
-            currentcost=cost(lp)            
+            currentcost=cost(lp)
             write(log,"$i - $(strtime(time())) - Iteration: $i\n")
             write(log,"$i - $(strtime(time())) - Current cost: $(currentcost)\n")
             if i%100==0 && !quiet println("Iteration $i\nCurrent cost: $(convert(Float64,currentcost))\t\t Elapsed: $(time()-starttime)") end
-			
+
 			if i%bak_iters==0 && bak_file!="NoBak"
 				LPsave(bak_file,lp)
 			end
 
             #---- Find a vector to bring in -------
 
-            
+
             if method=="mrc"                #in this case simplex uses the vector with smallest minimum reduced cost
 					t=@elapsed nb_rc=findAllRC(lp,minMethod=minMethod)     #this is a list of LPVectors and associated reduced costs
 					write(log,"$i - $(strtime(time())) - mrc done in $t\n")
 					allrc=[nb_rc[i][2] for i=1:length(nb_rc)]       #all reduced costs: one per vector, and a set of local minima for each lpFunction
-					
+
 					(mrc,posmin)=findmin(allrc)
 					if mrc>=zero(mrc)
 						if !quiet println("Min cost achieved"); lp.status="Minimized" end
@@ -601,7 +602,7 @@ function iterate!(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", method="mc
             if method=="mcv"       # maximum cost variation: simplex brings in the vector leading to the greatest cost decrease
                 t=@elapsed nb_rc=findAllRC(lp,minMethod=minMethod)     #this is a list of LPVectors and associated reduced costs
 				write(log,"$i - $(strtime(time())) - mrc done in $t\n")
-				allrc=[nb_rc[i][2] for i=1:length(nb_rc)]       #all reduced costs: one per vector, and a set of local minima for each lpFunction			  
+				allrc=[nb_rc[i][2] for i=1:length(nb_rc)]       #all reduced costs: one per vector, and a set of local minima for each lpFunction
 				allnb=[nb_rc[i][1]::LPVector{T} for i=1:length(nb_rc)]     #all the LPVector candidates
                 write(log,"$i - $(strtime(time())) - Candidate minima: $(length(allnb))\n")
 				#only check those vectors whose reduced costs are negative
@@ -612,7 +613,7 @@ function iterate!(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", method="mc
 				minx_bvar=findBVar(lp,negnb)
 				write(log,"$i - $(strtime(time())) - Finished findBVar\n")
 
-                
+
                 costvars=[minx_bvar[i][1]*negrc[i] for i=1:length(minx_bvar)] # all cost variations
 				write(log,"$i - $(strtime(time())) - Finished costvars\n")
 				if length(costvars)==0
@@ -625,7 +626,7 @@ function iterate!(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", method="mc
                 if costvar==-typemax(BigFloat) println("Problem unbounded"); lp.status="Unbounded"; break end
                 nb=negnb[pos]
                 mrc=negrc[pos]
-				if mrc>=zero(mrc) 
+				if mrc>=zero(mrc)
 				  	if !quiet println("Min cost achieved") end
 					lp.status="Minimized"
 				break
@@ -635,7 +636,7 @@ function iterate!(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", method="mc
                 swapped=lp.solVecs[bvar].label
 				write(log,"$i - $(strtime(time())) - Finished mcopy.\n")
                 t=@elapsed swapBNB!(lp,nb,bvar)
-                write(log,"$i - $(strtime(time())) - Swapping done in $t \n")                  
+                write(log,"$i - $(strtime(time())) - Swapping done in $t \n")
             end
 			
 			 if method=="mcv2"       # maximum cost variation: simplex brings in the vector leading to the greatest cost decrease. it keeps track of all minima, it will 
@@ -684,18 +685,18 @@ function iterate!(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", method="mc
 				#nb_rc=findAllRC(lp,minMethod=minMethod)     #this is a list of LPVectors and associated reduced costs
 				#allrc=[nb_rc[i][2] for i=1:length(nb_rc)]       #all reduced costs
 				#allnb=[nb_rc[i][1]::LPVector{T} for i=1:length(nb_rc)]     #all the LPVector candidates
-    
-				
+
+
 				#pos_neg=findall(x->x<0,allrc)
 				#negnb=allnb[findall(x->x<0,allrc)]
 				#negrc=allrc[pos_neg]
-	
+
 				#minx_bvar=findBVar(lp,negnb)
 				#### THIS IS REPLACED BY find_swaps
-				
+
 				minxs,bvars,negnb,negrc=find_swaps(lp,minMethod=minMethod)           #Find minx, bvar, and negative reduced costs for all lpFunctions and lpVectors
 				####
-                
+
                 costvars=[minx[i]*negrc[i] for i=1:length(minx)] # all cost variations
 				write(log,"$i - $(strtime(time())) - Finished costvars\n")
 				if length(costvars)==0
@@ -703,13 +704,13 @@ function iterate!(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", method="mc
 					lp.status="Minimized"
 					break
 				end
-				
+
                 (costvar,pos)=findmin(costvars)
 				write(log,"$i - $(strtime(time())) - Finished findmin costvars\n")
                 if costvar==-typemax(BigFloat) println("Problem unbounded"); lp.status="Unbounded"; break end
                 nb=negnb[pos]
                 mrc=negrc[pos]
-				if mrc>=zero(mrc) 
+				if mrc>=zero(mrc)
 				  	if !quiet println("Min cost achieved") end
 					lp.status="Minimized"
 				break
@@ -719,6 +720,13 @@ function iterate!(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", method="mc
                 swapped=lp.solVecs[bvar].label
 				write(log,"$i - $(strtime(time())) - Finished mcopy.\n")
                 t=@elapsed swapBNB!(lp,nb,bvar)
+
+                write(log,"$i - $(strtime(time())) - Swapping done in $t \n")
+            end
+
+
+			if method=="steepedge"                #in this case simplex uses the vector with smallest minimum reduced cost
+
                 write(log,"$i - $(strtime(time())) - Swapping done in $t \n")                  
             end	
 			
@@ -726,8 +734,8 @@ function iterate!(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", method="mc
 			if method=="steepedge"                
 					t=@elapsed nb_rc=findAllRC(lp,minMethod=minMethod)     #this is a list of LPVectors and associated reduced costs
 					write(log,"$i - $(strtime(time())) - mrc done in $t\n")
-					
-					
+
+
 					#norms of vectors written in current basis
 					norms=Array{T}(undef,0)
 					for nbrc in nb_rc
@@ -735,15 +743,15 @@ function iterate!(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", method="mc
 						push!(norms,norm(emptycol))
 					end
 					allrcnorm=[nb_rc[i][2]/norms[i] for i=1:length(nb_rc)]       #all reduced costs: one per vector, and a set of local minima for each lpFunction
-					
-					
+
+
 					(mrc,posmin)=findmin(allrcnorm)
 					if mrc>=zero(mrc)
 						if !quiet println("Min cost achieved"); lp.status="Minimized" end
 						break
 					end
                   nb=nb_rc[posmin][1]
-	
+
                   #---- Swapping ---------------
                   t=@elapsed minx, bvar=findBVar(lp,nb)
                   swapped=lp.solVecs[bvar].label
@@ -862,16 +870,16 @@ function iterate!(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", method="mc
 
 
             if abs(cc-currentcost)/maximum([abs(currentcost),FUDGE])<= LP_STOPGOAL stopiters+=1 else stopiters=0 end
-            if stopiters== LP_STOPITERS 
+            if stopiters== LP_STOPITERS
 				if !quiet println("Relative cost variation too slow -- Not improving any more."); lp.status="SlowVar" end
 				break
 			end
             if cc>currentcost println("Cost increased at iteration $i") end
 			close(log)
         end
-		
+
 		if isopen(log) close(log) end
-        
+
         #println(cost(lp))
         return lp
 end
@@ -902,7 +910,7 @@ function initLP(lpf::Array{LPVectorFunction{T},1},t::Array{T,1},description::Str
         coeffs=[BigFloat(0) for i=1:n]
 
         res=LinearProgram(lpf,
-                        solVecs,                     
+                        solVecs,
                         t,
                         mcopy(solVecs),
                         [zero(T) for k=1:n],
@@ -914,7 +922,7 @@ function initLP(lpf::Array{LPVectorFunction{T},1},t::Array{T,1},description::Str
                         )
 
         updateFunctional!(res)
-        updateCoeffs!(res)        
+        updateCoeffs!(res)
         return res
 end
 
@@ -1030,21 +1038,3 @@ function plotFunctional(lp::LinearProgram,i::Int64;nrpoints=100,range=(NaN,NaN),
 end
 
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

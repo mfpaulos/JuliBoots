@@ -201,7 +201,7 @@ end
 
 function getindex(v::ConvVec_Q,i::Int64)
 
-        derpos=findfirst([j for j in values(v.dict)],i)
+        derpos=findfirst(x->x==i,[j for j in values(v.dict)]) #corrected MethodError: no method matching findfirst(::Array{Int64,1}, ::Int64) by copying syntax from getindex(CBVec_Q,Int64) method
         der=getindex([i for i in keys(v.dict)],derpos)
         label=(der[1],der[2],v.label)
         Conv_Q(mcopy(v.rho),mcopy(v.sigma),mcopy(v.vec[i]),v.spin,label)
@@ -222,7 +222,7 @@ function getindex(v::CBVec_Q,i::Int64)
 
         derpos=findfirst(x->x==i,[j for j in values(v.dict)])
         der=getindex([i for i in keys(v.dict)],derpos)
-        label=(der[1],der[2],v.label)        
+        label=(der[1],der[2],v.label)
         CB_Q(mcopy(v.rho),mcopy(v.vec[i]),v.spin,label)
 end
 
@@ -392,10 +392,10 @@ function u_convCoeffs_ds(sigma::Real,tup::Tuple{Int64,Int64}) #gives a dictionar
 		# Changed normalization, dividing by 4^(-d)
 		return Dict( (k,l)=> 1/(bf(2)^(k+2*l))*(-1)^(m-k)*binomial(n,n-l)*binomial(m,m-k)*pochhammer(-2d+2*(n-l),m-k)*pochhammer(-d, n-l)*
 		(digamma(-d)+2*digamma(-2d-2l+2n)-digamma(-d-l+n)-2*digamma(-2d-k-2l+m+2n)) for k=0:m, l=0:n)
-		end		
-		
-		
-		
+		end
+
+
+
 
 convBlockAS(sigma::Real,cbvec::CBVec_Q)=convBlock(sigma,cbvec,-1)
 convBlockS(sigma::Real,cbvec::CBVec_Q)=convBlock(sigma,cbvec,1)
@@ -425,7 +425,7 @@ function convBlock(sigma::T,cbvec::CBVec_Q{T},sign::Int64;delsigma=false) where 
                 if m%2==0 && sign==-1 continue end #skip even m, since they lead to zeros for components
                 if m%2==1 && sign==1 continue end #skip odd m, since they lead to zeros for components
 
-                push!(convblock.dict,(m,n),ct); ct+=1
+                push!(convblock.dict,(m,n)=>ct); ct+=1 #ERROR corrected: replaced , by =>
 
                 vCoeffs=vCoeffs= !delsigma ? v_convCoeffs(sigma,(m,n)) : v_convCoeffs_ds(sigma,(m,n))
                 comps=[(k,l) for k=0:m, l=0:n]
@@ -482,10 +482,10 @@ function convTable(sigma::BigFloat,tab::Array{CBVec_Q{BigFloat},1},sign::Int64;d
                     cbvec=tab[i]
                     tmp=mcopy(cbvec[1]) #to hold temporary results
                     for (k,der) in enumerate(comps)
-                        getindex(tmp,cbvec,der) #get component der from cbvec, place it in tmp                        
+                        getindex(tmp,cbvec,der) #get component der from cbvec, place it in tmp
                         mmult(tmp,2*vCoeffs[der])
                         if k==1
-                            push!(convtab[i].vec,mcopy(tmp.func))                            
+                            push!(convtab[i].vec,mcopy(tmp.func))
                         else
                             mplus(convtab[i].vec[end],tmp.func)
                         end

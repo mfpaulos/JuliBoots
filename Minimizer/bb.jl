@@ -85,13 +85,13 @@ function divide!(bb::BBproblem{T}) where {T<:Real}
        ct=0
        htime=0.
        t0=time()
-       
+
        while length(bb.badList)!=0 && ct<=5000
-                i=splice!(bb.badList,endof(bb.badList)) #last interval on the list
+                i=splice!(bb.badList,lastindex(bb.badList)) #last interval on the list ---> corrected ERROR: endof replaced by lastindex in julia 1.4.2
 
                 xl=i.xL; xr=i.xR;
                 dx=xr-xl
-				
+
                 (dfL,d2fL,d3fL)=(i.dfL,i.d2fL,i.d3fL)
                 (dfR,d2fR,d3fR)=(i.dfR,i.d2fR,i.d3fR)
 
@@ -99,7 +99,7 @@ function divide!(bb::BBproblem{T}) where {T<:Real}
 				taylor_dfL=dfL+dx*d2fL/2+1/8*dx*dx*d3fL
                 taylor_dfR=dfR-dx*d2fR/2+1/8*dx*dx*d3fR
 
-                               
+
                 xc=1/2*(xl+xr)
 
                 htime+= @elapsed (dfC,d2fC,d3fC)=(bb.mf.df(xc),bb.mf.d2f(xc),bb.mf.d3f(xc))
@@ -130,11 +130,11 @@ function divide!(bb::BBproblem{T}) where {T<:Real}
                        #     end
                 end
 
-                if val                        
+                if val
                        push!(bb.goodList,GoodInterval(xl,xr,labelInt(dfL,dfR)))
                 else
 
-                        # update lists                                               
+                        # update lists
                         newint1=Interval(xl,xc,"Bad",dfL,dfC,d2fL,d2fC,d3fL,d3fC); # recall that i is the last interval on the bad list
                         newint2=Interval(xc,xr,"Bad",dfC,dfR,d2fC,d2fR,d3fC,d3fR);
                         push!(bb.badList,newint1);
@@ -227,11 +227,11 @@ function divide!(bb::BBproblem{BigFloat})
                        #     end
                 end
 
-                if val                        
+                if val
                        push!(bb.goodList,GoodInterval(xl,xr,labelInt(dfL,dfR)))
                 else
 
-                        # update lists                                               
+                        # update lists
                         newint1=Interval(xl,xc,"Bad",dfL,dfC,d2fL,d2fC,d3fL,d3fC); # recall that i is the last interval on the bad list
                         newint2=Interval(xc,xr,"Bad",dfC,dfR,d2fC,d2fR,d3fC,d3fR);
                         push!(bb.badList,newint1);
@@ -261,7 +261,7 @@ end
 # In practice, T is Float64
 function Newton(mf::MinFunction{T},xl::T,xr::T;verbose=false) where {T<:Real}
 
-        
+
         x0=1/2*(xl+xr)  #initial guess
         diff=zero(T)
         df0=mf.df(x0)
@@ -270,20 +270,20 @@ function Newton(mf::MinFunction{T},xl::T,xr::T;verbose=false) where {T<:Real}
         iter=0
 
         tmp=mf.d2f(x0)^2-2*mf.df(x0)*mf.d3f(x0)
-        
+
         if tmp <0
             #println("domain error Newton") #DEBUG
             #diff=BigFloat(0)
         else
-            diff=-(sqrt(tmp)-mf.d2f(x0))/mf.d3f(x0)            
+            diff=-(sqrt(tmp)-mf.d2f(x0))/mf.d3f(x0)
         end
-		
+
         goal=max(BB_NEWTON_GOAL,1e-12) #HACK! No use going beyond machine precision
 		while abs(diff)>goal && iter<=BB_ITERMAX
-		
+
                 iter+=1
                 xnew=x-diff
-                
+
 
                 if xl<xnew && xnew<xr
                     x=xnew;
@@ -295,7 +295,7 @@ function Newton(mf::MinFunction{T},xl::T,xr::T;verbose=false) where {T<:Real}
                     end
                     x=1/2*(xl+xr)
                 end
-                diff=mf.df(x)/mf.d2f(x)				
+                diff=mf.df(x)/mf.d2f(x)
         end
         if iter>=BB_ITERMAX && verbose println("Newton saturated") end
 
@@ -407,5 +407,3 @@ include("bblinks.jl")
 
 
 end
-
-
