@@ -638,6 +638,47 @@ function iterate!(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", method="mc
                 write(log,"$i - $(strtime(time())) - Swapping done in $t \n")                  
             end
 			
+			 if method=="mcv2"       # maximum cost variation: simplex brings in the vector leading to the greatest cost decrease. it keeps track of all minima, it will 
+                t=@elapsed nb_rc=findAllRC(lp,minMethod=minMethod)     #this is a list of LPVectors and associated reduced costs
+				write(log,"$i - $(strtime(time())) - mrc done in $t\n")
+				allrc=[nb_rc[i][2] for i=1:length(nb_rc)]       #all reduced costs: one per vector, and a set of local minima for each lpFunction			  
+				allnb=[nb_rc[i][1]::LPVector{T} for i=1:length(nb_rc)]     #all the LPVector candidates
+                write(log,"$i - $(strtime(time())) - Candidate minima: $(length(allnb))\n")
+				#only check those vectors whose reduced costs are negative
+				pos_neg=findall(x->x<0,allrc)
+				negnb=allnb[findall(x->x<0,allrc)]
+				negrc=allrc[pos_neg]
+				write(log,"$i - $(strtime(time())) - Negative minima: $(length(negrc))\n")
+				minx_bvar=findBVar(lp,negnb)
+				write(log,"$i - $(strtime(time())) - Finished findBVar\n")
+
+                
+                costvars=[minx_bvar[i][1]*negrc[i] for i=1:length(minx_bvar)] # all cost variations
+				write(log,"$i - $(strtime(time())) - Finished costvars\n")
+				if length(costvars)==0
+					if !quiet println("Min cost achieved") end
+					lp.status="Minimized"
+					break
+				end
+                (costvar,pos)=findmin(costvars)
+				write(log,"$i - $(strtime(time())) - Finished findmin costvars\n")
+                if costvar==-typemax(BigFloat) println("Problem unbounded"); lp.status="Unbounded"; break end
+                nb=negnb[pos]
+                mrc=negrc[pos]
+				if mrc>=zero(mrc) 
+				  	if !quiet println("Min cost achieved") end
+					lp.status="Minimized"
+				break
+				end
+                minx=minx_bvar[pos][1]
+                bvar=minx_bvar[pos][2]
+                swapped=lp.solVecs[bvar].label
+				write(log,"$i - $(strtime(time())) - Finished mcopy.\n")
+                t=@elapsed swapBNB!(lp,nb,bvar)
+                write(log,"$i - $(strtime(time())) - Swapping done in $t \n")                  
+            end
+			
+			
 			if method=="mcvParallel"       # Same as mcv, but suitable for parallelization - TESTING
 				###	THIS IS REPLACED find_swaps
 				#nb_rc=findAllRC(lp,minMethod=minMethod)     #this is a list of LPVectors and associated reduced costs
@@ -682,7 +723,7 @@ function iterate!(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", method="mc
             end	
 			
 			
-			if method=="steepedge"                #in this case simplex uses the vector with smallest minimum reduced cost
+			if method=="steepedge"                
 					t=@elapsed nb_rc=findAllRC(lp,minMethod=minMethod)     #this is a list of LPVectors and associated reduced costs
 					write(log,"$i - $(strtime(time())) - mrc done in $t\n")
 					
@@ -711,8 +752,93 @@ function iterate!(lp::LinearProgram{T},n::Int64; minMethod="bbLocal", method="mc
                   write(log,"$i - $(strtime(time())) - Swapping done in $t \n")
                   #-----------------------------
             end
+			
+			#TRIAL
+			if method=="steepedge2"               
+					t=@elapsed nb_rc=findAllRC(lp,minMethod=minMethod)     #this is a list of LPVectors and associated reduced costs
+					write(log,"$i - $(strtime(time())) - mrc done in $t\n")
+					
+					
+					#norms of vectors written in current basis
+					norms=Array{T}(undef,0)
+					#normfunc=norm(lp.functional)
+					for nbrc in nb_rc
+						#dot(emptycol,lp.invA,nbrc[1].vector)
+						push!(norms,norm(nbrc[1].vector))
+					end
+					allrcnorm=[nb_rc[i][2]/norms[i] for i=1:length(nb_rc)]       #all reduced costs: one per vector, and a set of local minima for each lpFunction
+					
+					
+					(mrc,posmin)=findmin(allrcnorm)
+					if mrc>=zero(mrc)
+						if !quiet println("Min cost achieved"); lp.status="Minimized" end
+						break
+					end
+                  nb=nb_rc[posmin][1]
+	
+                  #---- Swapping ---------------
+                  t=@elapsed minx, bvar=findBVar(lp,nb)
+                  swapped=lp.solVecs[bvar].label
+                  write(log,"$i - $(strtime(time())) - BVar done in $t\n")
+                  t=@elapsed swapBNB!(lp,nb,bvar)
+                  write(log,"$i - $(strtime(time())) - Swapping done in $t \n")
+                  #-----------------------------
+            end
 
 
+			
+			
+			if method=="steepedge3"       
+                t=@elapsed nb_rc=findAllRC(lp,minMethod=minMethod)     #this is a list of LPVectors and associated reduced costs
+				write(log,"$i - $(strtime(time())) - mrc done in $t\n")
+				allrc=[nb_rc[i][2] for i=1:length(nb_rc)]       #all reduced costs: one per vector, and a set of local minima for each lpFunction
+
+				
+				
+				allnb=[nb_rc[i][1]::LPVector{T} for i=1:length(nb_rc)]     #all the LPVector candidates
+                write(log,"$i - $(strtime(time())) - Candidate minima: $(length(allnb))\n")
+				#only check those vectors whose reduced costs are negative
+				pos_neg=findall(x->x<0,allrc)
+				negnb=allnb[findall(x->x<0,allrc)]
+				negrc=allrc[pos_neg]
+				
+				negnorms=Array{T}(undef,0)
+				for nb in negnb
+						#dot(emptycol,lp.invA,nb.vector)
+						#push!(negnorms,norm(emptycol))
+						push!(negnorms,norm(nb.vector))
+				end
+				
+				write(log,"$i - $(strtime(time())) - Negative minima: $(length(negrc))\n")
+				minx_bvar=findBVar(lp,negnb)
+				write(log,"$i - $(strtime(time())) - Finished findBVar\n")
+
+                
+                costvars=[minx_bvar[i][1]*negrc[i]/negnorms[i] for i=1:length(minx_bvar)] # all cost variations
+				write(log,"$i - $(strtime(time())) - Finished costvars\n")
+				if length(costvars)==0
+					if !quiet println("Min cost achieved") end
+					lp.status="Minimized"
+					break
+				end
+                (costvar,pos)=findmin(costvars)
+				write(log,"$i - $(strtime(time())) - Finished findmin costvars\n")
+                if costvar==-typemax(BigFloat) println("Problem unbounded"); lp.status="Unbounded"; break end
+                nb=negnb[pos]
+                mrc=negrc[pos]
+				if mrc>=zero(mrc) 
+				  	if !quiet println("Min cost achieved") end
+					lp.status="Minimized"
+				break
+				end
+                minx=minx_bvar[pos][1]
+                bvar=minx_bvar[pos][2]
+                swapped=lp.solVecs[bvar].label
+				write(log,"$i - $(strtime(time())) - Finished mcopy.\n")
+                t=@elapsed swapBNB!(lp,nb,bvar)
+                write(log,"$i - $(strtime(time())) - Swapping done in $t \n")                  
+            end
+			
             #updateInverse
             t=@elapsed updateInverse!(lp) #this updates the inverse
             write(log,"$i - $(strtime(time())) - Inverting done in $t \n")
